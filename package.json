@@ -1,0 +1,16 @@
+{
+  "author": "Luis <bls> Lafuente <llafuente@noboxout.com> (http://www.noboxout.com/)",
+  "name": "radamn",
+  "description": "RADAMN: Render asynchronous Damn (good)",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/llafuente/radamn.git"
+  },
+  "main": "radamn.js",
+  "engines": {
+    "node": ">=0.5.9"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
