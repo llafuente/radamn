@@ -38,6 +38,7 @@ namespace Radamn {
         //canvas
         static v8::Handle<v8::Value> translate(const v8::Arguments& args);
         static v8::Handle<v8::Value> rotate(const v8::Arguments& args);
+        static v8::Handle<v8::Value> scale(const v8::Arguments& args);
         static v8::Handle<v8::Value> save(const v8::Arguments& args);
         static v8::Handle<v8::Value> restore(const v8::Arguments& args);
     }

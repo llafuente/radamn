@@ -40,16 +40,15 @@ win.onRequestFrame = function() {
 
  // some draw test
  canvas.drawImage(image, 0, 0);
- canvas.translate( 64, 64);
- canvas.drawImage(image, -45, -45);
- canvas.drawImage(image, 64, 64);
+ canvas.translate( 128, 128);
+
  canvas.rotate(90);
- canvas.drawImage(image, -45, -45);
- canvas.drawImage(image, 64, 64);
- canvas.rotate(90);
- canvas.drawImage(image, -45, -45);
- canvas.drawImage(image, 64, 64);
- canvas.drawImage(image, -45, -45);
+ canvas.drawImage(image, 0, 0);
+
+ canvas.translate( 256, 256);
+ canvas.rotate(-90);
+ canvas.scale(2,2);
+ canvas.drawImage(image, 0, 0);
 
 /*
  canvas.drawImage(image, 128, 128);

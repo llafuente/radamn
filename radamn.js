@@ -779,6 +779,14 @@ Radamn.Canvas = new Class({
             break;
         }
     },
+    /**
+     * @class Canvas
+     * @param {Number} x
+     * @param {Number} y
+     */
+    lineTo: function(x, y) {
+
+    },
     translate: function(x,y, z) {
         z = z || 0;
         y = y || 0;
@@ -789,11 +797,14 @@ Radamn.Canvas = new Class({
     rotate: function(angle) {
         CRadamn.Window.rotate(angle);
     },
+    scale: function(x, y) {
+        CRadamn.Window.scale(x, y);
+    },
     save: function() {
         CRadamn.Window.save();
     },
     restore: function() {
-        CRadamn.Window.save();
+        CRadamn.Window.restore();
     },
     clear: function() {
         CRadamn.Window.clear();

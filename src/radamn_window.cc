@@ -127,6 +127,19 @@ static v8::Handle<v8::Value> Radamn::Window::rotate(const v8::Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
+static v8::Handle<v8::Value> Radamn::Window::scale(const v8::Arguments& args) {
+    V8_ARG_TO_NEWFLOAT(0, x);
+    V8_ARG_TO_NEWFLOAT(1, y);
+
+    glScalef(x, y, 1.0f);
+
+    return v8::True();
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
 static v8::Handle<v8::Value> Radamn::Window::save(const v8::Arguments& args) {
     glPopMatrix();
 

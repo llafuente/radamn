@@ -49,6 +49,7 @@ init(Handle<Object> target)
   NODE_SET_METHOD(Window, "restore",              Radamn::Window::restore);
   NODE_SET_METHOD(Window, "translate",            Radamn::Window::translate);
   NODE_SET_METHOD(Window, "rotate",               Radamn::Window::rotate);
+  NODE_SET_METHOD(Window, "scale",                Radamn::Window::scale);
 
   Local<Object> Image = Object::New();
   target->Set(String::New("Image"), Image);
