@@ -103,7 +103,7 @@ static v8::Handle<v8::Value> Radamn::Image::destroy(const v8::Arguments& args) {
     glDeleteTextures(1, &texture);
 #endif
 
-    return v8::Boolean::New( true );
+    return v8::True();
 }
 
 //
@@ -185,6 +185,7 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
     }
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 // if alpha!
+    glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 //endif
@@ -194,10 +195,11 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
     SDL_RECT_TO_QUAD(t->textureID, srcdest, dstrect)
 
     glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
 std::cout << __LINE__ << std::endl;
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
     return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));
 #endif
 
-    return v8::Boolean::New(true);
+    return v8::True();
 }

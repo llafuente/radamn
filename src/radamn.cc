@@ -50,6 +50,7 @@ init(Handle<Object> target)
   NODE_SET_METHOD(Window, "translate",            Radamn::Window::translate);
   NODE_SET_METHOD(Window, "rotate",               Radamn::Window::rotate);
   NODE_SET_METHOD(Window, "scale",                Radamn::Window::scale);
+  NODE_SET_METHOD(Window, "line",                 Radamn::Window::line);
 
   Local<Object> Image = Object::New();
   target->Set(String::New("Image"), Image);
@@ -256,22 +257,15 @@ static Handle<Value> Radamn::setVideoMode(const Arguments& args) {
         glClearDepth(1.0f);
         glViewport(0, 0, width, height);
 
+        glMatrixMode(GL_TEXTURE);
+        glLoadIdentity ();
+
         glMatrixMode (GL_PROJECTION);
         glLoadIdentity ();
-        //glOrtho (0, width, height, 0, 0, 1);
-        glOrtho (0, width, height, 0, -1, 1);
-        glEnable(GL_TEXTURE_2D);
-/*
-        // flip texture ok ?
-        glMatrixMode(GL_TEXTURE);
-        glRotatef(180.0f,0.0f,0.0f,1.0f);
-        glScalef(-1.0f,1.0f,1.0f);
+        glOrtho (0, width, height, 0, -1, 1); // flip Y
 
-        //back to normal
-*/
         glMatrixMode (GL_MODELVIEW);
         glLoadIdentity ();
-        glEnable(GL_TEXTURE_2D);                        // Enable Texture Mapping ( NEW )
 
 /*
 extra

@@ -139,10 +139,30 @@ static v8::Handle<v8::Value> Radamn::Window::scale(const v8::Arguments& args) {
 //
 // ----------------------------------------------------------------------------------------------------
 //
+/*
+Example 1:
 
+   command                 result
+
+glLoadMatrixf(A)       stack = [A]
+glPushMatrix()         stack = [A, A]
+glLoadMatrixf(B)       stack = [B, A]
+glPopMatrix()          stack = [A]
+
+
+Example 2:
+
+   command                 result
+
+glLoadMatrixf(A)       stack = [A]
+glPushMatrix()         stack = [A, A]
+glMultMatrixf(B)       stack = [AB, A]
+glPopMatrix()          stack = [A]
+*/
 static v8::Handle<v8::Value> Radamn::Window::save(const v8::Arguments& args) {
-    glPopMatrix();
-
+    std::cout << "save" << std::endl;
+    glPushMatrix();
+    std::cout << "saved" << std::endl;
     return v8::True();
 }
 
@@ -151,8 +171,100 @@ static v8::Handle<v8::Value> Radamn::Window::save(const v8::Arguments& args) {
 //
 
 static v8::Handle<v8::Value> Radamn::Window::restore(const v8::Arguments& args) {
-    glPushMatrix();
-
+    std::cout << "restore" << std::endl;
+    glPopMatrix();
+    std::cout << "restored" << std::endl;
     return v8::True();
 }
 
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+static v8::Handle<v8::Value> Radamn::Window::line(const v8::Arguments& args) {
+
+    V8_ARG_TO_NEWFLOAT(0, x);
+    V8_ARG_TO_NEWFLOAT(1, y);
+    V8_ARG_TO_NEWFLOAT(2, width);
+    V8_ARG_TO_SDL_NEWCOLOR(3, color);
+
+    std::cout << "line" << x << "," << y <<
+        " w:" << width <<
+        "color rgb(" << (int)color.r << "," << (int)color.g << "," << (int)color.b << ")"
+        << std::endl;
+
+    //glDisable(GL_LIGHTING);
+    //glEnable (GL_LINE_SMOOTH);
+
+    glLineWidth (width);
+
+    glBegin (GL_LINES);
+      glColor3f (color.r == 0 ? 0 : color.r/255, color.g == 0 ? 0 : color.g /255, color.b == 0 ? 0 : color.b/255);
+      glVertex3f (0, 0, 0);
+      glVertex3f (x, y, 0);
+    glEnd ();
+
+    return v8::True();
+
+    // pattern
+    // glEnable (GL_LINE_STIPPLE);
+    // glPushAttrib (GL_LINE_BIT);
+    // glLineStipple (3, 0xAAAA);
+    // glPopAttrib ();
+
+// gradient
+/*
+glBegin(GL_QUADS);
+//red color
+glColor3f(1.0,0.0,0.0);
+glVertex2f(-1.0,-1.0);
+glVertex2f(1.0,-1.0);
+//blue color
+glColor3f(0.0,0.0,1.0);
+glVertex2f(1.0, 1.0);
+glVertex2f(-1.0, 1.0);
+glEnd();
+
+*/
+
+}
+
+/* in 1st row, 3 lines, each with a different stipple
+glEnable (GL_LINE_STIPPLE);
+glLineStipple (1, 0x0101); /* dotted
+drawOneLine (50.0, 125.0, 150.0, 125.0);
+glLineStipple (1, 0x00FF); /* dashed
+drawOneLine (150.0, 125.0, 250.0, 125.0);
+glLineStipple (1, 0x1C47); /* dash/dot/dash
+drawOneLine (250.0, 125.0, 350.0, 125.0);
+/* in 2nd row, 3 wide lines, each with different stipple
+glLineWidth (5.0);
+glLineStipple (1, 0x0101);
+drawOneLine (50.0, 100.0, 150.0, 100.0);
+
+glLineStipple (1, 0x00FF);
+drawOneLine (150.0, 100.0, 250.0, 100.0);
+glLineStipple (1, 0x1C47);
+drawOneLine (250.0, 100.0, 350.0, 100.0);
+glLineWidth (1.0);
+/* in 3rd row, 6 lines, with dash/dot/dash stipple,
+/* as part of a single connected line strip
+glLineStipple (1, 0x1C47);
+glBegin (GL_LINE_STRIP);
+for (i = 0; i < 7; i++)
+glVertex2f (50.0 + ((GLfloat) i * 50.0), 75.0);
+glEnd ();
+/* in 4th row, 6 independent lines,
+/* with dash/dot/dash stipple
+for (i = 0; i < 6; i++) {
+drawOneLine (50.0 + ((GLfloat) i * 50.0),
+50.0, 50.0 + ((GLfloat)(i+1) * 50.0), 50.0);
+}
+/* in 5th row, 1 line, with dash/dot/dash stipple
+/* and repeat factor of 5
+glLineStipple (5, 0x1C47);
+drawOneLine (50.0, 25.0, 350.0, 25.0);
+glFlush ();
+}
+
+*/

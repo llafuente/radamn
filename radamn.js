@@ -86,6 +86,7 @@ var Radamn = new Class({
         return "/xxx.png";
     },
     /**
+     * TODO get it from c-land
      * @member Radamn
      * @returns {Array} list of valid resolutions
      * @see Radamn.createScreen
@@ -94,17 +95,19 @@ var Radamn = new Class({
         return [{x: 480, y: 320}];
     },
     /**
-     * create an opengl window (maybe opengl es2 only)
+     * Create an OpenGL window
+     * TODO Think about OpenGL/ES(2)/Software
      * @param {Number} width
      * @param {Number} height
      * @param {Number} options
      * @returns {Window}
      */
     createWindow: function(width, height) {
+        // XXX why? onRequestFrame should be enough
         this.__fakeIntervalToKeepAppRunning = setInterval(function() {}, 99999);
 
         var surface = CRadamn.setVideoMode(width, height);
-        var window = new Radamn.Window(surface);
+        var window = new Radamn.Window(surface, width, height);
 
         this.windows.push(window);
 
@@ -328,11 +331,23 @@ Radamn.Window = new Class({
     leaveFrame: null,
     /**
      * @member Window
+     * @type {Number}
+     */
+    width: null,
+    /**
+     * @member Window
+     * @type {Number}
+     */
+    height: null,
+    /**
+     * @member Window
      * @param {Number} id
      * @param {Canvas} canvas
      */
-    initialize: function(SDL_Surface) {
+    initialize: function(SDL_Surface, width, height) {
         this.surface = SDL_Surface;
+        this.width = width;
+        this.height = height;
         return this;
     },
     /**
@@ -473,6 +488,25 @@ Radamn.Assets = new Class({
         var image_pointer = CRadamn.Image.load(path);
         return new Radamn.Image(image_pointer);
 
+    },
+    /**
+     * @member Assets
+     * @params {String} path
+     * @params {String} zipfile (optional)
+     * @returns {Image}
+     */
+    getAnimation: function(path, path_to_cfg_or_object, zipfile) {
+        zipfile = zipfile | null;
+
+        var options = {};
+        if(typeOf(path_to_cfg_or_object) == "string") {
+            // TODO: get the file! and parse the JSON
+        } else {
+            options = path_to_cfg_or_object;
+        }
+
+        var image_pointer = CRadamn.Image.load(path);
+        return new Radamn.Animation(image_pointer, path_to_cfg_or_object);
     },
     /**
      * @member Assets
@@ -694,11 +728,95 @@ Radamn.Image = new Class({
      */
     fotmat: '',
 
-    initialize: function(pointer_to_surface) {
+    initialize: function(pointer_to_surface, options) {
         console.log("xxx");
-        this.parent(pointer_to_surface);
+        this.parent(pointer_to_surface, options);
         console.log("yy");
         this.__type = "Image";
+    }
+});
+/***
+ * @class Animation
+ * @super Image
+ */
+Radamn.Animation = new Class({
+    Extends: Radamn.Image,
+    /**
+     * @member Animation
+     * @type Number
+     */
+    frame: 0,
+    /**
+     * @member Animation
+     * @type Boolean
+     */
+    stopped: true,
+    /**
+     * @member Animation
+     * @type Boolean
+     */
+    remaining_times: false,
+    changeImageEvery: 0,
+    actumulatedTime: 0,
+    options: {
+        animation: [],
+        loop: false,
+        fps: 12
+    },
+    initialize: function(pointer_to_surface, options) {
+        this.parent(id);
+
+         this.changeImageEvery = (1 / this.options.fps) * 1000;
+    },
+    /**
+     *
+     * @param {boolean} loop_or_times
+     * * true loop
+     * * false no loop
+     * * {Number} loop x times
+     */
+    play: function(loop_or_times) {
+        if(loop_or_times === true) { this.remaining_times = false; this.options.loop = true;}
+        else if(loop_or_times === false) { this.remaining_times = false; this.options.loop = false;}
+        else if(loop_or_times !== undefined) {
+            this.options.loop = true;
+            this.remaining_times = parseInt(loop_or_times, 10);
+        }
+        this.stopped = false;
+    },
+    stop:function() {
+        this.stopped = true;
+    },
+    __render: function(ctx, delta) {
+        this.actumulatedTime +=delta;
+        console.log(delta);
+
+        switch(this.options.origin) {
+            case $D.ORIGIN_CENTER:
+                ctx.translate(-this.options.width * 0.5, -this.options.height* 0.5);
+                ctx.drawImage(this.imgEl, this.options.animation[this.frame].x, this.options.animation[this.frame].y, this.options.width, this.options.height, 0, 0, this.options.width, this.options.height);
+                break;
+            case ORIGIN_TOP_LEFT:
+                ctx.drawImage(this.imgEl, this.options.animation[this.frame].x, this.options.animation[this.frame].y, this.options.width, this.options.height, 0, 0, this.options.width, this.options.height);
+                break;
+        }
+
+        if(this.stopped) return ;
+        if(this.actumulatedTime > this.changeImageEvery) {
+            this.frame += Math.floor(this.actumulatedTime / this.changeImageEvery);
+            this.actumulatedTime = this.actumulatedTime % this.changeImageEvery;
+
+            if(this.frame >= this.options.animation.length) {
+                this.frame = 0;
+                if(this.options.loop === false) this.stopped = true;
+                if(this.remaining_times !== false) {
+                    --this.remaining_times;
+                    if(this.remaining_times == 0) {
+                        this.stopped = true;
+                    }
+                }
+            }
+        }
     }
 });
 
@@ -745,6 +863,30 @@ Radamn.Font = new Class({
 
 Radamn.Canvas = new Class({
     pointer: null,
+    /**
+     * @type {Number} color
+     */
+    strokeStyle: "#000000",
+    fillStyle: "#000000",
+    shadowOffsetX: 0,/* not supported yet */
+    shadowOffsetY: 0,/* not supported yet */
+    shadowBlur: 0,/* not supported yet */
+    shadowColor: 'transparent black', /* not supported yet */
+    lineWidth: 1,
+    /**
+     * references:
+     * http://dminator.blogspot.com/2007/11/line-cap-calculation.html
+     * round
+     * square
+     */
+    lineCap: 'butt', /* not supported yet */
+    /**
+     * round
+     * bevel
+     *
+     */
+    lineJoin: 'miter', /* not supported yet */
+    miterLimit: 10, /* not supported yet */
 
     /**
      * @deprecated
@@ -785,6 +927,23 @@ Radamn.Canvas = new Class({
      * @param {Number} y
      */
     lineTo: function(x, y) {
+        this.lastOperation = {type: "line", x:x, y:y};
+
+    },
+    stroke: function() {
+        console.log(this.lastOperation);
+        if(this.lastOperation.type === undefined) return false;
+
+        var op = this.lastOperation;
+        switch (op.type) {
+            case 'line' :
+                console.log("color!", this.strokeStyle);
+                CRadamn.Window.line(op.x, op.y, this.lineWidth, this.strokeStyle);
+            break;
+        }
+
+
+        return true;
 
     },
     translate: function(x,y, z) {
@@ -811,11 +970,27 @@ Radamn.Canvas = new Class({
     },
     flip: function() {
         CRadamn.Window.flip();
-
+    },
+    fill: function() {
+        /**
+         * gradient!
+glBegin(GL_QUADS);
+//red color
+glColor3f(1.0,0.0,0.0);
+glVertex2f(-1.0,-1.0);
+glVertex2f(1.0,-1.0);
+//blue color
+glColor3f(0.0,0.0,1.0);
+glVertex2f(1.0, 1.0);
+glVertex2f(-1.0, 1.0);
+glEnd();
+         */
     }
+
 });
 
 
 //
 //*********************************************************************************
 //
+

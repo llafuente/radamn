@@ -52,14 +52,26 @@
 
 #define V8_ARG_TO_SDL_NEWCOLOR(ARG_NUMBER, OUTPUT_NAME)                                                                  \
     SDL_Color OUTPUT_NAME;                                                                                               \
-    V8_ARG_TO_SDL_COLOR(ARG_NUMBER, OUTPUT_NAME)                                                                         \
-
-
+    V8_ARG_TO_SDL_COLOR(ARG_NUMBER, OUTPUT_NAME)
+/**
+ * TODO support: rgb(r,g,b) rgba(r,g,b,a)
+ * TODO support: #000 and other variants
+ * TODO optimize hex parsing no sscanf
+*/
 #define V8_ARG_TO_SDL_COLOR(ARG_NUMBER, OUTPUT_NAME)                                                                     \
 {                                                                                                                        \
-  SDL_PixelFormat* vfmt = SDL_GetVideoInfo()->vfmt;                                                                      \
-  SDL_GetRGB(args[ ARG_NUMBER ]->Int32Value(), vfmt, &OUTPUT_NAME.r, &OUTPUT_NAME.g, &OUTPUT_NAME.b);                    \
-}
+    v8::String::Utf8Value strcolor(args[ ARG_NUMBER ]);                                                                  \
+    const char* ccolor = *strcolor;                                                                                      \
+    std::cout << "color: " << *strcolor << std::endl;                                                                    \
+    if(strncmp ( ccolor, "#", 1) == 0) {                                                                                 \
+    int r,g,b;\
+        sscanf(ccolor, "#%02x%02x%02x", &r,&g,&b);\
+        std::cout << (int)r << (int)g << (int)b << std::endl; \
+        OUTPUT_NAME.r = (int)r;\
+        OUTPUT_NAME.g = (int)g;\
+        OUTPUT_NAME.b = (int)b; \
+    }                                                                                                                    \
+}                                                                                                                        \
 
 
 #define V8_ARG_TO_UNIT32(ARG_NUMBER, OUTPUT_NAME)                                                                      \
