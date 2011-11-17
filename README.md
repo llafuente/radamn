@@ -88,20 +88,20 @@ waf 1.5.16 (7610:7647M)</pre>
 ## 2. Todo list
 
 Priority
-- Compatible events beetween radamn and a browser.
-- Nodes, with z-index sorting functions
-- Sprites
-- Animation
-- manage quit the APP, destroy everything. No memory is left behind soldier!
+* Compatible events beetween radamn and a browser.
+* Nodes, with z-index sorting functions
+* Sprites
+* Animation
+* manage quit the APP, destroy everything. No memory is left behind soldier!
 
 Someday/sometime
-- Physic layer
-- compile V8/node.jf on IOS
-- Compile V8/node.js on Android
-- Search a proper audio library. SDL_mixer is not enough. OpenAl could be good.
-- Multiple window suppor (we must deal with some problems like where OPENGL will paint...)
-- Multiple process/threads.
-- Port to a browser. This is almost done. Radamn.js should work in a browser (the rendering part)
+* Physic layer
+* compile V8/node.jf on IOS
+* Compile V8/node.js on Android
+* Search a proper audio library. SDL_mixer is not enough. OpenAl could be good.
+* Multiple window suppor (we must deal with some problems like where OPENGL will paint...)
+* Multiple process/threads.
+* Port to a browser. This is almost done. Radamn.js should work in a browser (the rendering part)
 
 
 ## 3. About
@@ -115,11 +115,13 @@ The proyect has three layers.
 
 Radam will provide a 2D game engine OPENGL based (OPENGLES/ES2 and software if possible). I'm studing android/ios posibilities.
 Software renderer has some problems that i don'r really want to deal, I prefer OPENGL.
+
 Plaforms:
-- Linux (fully supported today)
-- Max (not tested)
-- Windows (when nodejs has a proper way to deal with modules)
-- Browser, for now should be almost compatible. I will focus on this after frozen the API. The rendering part will be a clone of HTML5 Canvas Tag
+
+* Linux (fully supported today)
+* Max (not tested)
+* Windows (when nodejs has a proper way to deal with modules)
+* Browser, for now should be almost compatible. I will focus on this after frozen the API. The rendering part will be a clone of HTML5 Canvas Tag
 
 Also take in mind the proyect will be using Mootools (1.3.2-dev with some extra classes). This will provide a nice API (extensible) and also inteligensse (if you use a nice IDE).
 
@@ -129,9 +131,10 @@ The full API will be public soon, my plan is to realease a useable version 1 Jan
 ## 4. Collaboration
 
 Collaboration is always wellcome! share your thoughs!
+
 Pull a request!
 
 Wellcome help today.
-- Audio
-- IOS
-- Android
+* Audio
+* IOS
+* Android

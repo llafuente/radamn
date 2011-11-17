@@ -181,14 +181,13 @@ static v8::Handle<v8::Value> Radamn::Window::restore(const v8::Arguments& args) 
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Window::line(const v8::Arguments& args) {
+static v8::Handle<v8::Value> Radamn::Window::stroke(const v8::Arguments& args) {
 
-    V8_ARG_TO_NEWFLOAT(0, x);
-    V8_ARG_TO_NEWFLOAT(1, y);
-    V8_ARG_TO_NEWFLOAT(2, width);
-    V8_ARG_TO_SDL_NEWCOLOR(3, color);
+    V8_ARG_TO_NEWARRAY(0, coords);
+    V8_ARG_TO_NEWFLOAT(1, width);
+    V8_ARG_TO_SDL_NEWCOLOR(2, color);
 
-    std::cout << "line" << x << "," << y <<
+    std::cout << "stroking"  <<
         " w:" << width <<
         "color rgb(" << (int)color.r << "," << (int)color.g << "," << (int)color.b << ")"
         << std::endl;
@@ -198,10 +197,19 @@ static v8::Handle<v8::Value> Radamn::Window::line(const v8::Arguments& args) {
 
     glLineWidth (width);
 
-    glBegin (GL_LINES);
-      glColor3f (color.r == 0 ? 0 : color.r/255, color.g == 0 ? 0 : color.g /255, color.b == 0 ? 0 : color.b/255);
-      glVertex3f (0, 0, 0);
-      glVertex3f (x, y, 0);
+    glBegin (GL_LINE_STRIP);
+        glColor3f (color.r == 0 ? 0 : color.r/255, color.g == 0 ? 0 : color.g /255, color.b == 0 ? 0 : color.b/255);
+        glVertex3f (0, 0, 0);
+        unsigned int i = 0;
+        unsigned int max = coords->Length();
+        std::cout << "ncoords: "<< max << std::endl;
+        float x,y;
+        for(;i<max;++i) {
+            std::cout << i<< "( "<< x << "," << y << ")" << std::endl;
+            // TODO why is i*2, i dont fucking understant it!
+            V8_EXTRACT_COORDS_FROM_ARRAY(coords, i, x, y)
+            glVertex3f (x, y, 0);
+        }
     glEnd ();
 
     return v8::True();

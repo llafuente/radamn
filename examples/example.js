@@ -41,13 +41,17 @@ function grid(win, size) {
 
     for(i=0;i<x; ++i) {
         canvas.translate( size, 0);
+        canvas.beginPath();
         canvas.lineTo(0, win.height);
+        canvas.closePath();
         canvas.stroke();
     }
     canvas.translate( -x*size, 0);
     for(i=0;i<y; ++i) {
         canvas.translate(0, size);
+        canvas.beginPath();
         canvas.lineTo(win.width, 0);
+        canvas.closePath();
         canvas.stroke();
     }
     canvas.translate(0, -y*size);
@@ -63,21 +67,57 @@ win.onRequestFrame = function() {
 
     // some draw test
     canvas.drawImage(image, 0, 0);
+
+    canvas.translate( 128, 0);
+    canvas.scale(2,2);
+    canvas.drawImage(image, 0, 0);
+
+    canvas.translate( 256 +128, 0);
+    canvas.rotate(90);
+    canvas.scale(1.5, 1.5);
+    canvas.drawImage(image, 0, 0);
+
+    canvas.scale(1,1);
     /*
     canvas.translate( 128, 128);
-    canvas.rotate(90);
     canvas.drawImage(image, 0, 0);
 
     canvas.translate( 256, 256);
     canvas.rotate(-90);
-    canvas.scale(2,2);
     canvas.drawImage(image, 0, 0);
     */
 
-    canvas.translate( 256, 256);
-    canvas.strokeStyle = "#FF0000";
-    canvas.lineWidth = counter;
-    canvas.lineTo(150,-150);
+    canvas.strokeStyle = "rgb(255,0,0)";
+    canvas.lineWidth = 2;
+
+    canvas.translate( 128, 128);
+    canvas.beginPath();
+    canvas.lineTo(0,50);
+    canvas.lineTo(50,50);
+    canvas.lineTo(50,0);
+    canvas.lineTo(0,0);
+    canvas.closePath();
+    canvas.stroke();
+
+    canvas.translate( 64, 0);
+    canvas.beginPath();
+    canvas.lineTo(0,50);
+    canvas.lineTo(50,50);
+    canvas.lineTo(0,0);
+    canvas.closePath();
+    canvas.stroke();
+
+    canvas.translate( 64, 0);
+    canvas.beginPath();
+    canvas.lineTo(0,50);
+    canvas.lineTo(50,50);
+    canvas.closePath();
+    canvas.stroke();
+
+    canvas.translate( 64, 0);
+    canvas.beginPath();
+    canvas.lineTo(50,50);
+    canvas.closePath();
     canvas.stroke();
 
 

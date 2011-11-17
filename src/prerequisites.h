@@ -32,6 +32,7 @@ typedef struct OGL_Texture {
     GLuint textureID;
 };
 
+#include "c_helper.cc"
 #include "SDL_helper.cc"
 #include "v8_helper.cc"
 

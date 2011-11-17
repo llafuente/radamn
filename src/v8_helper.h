@@ -58,37 +58,71 @@
  * TODO support: #000 and other variants
  * TODO optimize hex parsing no sscanf
 */
-#define V8_ARG_TO_SDL_COLOR(ARG_NUMBER, OUTPUT_NAME)                                                                     \
-{                                                                                                                        \
-    v8::String::Utf8Value strcolor(args[ ARG_NUMBER ]);                                                                  \
-    const char* ccolor = *strcolor;                                                                                      \
-    std::cout << "color: " << *strcolor << std::endl;                                                                    \
-    if(strncmp ( ccolor, "#", 1) == 0) {                                                                                 \
-    int r,g,b;\
-        sscanf(ccolor, "#%02x%02x%02x", &r,&g,&b);\
-        std::cout << (int)r << (int)g << (int)b << std::endl; \
-        OUTPUT_NAME.r = (int)r;\
-        OUTPUT_NAME.g = (int)g;\
-        OUTPUT_NAME.b = (int)b; \
-    }                                                                                                                    \
-}                                                                                                                        \
+#define V8_ARG_TO_SDL_COLOR(ARG_NUMBER, OUTPUT_NAME)                                                                    \
+{                                                                                                                       \
+    v8::String::Utf8Value strcolor(args[ ARG_NUMBER ]);                                                                 \
+    const char* ccolor = *strcolor;                                                                                     \
+    std::cout << "color: " << *strcolor << std::endl;                                                                   \
+    if(strncmp ( ccolor, "#", 1) == 0) {                                                                                \
+        int r,g,b;                                                                                                      \
+        sscanf(ccolor, "#%02x%02x%02x", &r,&g,&b);                                                                      \
+        std::cout << (int)r << (int)g << (int)b << std::endl;                                                           \
+        OUTPUT_NAME.r = (int)r;                                                                                         \
+        OUTPUT_NAME.g = (int)g;                                                                                         \
+        OUTPUT_NAME.b = (int)b;                                                                                         \
+    } else if(strncmp ( ccolor, "rgb", 3) == 0) {                                                                       \
+          std::cout << ccolor << "RGB!!!!! --> " << strlen(ccolor) << std::endl;                                        \
+          char* aux = (char *)malloc(strlen(ccolor)+1); /* strtok so +1!! */                                            \
+          strcpy(ccolor, aux);                                                                                          \
+          std::cout << aux << std::endl;                                                                                \
+          strremchar(aux, ' ', aux);                                                                                    \
+                                                                                                                        \
+          char * ptr = strtok (aux, "(");                                                                               \
+                                                                                                                        \
+          ptr = strtok (NULL, ",");                                                                                     \
+          OUTPUT_NAME.r = atoi(ptr);                                                                                    \
+          std::cout << ptr << (int) OUTPUT_NAME.r << std::endl;                                                         \
+                                                                                                                        \
+          ptr = strtok (NULL, ",");                                                                                     \
+          OUTPUT_NAME.g = atoi(ptr);                                                                                    \
+          std::cout << ptr << (int) OUTPUT_NAME.g << std::endl;                                                         \
+                                                                                                                        \
+          ptr = strtok (NULL, ")");                                                                                     \
+          OUTPUT_NAME.b = atoi(ptr);                                                                                    \
+          std::cout << ptr << (int) OUTPUT_NAME.b << std::endl;                                                         \
+          ptr = strtok (NULL, "?");                                                                                     \
+                                                                                                                        \
+          free(aux); /* free the initial pointer!! */                                                                   \
+          ptr = 0;                                                                                                      \
+    } else if(strncmp ( ccolor, "rgba", 4) == 0) {                                                                      \
+    }                                                                                                                   \
+}                                                                                                                       \
 
 
 #define V8_ARG_TO_UNIT32(ARG_NUMBER, OUTPUT_NAME)                                                                      \
-OUTPUT_NAME = args[ ARG_NUMBER ]->Int32Value();                                                                         \
+OUTPUT_NAME = args[ ARG_NUMBER ]->Int32Value();                                                                        \
 
 #define V8_ARG_TO_DOUBLE(ARG_NUMBER, OUTPUT_NAME)                                                                      \
-OUTPUT_NAME = args[ ARG_NUMBER ]->NumberValue();                                                                        \
+OUTPUT_NAME = args[ ARG_NUMBER ]->NumberValue();                                                                       \
 
 #define V8_ARG_TO_NEWDOUBLE(ARG_NUMBER, OUTPUT_NAME)                                                                   \
-double OUTPUT_NAME = args[ ARG_NUMBER ]->NumberValue();                                                                 \
+double OUTPUT_NAME = args[ ARG_NUMBER ]->NumberValue();                                                                \
 
 #define V8_ARG_TO_FLOAT(ARG_NUMBER, OUTPUT_NAME)                                                                       \
-OUTPUT_NAME = args[ ARG_NUMBER ]->NumberValue();                                                                        \
+OUTPUT_NAME = args[ ARG_NUMBER ]->NumberValue();                                                                       \
 
 #define V8_ARG_TO_NEWFLOAT(ARG_NUMBER, OUTPUT_NAME)                                                                    \
-float OUTPUT_NAME = args[ ARG_NUMBER ]->NumberValue();                                                                  \
+float OUTPUT_NAME = args[ ARG_NUMBER ]->NumberValue();                                                                 \
 
+#define V8_ARG_TO_NEWARRAY(ARG_NUMBER, OUTPUT_NAME)                                                                    \
+v8::Local<v8::Array> OUTPUT_NAME = v8::Local<v8::Array>::Cast( args[ ARG_NUMBER ] );                                   \
+
+#define V8_EXTRACT_COORDS_FROM_ARRAY(ARRAY, IDX, X_OUTPUT_NAME, Y_OUTPUT_NAME)                                         \
+{                                                                                                                      \
+    v8::Local<v8::Array> aux = v8::Local<v8::Array>::Cast( ARRAY->Get(IDX) );                                          \
+    X_OUTPUT_NAME = aux->Get(0)->NumberValue();                                                                        \
+    Y_OUTPUT_NAME = aux->Get(1)->NumberValue();                                                                        \
+}                                                                                                                      \
 
 
 #define V8_CHECK_ARGS(POS, ARG_TYPE)           \

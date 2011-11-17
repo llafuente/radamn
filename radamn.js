@@ -873,6 +873,7 @@ Radamn.Canvas = new Class({
     shadowBlur: 0,/* not supported yet */
     shadowColor: 'transparent black', /* not supported yet */
     lineWidth: 1,
+    __path: [],
     /**
      * references:
      * http://dminator.blogspot.com/2007/11/line-cap-calculation.html
@@ -927,24 +928,24 @@ Radamn.Canvas = new Class({
      * @param {Number} y
      */
     lineTo: function(x, y) {
-        this.lastOperation = {type: "line", x:x, y:y};
-
+        this.__path.push([x,y]);
     },
     stroke: function() {
-        console.log(this.lastOperation);
-        if(this.lastOperation.type === undefined) return false;
-
-        var op = this.lastOperation;
-        switch (op.type) {
-            case 'line' :
-                console.log("color!", this.strokeStyle);
-                CRadamn.Window.line(op.x, op.y, this.lineWidth, this.strokeStyle);
-            break;
+        if(this.__closedPath.length > 0) {
+            console.log(this.__closedPath);
+            CRadamn.Window.stroke(this.__closedPath, this.lineWidth, this.strokeStyle);
+            return true;
         }
+        return false;
 
-
+    },
+    beginPath: function() {
+        return this.__path.length === 0;
+    },
+    closePath: function() {
+        this.__closedPath = this.__path;
+        this.__path = [];
         return true;
-
     },
     translate: function(x,y, z) {
         z = z || 0;
