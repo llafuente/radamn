@@ -57,6 +57,19 @@ function grid(win, size) {
     canvas.translate(0, -y*size);
 }
 
+Radamn.addEvent("keydown", function(e) {
+    console.log(e);
+});
+Radamn.addEvent("wheel", function(e) {
+    console.log(e);
+});
+Radamn.addEvent("wheelchange", function(e) {
+    console.log(e);
+});
+Radamn.addEvent("mousemove", function(e) {
+    console.log(e);
+});
+
 win.setBackgroundColor("#000000");
 
 var counter = 0;

@@ -327,6 +327,10 @@ Handle<Value> Radamn::getJoysticks(const Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
+// i will follow mozilla docs
+// https://developer.mozilla.org/en/DOM/KeyboardEvent
+// http://www.w3.org/TR/DOM-Level-3-Events/#events-KeyboardEvent
+// touch events: https://dvcs.w3.org/hg/webevents/raw-file/tip/touchevents.html
 Handle<Value> Radamn::pollEvent(const Arguments& args) {
   v8::HandleScope scope;
 
@@ -341,6 +345,16 @@ Handle<Value> Radamn::pollEvent(const Arguments& args) {
 
   Local<Object> evt = Object::New();
 
+  // in common!
+
+  // modifiers
+  // TODO: what to di with [Numlock, Capslock]
+  // windows - command key ?!
+  evt->Set(String::New("metaKey"),  Boolean::New( false ));
+  evt->Set(String::New("altKey"),   Boolean::New( KMOD_ALT == (KMOD_ALT & event.key.keysym.mod) ));
+  evt->Set(String::New("ctrlKey"),  Boolean::New( KMOD_CTRL == (KMOD_CTRL & event.key.keysym.mod) ));
+  evt->Set(String::New("shiftKey"), Boolean::New( KMOD_SHIFT == (KMOD_SHIFT & event.key.keysym.mod) ));
+
   switch (event.type) {
     case SDL_ACTIVEEVENT:
       evt->Set(String::New("type"), String::New("ACTIVEEVENT"));
@@ -349,58 +363,101 @@ Handle<Value> Radamn::pollEvent(const Arguments& args) {
       break;
     case SDL_KEYDOWN:
     case SDL_KEYUP:
-      evt->Set(String::New("type"), String::New(event.type == SDL_KEYDOWN ? "KEYDOWN" : "KEYUP"));
-      evt->Set(String::New("scancode"), Number::New(event.key.keysym.scancode));
-      evt->Set(String::New("sym"), Number::New(event.key.keysym.sym));
-      evt->Set(String::New("mod"), Number::New(event.key.keysym.mod));
+      // TODO: support keypress ?
+      evt->Set(String::New("type"), String::New(event.type == SDL_KEYDOWN ? "keydown" : "keyup"));
+
+      // do ui have to mach every key from-sdl-to-w3c... :***
+      evt->Set(String::New("key"), Number::New(event.key.keysym.sym));
+      evt->Set(String::New("char"), v8::String::New(SDL_GetKeyName(event.key.keysym.sym)));
+      evt->Set(String::New("keyCode"), Number::New(event.key.keysym.sym));
+
+      // has anyone use this ever ?!
+      //evt->Set(String::New("locale"), null);
+      //evt->Set(String::New("location"), null);
+      //evt->Set(String::New("repeat"), False());
+
       break;
     case SDL_MOUSEMOTION:
-      evt->Set(String::New("type"), String::New("MOUSEMOTION"));
-      evt->Set(String::New("state"), Number::New(event.motion.state));
-      //evt->Set(String::New("which"), Number::New(event.motion.which));
-      evt->Set(String::New("x"), Number::New(event.motion.x));
-      evt->Set(String::New("y"), Number::New(event.motion.y));
-      evt->Set(String::New("xrel"), Number::New(event.motion.xrel));
-      evt->Set(String::New("yrel"), Number::New(event.motion.yrel));
-      break;
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
-      evt->Set(String::New("type"), String::New(event.type == SDL_MOUSEBUTTONDOWN ? "MOUSEBUTTONDOWN" : "MOUSEBUTTONUP"));
-      evt->Set(String::New("button"), Number::New(event.button.button));
-      //__ evt->Set(String::New("which"), Number::New(event.button.which));
-      evt->Set(String::New("x"), Number::New(event.button.x));
-      evt->Set(String::New("y"), Number::New(event.button.y));
+      //evt->Set(String::New("which"), Number::New(event.motion.which));
+      evt->Set(String::New("state"), Number::New(event.motion.state));
+
+      evt->Set(String::New("x"), Number::New(event.motion.x));
+      evt->Set(String::New("y"), Number::New(event.motion.y));
+
+      evt->Set(String::New("clientX"), Number::New(event.motion.x));
+      evt->Set(String::New("clientY"), Number::New(event.motion.y));
+
+      evt->Set(String::New("screenX"), Number::New(event.motion.xrel));
+      evt->Set(String::New("screenY"), Number::New(event.motion.yrel));
+
+      switch(event.type) {
+          case SDL_MOUSEMOTION :
+          evt->Set(String::New("type"), String::New("mousemove"));
+          evt->Set(String::New("button"), Number::New(event.button.button));
+        break;
+          case SDL_MOUSEBUTTONDOWN :
+            if(event.button.button == SDL_BUTTON_WHEELDOWN) {
+                evt->Set(String::New("type"), String::New("wheel"));
+                evt->Set(String::New("deltaX"), Number::New(event.wheel.x));
+                evt->Set(String::New("deltaY"), Number::New(event.wheel.y));
+            } else {
+                evt->Set(String::New("type"), String::New("mousedown"));
+                evt->Set(String::New("button"), Number::New(event.button.button));
+          }
+
+        break;
+          case SDL_MOUSEBUTTONUP :
+            if(event.button.button == SDL_BUTTON_WHEELUP) {
+                evt->Set(String::New("type"), String::New("wheel"));
+                evt->Set(String::New("deltaX"), Number::New(event.wheel.x));
+                evt->Set(String::New("deltaY"), Number::New(event.wheel.y));
+            } else {
+                evt->Set(String::New("type"), String::New("mouseup"));
+                evt->Set(String::New("button"), Number::New(event.button.button));
+            }
+
+        break;
+      }
+
+      // what to do with click ?
+      //evt->Set(String::New("type"), String::New("click"));
+
       break;
+
+    // my own DOMJoystickEvent based on mozilla: MozJoyAxisMove, MozJoyButtonUp, MozJoyButtonDown
     case SDL_JOYAXISMOTION:
-      evt->Set(String::New("type"), String::New("JOYAXISMOTION"));
+      evt->Set(String::New("type"), String::New("joyaxismove"));
+
       evt->Set(String::New("which"), Number::New(event.jaxis.which));
       evt->Set(String::New("axis"), Number::New(event.jaxis.axis));
       evt->Set(String::New("value"), Number::New(event.jaxis.value));
       break;
     case SDL_JOYBALLMOTION:
-      evt->Set(String::New("type"), String::New("JOYBALLMOTION"));
-      evt->Set(String::New("which"), Number::New(event.jball.which));
+      evt->Set(String::New("type"), String::New("joyballmove"));
+      evt->Set(String::New("button"), Number::New(event.jball.which));
       evt->Set(String::New("ball"), Number::New(event.jball.ball));
-      evt->Set(String::New("xrel"), Number::New(event.jball.xrel));
-      evt->Set(String::New("yrel"), Number::New(event.jball.yrel));
+      evt->Set(String::New("deltaX"), Number::New(event.jball.xrel));
+      evt->Set(String::New("deltaY"), Number::New(event.jball.yrel));
       break;
     case SDL_JOYHATMOTION:
-      evt->Set(String::New("type"), String::New("JOYHATMOTION"));
-      evt->Set(String::New("which"), Number::New(event.jhat.which));
+      evt->Set(String::New("type"), String::New("joyhatmove"));
+      evt->Set(String::New("button"), Number::New(event.jhat.which));
       evt->Set(String::New("hat"), Number::New(event.jhat.hat));
       evt->Set(String::New("value"), Number::New(event.jhat.value));
       break;
     case SDL_JOYBUTTONDOWN:
     case SDL_JOYBUTTONUP:
-      evt->Set(String::New("type"), String::New(event.type == SDL_JOYBUTTONDOWN ? "JOYBUTTONDOWN" : "JOYBUTTONUP"));
-      evt->Set(String::New("which"), Number::New(event.jbutton.which));
+      evt->Set(String::New("type"), String::New(event.type == SDL_JOYBUTTONDOWN ? "joybuttondown" : "joybuttonup"));
+      //evt->Set(String::New("which"), Number::New(event.jbutton.which));
       evt->Set(String::New("button"), Number::New(event.jbutton.button));
       break;
     case SDL_QUIT:
-      evt->Set(String::New("type"), String::New("QUIT"));
+      evt->Set(String::New("type"), String::New("quit"));
       break;
     default:
-      evt->Set(String::New("type"), String::New("UNKNOWN"));
+      evt->Set(String::New("type"), String::New("not-supported"));
       evt->Set(String::New("typeCode"), Number::New(event.type));
       break;
   }
