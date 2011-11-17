@@ -88,6 +88,7 @@ waf 1.5.16 (7610:7647M)</pre>
 ## 2. Todo list
 
 Priority
+
 * Compatible events beetween radamn and a browser.
 * Nodes, with z-index sorting functions
 * Sprites
@@ -95,6 +96,7 @@ Priority
 * manage quit the APP, destroy everything. No memory is left behind soldier!
 
 Someday/sometime
+
 * Physic layer
 * compile V8/node.jf on IOS
 * Compile V8/node.js on Android
@@ -109,9 +111,10 @@ Someday/sometime
 This proyect could be considered as an evolution of another github proyect (https://github.com/creationix/node-sdl), but with a proper API, no just a SDL Port.
 
 The proyect has three layers.
-- C land. SDL, OpenGL, Audio
-- JS land. Provide a proper API on top of the basic C land API. This way we can move to a browser and like another libs.
-- User (JS) land, where you code, independent.
+
+* C land. SDL, OpenGL, Audio
+* JS land. Provide a proper API on top of the basic C land API. This way we can move to a browser and like another libs.
+* User (JS) land, where you code, independent.
 
 Radam will provide a 2D game engine OPENGL based (OPENGLES/ES2 and software if possible). I'm studing android/ios posibilities.
 Software renderer has some problems that i don'r really want to deal, I prefer OPENGL.
@@ -135,6 +138,7 @@ Collaboration is always wellcome! share your thoughs!
 Pull a request!
 
 Wellcome help today.
+
 * Audio
 * IOS
 * Android
