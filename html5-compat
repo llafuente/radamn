@@ -1,0 +1,8 @@
+Here is the list of the HTML5 compatibility issues
+
+Wont be implemented
+- dont know yet...
+
+
+Radamn changes
+- onRequestFrame takes one parameter, delta, ms from the last frame.

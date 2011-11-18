@@ -144,12 +144,14 @@ var Radamn = new Class({
         for(i=0; i<max; ++i) {
             var win = this.windows[i];
             var canvas = win.getCanvas();
+            var now = Date.now();
             canvas.save();
             canvas.clear();
             if(win.onRequestFrame)
-                win.onRequestFrame();
+                win.onRequestFrame(now - win.lastRenderDate);
             canvas.flip();
             canvas.restore();
+            win.lastRenderDate = now;
         }
     },
     listenInput: function(delay) {
@@ -348,6 +350,7 @@ Radamn.Window = new Class({
         this.surface = SDL_Surface;
         this.width = width;
         this.height = height;
+        this.lastRenderDate = Date.now();
         return this;
     },
     /**
@@ -429,6 +432,12 @@ Radamn.Window = new Class({
      * clear to transparent
      */
     empty: function() {},
+    /**
+     * clear to transparent
+     */
+    screenshot: function() {
+        CRadamn.Window.screenshot(this);
+    },
     /**
      * clear to bg color
      */
@@ -729,9 +738,7 @@ Radamn.Image = new Class({
     fotmat: '',
 
     initialize: function(pointer_to_surface, options) {
-        console.log("xxx");
         this.parent(pointer_to_surface, options);
-        console.log("yy");
         this.__type = "Image";
     }
 });
@@ -764,9 +771,8 @@ Radamn.Animation = new Class({
         fps: 12
     },
     initialize: function(pointer_to_surface, options) {
-        this.parent(id);
-
-         this.changeImageEvery = (1 / this.options.fps) * 1000;
+        this.parent(pointer_to_surface, options);
+        this.changeImageEvery = (1 / this.options.fps) * 1000;
     },
     /**
      *
@@ -787,10 +793,11 @@ Radamn.Animation = new Class({
     stop:function() {
         this.stopped = true;
     },
-    __render: function(ctx, delta) {
+    draw: function(ctx, delta) {
         this.actumulatedTime +=delta;
         console.log(delta);
 
+        /* this is for nodes
         switch(this.options.origin) {
             case $D.ORIGIN_CENTER:
                 ctx.translate(-this.options.width * 0.5, -this.options.height* 0.5);
@@ -800,6 +807,18 @@ Radamn.Animation = new Class({
                 ctx.drawImage(this.imgEl, this.options.animation[this.frame].x, this.options.animation[this.frame].y, this.options.width, this.options.height, 0, 0, this.options.width, this.options.height);
                 break;
         }
+        */
+
+        ctx.drawImage(this,
+            this.options.animation[this.frame][0],
+            this.options.animation[this.frame][1],
+            this.options.animation[this.frame][2],
+            this.options.animation[this.frame][3],
+            0,
+            0,
+            this.options.animation[this.frame][2],
+            this.options.animation[this.frame][3]
+        );
 
         if(this.stopped) return ;
         if(this.actumulatedTime > this.changeImageEvery) {

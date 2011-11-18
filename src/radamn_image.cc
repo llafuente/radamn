@@ -44,10 +44,14 @@ static v8::Handle<v8::Value> Radamn::Image::load(const v8::Arguments& args) {
     glGenTextures(1,&texture);
     glBindTexture(GL_TEXTURE_2D,texture);
 
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); GL_REPEAT, GL_CLAMP
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
      /*
      gluBuild2DMipmaps(
          GL_TEXTURE_2D,
@@ -174,28 +178,47 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
         SDL_RECT_P(dstrect, args[6]->Int32Value(), args[7]->Int32Value(), args[8]->Int32Value(), args[9]->Int32Value())
     }
 
-    debug_SDL_Rect(srcrect);
-    debug_SDL_Rect(dstrect);
-    debug_SDL_Surface(src);
-    debug_SDL_Surface(dst);
 
+    //debug_SDL_Surface(dst);
+    //debug_SDL_Rect(dstrect);
 #if RADAMN_RENDERER == RADAMN_RENDERER_SOFTWARE
     if (SDL_gfxBlitRGBA(src, srcrect, dst, dstrect) < 0) { //SDL_BlitSurface
         //return ThrowSDLException(__func__);
     }
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 // if alpha!
-    glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 //endif
 
-//
-    OGL_Texture* t = (OGL_Texture*)src->userdata;
-    SDL_RECT_TO_QUAD(t->textureID, srcdest, dstrect)
+    debug_SDL_Surface(src);
+    debug_SDL_Rect(srcrect);
+
+    GLfloat xLowerLeft  = ((float) srcrect->x) / src->w;
+    GLfloat yLowerLeft  = ((float) srcrect->y) / src->h;
+    GLfloat xUpperRight = ((float) (srcrect->x + srcrect->w)) / src->w;
+    GLfloat yUpperRight = ((float) (srcrect->y + srcrect->h)) / src->h;
+
+    printf("text-coords [%f,%f,%f,%f]\n", xLowerLeft, yLowerLeft, xUpperRight, yUpperRight);
+
+    glEnable(GL_TEXTURE_2D);
+        OGL_Texture* t = (OGL_Texture*)src->userdata;
+        glBindTexture( GL_TEXTURE_2D, t->textureID );
+        glBegin(GL_QUADS);
+            std::cout << "texture: ID:" << t->textureID << " [" << src->w << "," << src->h << "]"<< std::endl;
+            std::cout << "quad [";
+            glTexCoord2f(xLowerLeft, yLowerLeft); glVertex3f(dstrect->x, dstrect->y, 0);
+            std::cout << dstrect->x << "," << dstrect->y << "] [";
+            glTexCoord2f(xUpperRight, yLowerLeft); glVertex3f(dstrect->w, dstrect->y, 0);
+            std::cout << dstrect->w << "," << dstrect->y << "] [";
+            glTexCoord2f(xUpperRight, yUpperRight); glVertex3f(dstrect->w, dstrect->h, 0);
+            std::cout << dstrect->w << "," << dstrect->h << "] [";
+            glTexCoord2f(xLowerLeft, yUpperRight); glVertex3f(dstrect->x, dstrect->h, 0);
+            std::cout << dstrect->x << "," << dstrect->h << "]" << std::endl;
+        glEnd();
+    glDisable(GL_TEXTURE_2D);
 
     glDisable(GL_BLEND);
-    glDisable(GL_TEXTURE_2D);
 std::cout << __LINE__ << std::endl;
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
     return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));
