@@ -52,6 +52,8 @@ init(Handle<Object> target)
   NODE_SET_METHOD(Window, "scale",                Radamn::Window::scale);
   NODE_SET_METHOD(Window, "stroke",               Radamn::Window::stroke);
   NODE_SET_METHOD(Window, "screenshot",           Radamn::Window::screenshot);
+  NODE_SET_METHOD(Window, "transform",            Radamn::Window::transform);
+  NODE_SET_METHOD(Window, "setTransform",         Radamn::Window::setTransform);
 
   Local<Object> Image = Object::New();
   target->Set(String::New("Image"), Image);

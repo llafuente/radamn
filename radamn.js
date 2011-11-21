@@ -16,7 +16,8 @@ this.document = document = (function() {
     }
 })();
 
-require(process.env.PWD + '/mootools');
+require(process.env.PWD + '/mootools-core-1.4.1-server');
+require(process.env.PWD + '/mootools-extends');
 
 /***
 //inspiration
@@ -210,7 +211,11 @@ var Radamn = new Class({
     /**
      * @type Sound
      */
-    Sound: null
+    Sound: null,
+    /**
+     * @type Sound
+     */
+    Node: null
 });
 
 //
@@ -322,10 +327,42 @@ Radamn.Window = new Class({
      */
     enterFrame: null,
     /**
+     * this call render but no now in 1ms
+     * @param {Number} fps false means: as fast as possible!!!
+     */
+    start: function(fps) {
+        this.running = true;
+
+        window.requestAnimationFrame(this.bound.renderLoop);
+    },
+    /**
+     * @private
+     */
+    __renderNode: function(ctx, node, delta) {
+        ctx.save();
+        console.log(node);
+        node.getMatrix().apply(ctx);
+        var i =0;
+        for(;i<node.childEntities.length; ++i) {
+            //console.log(node.childEntities[i]);
+            console.log("render: "+i);
+            node.childEntities[i].draw(ctx, delta);
+        }
+        i =0;
+        for(;i<node.childNodes.length; ++i) {
+            this.__renderNode(ctx, node.childNodes[i], delta);
+        }
+        ctx.restore();
+    },
+    /**
      * @member Window
      * @type {Function}
      */
-    render: null,
+    render: function(delta) {
+        var ctx = this.getCanvas();
+
+        this.__renderNode(ctx, this.rootNode, delta);
+    },
     /**
      * @member Window
      * @type {Function}
@@ -351,6 +388,12 @@ Radamn.Window = new Class({
         this.width = width;
         this.height = height;
         this.lastRenderDate = Date.now();
+
+        this.rootNode = new Radamn.Node();
+        this.rootNode.isRoot = function() {
+            return true;
+        };
+
         return this;
     },
     /**
@@ -418,7 +461,9 @@ Radamn.Window = new Class({
      * @member Window
      * @returns {Node}
      */
-    getRootNode: function() {},
+    getRootNode: function() {
+        return this.rootNode;
+    },
     /**
      * change the origin!
      *
@@ -674,7 +719,7 @@ Radamn.RendereableResource = new Class({
      * @param {TransformationMatrix} tmatrix
      * @returns {Boolean}
      */
-    __draw: function(screen, x, y, tmatrix) {
+    __draw: function(screen, x, y) {
         return CRadamn.Image.draw(this.pointer, screen, x, y);
     },
     /**
@@ -740,6 +785,11 @@ Radamn.Image = new Class({
     initialize: function(pointer_to_surface, options) {
         this.parent(pointer_to_surface, options);
         this.__type = "Image";
+    },
+    draw: function(ctx) {
+        console.log("----draw----");
+        console.log(this);
+        this.__draw(ctx, 0, 0);
     }
 });
 /***
@@ -979,6 +1029,12 @@ Radamn.Canvas = new Class({
     scale: function(x, y) {
         CRadamn.Window.scale(x, y);
     },
+    transform: function() {
+        CRadamn.Window.transform.apply(null,arguments);
+    },
+    setTransform: function(x, y) {
+        CRadamn.Window.setTransform.apply(null,arguments);
+    },
     save: function() {
         CRadamn.Window.save();
     },
@@ -1014,3 +1070,457 @@ glEnd();
 //*********************************************************************************
 //
 
+/**
+ * based on cakejs
+ *
+ * @class TranformMatrix
+ */
+Radamn.TranformMatrix = function() {
+    var p = [];
+    p[0] = 1;
+    p[1] = 0;
+    p[2] = 0;
+    p[3] = 1;
+    p[4] = 0;
+    p[5] = 0;
+
+    return {
+        /**
+         * Rotates a transformation matrix by angle.
+         * @member TranformMatrix
+         * @param {Number} angle
+         */
+        rotate : function(angle) {
+            // return this.tMatrixMultiply(matrix, this.tRotationMatrix(angle))
+            var c = Math.cos(angle);
+            var s = Math.sin(angle);
+            var m11 = p[0] * c + p[2] * s;
+            var m12 = p[1] * c + p[3] * s;
+            var m21 = p[0] * -s + p[2] * c;
+            var m22 = p[1] * -s + p[3] * c;
+            p[0] = m11;
+            p[1] = m12;
+            p[2] = m21;
+            p[3] = m22;
+        },
+        /**
+         * transformation matrix by x and y
+         * Note: Derived translation (include rotation) Translates a
+         *
+         * @member TranformMatrix
+         * @param {Number} x
+         * @param {Number} y
+         * @returns
+         */
+        translate : function(x, y) {
+            // return this.tMatrixMultiply(matrix, this.tTranslationMatrix(x,y))
+            p[4] += p[0] * x + p[2] * y;
+            p[5] += p[1] * x + p[3] * y;
+        },
+        /**
+         * transformation matrix by x and y
+         * Note: Global translation (NO include rotation)
+         *
+         * @member TranformMatrix
+         * @param {Number} x
+         * @param {Number} y
+         * @returns
+         */
+        gTranslate : function(x, y) {
+            // return this.tMatrixMultiply(matrix, this.tTranslationMatrix(x,y))
+            p[4] += x;
+            p[5] += y;
+        },
+        /**
+         * transformation matrix by x and y
+         * Note: Global translation (NO include rotation)
+         *
+         * @member TranformMatrix
+         * @param {Number} x
+         * @param {Number} y
+         * @returns
+         */
+        setPosition: function(x, y) {
+            // return this.tMatrixMultiply(matrix, this.tTranslationMatrix(x,y))
+            p[4] = x;
+            p[5] = y;
+        },
+        /**
+         * Scales a transformation matrix by sx and sy.
+         *
+         * @member TranformMatrix
+         * @param {Number} sx
+         * @param {Number} sy
+         */
+        scale : function(sx, sy) {
+            // return this.tMatrixMultiply(matrix, this.tScalingMatrix(sx,sy))
+            p[0] *= sx;
+            p[1] *= sx;
+            p[2] *= sy;
+            p[3] *= sy;
+        },
+        /**
+         * Skews a transformation matrix by angle on the x-axis.
+         * @member TranformMatrix
+         * @param {Number} angle
+         */
+        skewX : function(angle) {
+            return this.matrixMultiply(p, this.skewXMatrix(angle));
+        },
+
+        /**
+         * Skews a transformation matrix by angle on the y-axis.
+         * @member TranformMatrix
+         * @param {Number} angle
+         */
+        skewY : function(angle) {
+            return this.matrixMultiply(p, this.skewYMatrix(angle));
+        },
+
+        /**
+         * Multiplies two 3x2 affine 2D column-major transformation matrices
+         * with each other and stores the result in the first matrix.
+         *
+         * Returns the multiplied matrix m1.
+         * @member TranformMatrix
+         * @param {Array} m2
+         */
+        matrixMultiply : function(m2) {
+            var m11 = p[0] * m2[0] + p[2] * m2[1];
+            var m12 = p[1] * m2[0] + p[3] * m2[1];
+
+            var m21 = p[0] * m2[2] + p[2] * m2[3];
+            var m22 = p[1] * m2[2] + p[3] * m2[3];
+
+            var dx = p[0] * m2[4] + p[2] * m2[5] + p[4];
+            var dy = p[1] * m2[4] + p[3] * m2[5] + p[5];
+
+            p[0] = m11;
+            p[1] = m12;
+            p[2] = m21;
+            p[3] = m22;
+            p[4] = dx;
+            p[5] = dy;
+        },
+
+        /**
+         * Returns a 3x2 2D column-major translation matrix for x and y.
+         * @member TranformMatrix
+         * @param {Number} x
+         * @param {Number} y
+         */
+        translationMatrix : function(x, y) {
+            return [ 1, 0, 0, 1, x, y ];
+        },
+        /**
+         * Returns a 3x2 2D column-major y-skew matrix for the angle.
+         * @member TranformMatrix
+         * @param {Number} angle
+         */
+        skewXMatrix : function(angle) {
+            return [ 1, 0, Math.tan(angle), 1, 0, 0 ];
+        },
+
+        /**
+         * Returns a 3x2 2D column-major y-skew matrix for the angle.
+         * @member TranformMatrix
+         * @param {Number} angle
+         */
+        skewYMatrix : function(angle) {
+            return [ 1, Math.tan(angle), 0, 1, 0, 0 ];
+        },
+        /**
+         * Returns a 3x2 2D column-major scaling matrix for sx and sy.
+         * @member TranformMatrix
+         * @param {Number} sx
+         * @param {Number} sy
+         */
+        scalingMatrix : function(sx, sy) {
+            return [ sx, 0, 0, sy, 0, 0 ];
+        },
+        /**
+         * clone and return the array
+         * @return Array
+         */
+        get : function() {
+            return Array.clone(p);
+        },
+        /**
+         * clone and return the array
+         * @return Array
+         */
+        getTranslation : function() {
+            return {x: p[4], y: p[5]};
+        },
+        /**
+         * apply (multiply) the transformation to the canvas
+         * @return Array
+         */
+        apply : function(ctx) {
+            ctx.transform.apply(ctx, p);
+        },
+        /**
+         * apply (overwrite) the transformation to the canvas
+         * @return Array
+         */
+        set : function(ctx) {
+            ctx.setTransform.apply(ctx, p);
+        }
+
+    };
+};
+
+//
+//*********************************************************************************
+//
+
+/**
+ * @class Node
+ */
+Radamn.Node = new Class({
+    Implements : [ Options ],
+    /**
+     * @member Node
+     * @type {String}
+     */
+    name : "Node",
+    /**
+     * @member Node
+     * @type {Array}
+     */
+    childNodes : [],
+    /**
+     * @member Node
+     * @type {Array}
+     */
+    childEntities : [],
+    /**
+     * @member Node
+     * @type {Node}
+     */
+    parentNode : null,
+    /**
+     * @member Node
+     * @type {Boolean}
+     */
+    changed: false,
+    /**
+     * @member Node
+     * @type {TranformMatrix}
+     */
+    matrix : null,
+    /**
+     * @member Node
+     * @type {NodeOptions}
+     */
+    options : {
+
+    },
+    /**
+     * Initialize the CanvasNode and merge an optional config hash.
+     * @member Node
+     * @params {NodeOptions} options
+     */
+    initialize : function(options) {
+        this.setOptions(options);
+
+        this.root = this;
+        this.childNodes = [];
+        this.matrix = new Radamn.TranformMatrix();
+        //this.AABB = new AABB();
+    },
+    /**
+     * Initialize the CanvasNode and merge an optional config hash.
+     *
+     * @todo v2Plus is missing!
+     *
+     * @member Node
+     * @returns Vector2
+     */
+    getDerivedPosition: function() {
+        var node = this;
+        if(node.isRoot()) return this.getMartix().getTranslation();
+
+        var out = {x:0, y:0};
+        do {
+            out = v2Plus(out, node.getMatrix().getTranslation());
+            node = node.parentNode;
+        } while (!node.isRoot());
+
+        return out;
+    },
+    /**
+     * @member Node
+     * @returns TranformMatrix
+     */
+    getMatrix : function() {
+        return this.matrix;
+    },
+    /**
+     * @member Node
+     * @returns Boolean
+     */
+    isRoot : function() {
+        return false;
+    },
+    /**
+     * @member Node
+     * @returns {Node}
+     */
+    getNextSibling : function() {
+        if (this.parentNode)
+            return this.parentNode.childNodes[this.parentNode.childNodes
+                    .indexOf(this) + 1];
+        return null;
+    },
+    /**
+     * @member Node
+     * @returns {Node}
+     */
+    getPreviousSibling : function() {
+        if (this.parentNode)
+            return this.parentNode.childNodes[this.parentNode.childNodes
+                    .indexOf(this) - 1];
+        return null;
+    },
+    /**
+     * Appends arguments as childNodes to the node.
+     *
+     * Adding a child sets child.parentNode to be the node and calls
+     * child.setRoot(node.root)
+     *
+     * @member Node
+     * @param {Array} obj list of nodes or a single node
+     */
+    appendChild : function(obj) {
+        var a = Array.from(arguments);
+        for ( var i = 0; i < a.length; i++) {
+            if (a[i].parentNode)
+                a[i].removeSelf();
+            this.childNodes.push(a[i]);
+            a[i].parentNode = this;
+        }
+        this.touch();
+
+        return this;
+    },
+    /**
+     * Removes all childNodes from the node.
+     * @member Node
+     */
+    removeAllChildren : function() {
+        this.removeChild.apply(this, this.childNodes);
+
+        return this;
+    },
+    /**
+     * Removes arguments from the node's childNodes.
+     *
+     * Removing a child sets its parent to null and calls child.setRoot(null)
+     *
+     * @member Node
+     * @param {Array} list of nodes or a single node
+     */
+    removeChild : function(obj) {
+        var a = arguments;
+        for ( var i = 0; i < a.length; i++) {
+            this.childNodes.deleteFirst(a[i]);
+            delete a[i].parentNode;
+        }
+        this.touch();
+
+        return this;
+    },
+    /**
+     * Calls this.parent.removeChild(this) if this.parent is set.
+     * @member Node
+     */
+    removeSelf : function() {
+        if (this.parentNode) {
+            this.parentNode.removeChild(this);
+        }
+
+        return this;
+    },
+    /**
+    * @member Node
+    * return AABB
+    */
+    getBoundingBox : function() {
+        return [ this.x1, this.y1, this.x2 - this.x1, this.y2 - this.y1 ]
+    },
+    /**
+     * Appends arguments as childNodes to the node.
+     *
+     * Adding a child sets child.parentNode to be the node and calls
+     * child.setRoot(node.root)
+     *
+     * @member Node
+     * @param {Array} list of nodes or a single node
+     */
+    appendEntity : function(obj) {
+        var a = Array.from(arguments);
+        for ( var i = 0; i < a.length; i++) {
+            this.childEntities.push(a[i]);
+            a[i].parentNode = this;
+        }
+        //var aabb = new AABB();
+        //aabb.ComputeAABBFromPoly(/*??*/);
+        this.touch();
+
+        return this;
+    },
+    /**
+     * Removes all childNodes from the node.
+     *
+     * @member Node
+     */
+    removeAllEntities : function() {
+        this.removeEntity.apply(this, this.childEntities);
+
+        return this;
+    },
+    /**
+     * Removes arguments from the node's childNodes.
+     *
+     * Removing a child sets its parent to null and calls child.setRoot(null)
+     *
+     * @member Node
+     * @param {Array} list of nodes or a single node
+     */
+    removeEntity : function(obj) {
+        var a = arguments;
+        for ( var i = 0; i < a.length; i++) {
+            this.childEntities.deleteFirst(a[i]);
+            delete a[i].parentNode;
+        }
+        this.touch();
+    },
+    /**
+     * Get all entities recursive from this node and his children
+     *
+     * @member Node
+     * @returns Array list of nodes
+     */
+    getAllSubEntites : function() {
+        var output = this.childEntities.clean();
+        for ( var i = 0; i < this.childNodes.length; i++) {
+            output = output.combine(this.childNodes[i].getAllSubEntites());
+        }
+        return output;
+    },
+    /**
+     * @deprecated
+     */
+    touch: function() {
+        return ;
+        this.changed = true;
+        if(!this.isRoot()) {
+            var rootNode = this;
+            while (rootNode.isRoot() === false) {
+                rootNode = this.parentNode;
+            }
+            rootNode.touch();
+        }
+    }
+});

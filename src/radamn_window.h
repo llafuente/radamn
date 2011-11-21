@@ -42,6 +42,8 @@ namespace Radamn {
         static v8::Handle<v8::Value> save(const v8::Arguments& args);
         static v8::Handle<v8::Value> restore(const v8::Arguments& args);
         static v8::Handle<v8::Value> stroke(const v8::Arguments& args);
+        static v8::Handle<v8::Value> transform(const v8::Arguments& args);
+        static v8::Handle<v8::Value> setTransform(const v8::Arguments& args);
 
         // radamn specific
         static v8::Handle<v8::Value> screenshot(const v8::Arguments& args);

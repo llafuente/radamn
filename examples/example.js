@@ -13,6 +13,7 @@ var win = Radamn.createWindow(640, 480);
 
 win.setCaption("caption!!", "caption!");
 
+
 var canvas = win.getCanvas();
 
 /**
@@ -97,12 +98,41 @@ Radamn.addEvent("mousemove", function(e) {
 
 win.setBackgroundColor("#000000");
 
+var node = win.getRootNode();
+
+
+var childnode1 = new Radamn.Node();
+var childnode2 = new Radamn.Node();
+
+console.log(childnode1);
+
+
+childnode1.appendEntity(image);
+childnode2.appendEntity(image);
+
+childnode1.getMatrix().translate(32, 0);
+childnode2.getMatrix().translate(32, 32);
+
+node.appendChild(childnode1);
+node.appendChild(childnode2);
+
+tt = new Radamn.TranformMatrix();
+
+//
+//tt.rotate(15);
+
 var counter = 0;
 win.onRequestFrame = function(delta) {
     ++counter;
 
+    childnode2.getMatrix().translate(1, 1);
+
+    win.render();
+
     // line test, grid mode :)
     grid(win, 32);
+
+    tt.set(canvas);
 
     // animation test
     canvas.save();

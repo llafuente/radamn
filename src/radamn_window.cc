@@ -211,6 +211,7 @@ static v8::Handle<v8::Value> Radamn::Window::stroke(const v8::Arguments& args) {
             glVertex3f (x, y, 0);
         }
     glEnd ();
+    glColor3f (1,1,1);
 
     return v8::True();
 
@@ -294,4 +295,73 @@ static v8::Handle<v8::Value> Radamn::Window::screenshot(const v8::Arguments& arg
     SDL_SaveBMP(image, "pic.bmp");
 
     SDL_FreeSurface(image);
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+static v8::Handle<v8::Value> Radamn::Window::transform(const v8::Arguments& args) {
+    GLfloat m[16] = {
+        1,0,0,0,
+        0,1,0,0,
+        0,0,1,0,
+        0,0,0,1
+    };
+
+    std::cout << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
+    std::cout << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
+    std::cout << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
+    std::cout << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
+
+    V8_ARG_TO_FLOAT(0, m[0]); //m11);
+    V8_ARG_TO_FLOAT(1, m[1]); //m21);
+    V8_ARG_TO_FLOAT(2, m[4]); //m22);
+    V8_ARG_TO_FLOAT(3, m[5]); //m12);
+
+    V8_ARG_TO_FLOAT(4, m[12]); //dx);
+    V8_ARG_TO_FLOAT(5, m[13]); //dy);
+
+
+    std::cout << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
+    std::cout << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
+    std::cout << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
+    std::cout << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
+
+    glMultMatrixf(m);
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+static v8::Handle<v8::Value> Radamn::Window::setTransform(const v8::Arguments& args) {
+    GLfloat m[16] = {
+        1,0,0,0,
+        0,1,0,0,
+        0,0,1,0,
+        0,0,0,1
+    };
+
+    std::cout << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
+    std::cout << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
+    std::cout << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
+    std::cout << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
+
+    V8_ARG_TO_FLOAT(0, m[0]); //m11);
+    V8_ARG_TO_FLOAT(1, m[1]); //m21);
+    V8_ARG_TO_FLOAT(2, m[4]); //m22);
+    V8_ARG_TO_FLOAT(3, m[5]); //m12);
+
+    V8_ARG_TO_FLOAT(4, m[12]); //dx);
+    V8_ARG_TO_FLOAT(5, m[13]); //dy);
+
+
+    std::cout << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
+    std::cout << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
+    std::cout << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
+    std::cout << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
+
+    glLoadMatrixf(m);
+    std::cout << "setTransformed" << std::endl;
 }
