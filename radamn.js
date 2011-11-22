@@ -91,7 +91,7 @@ var Radamn = new Class({
      * @returns {Window}
      */
     createWindow: function(width, height) {
-        var surface = CRadamn.setVideoMode(width, height);
+        var surface = CRadamn.createWindow(width, height);
         var window = new Radamn.Window(surface, width, height);
 
         this.windows.push(window);
@@ -153,6 +153,7 @@ var Radamn = new Class({
         }
     },
     quit: function() {
+        Radamn.Assets.destroyAllImages();
         this.stop();
         this.stopListeningInput();
         CRadamn.quit();
@@ -351,6 +352,9 @@ Radamn.Window = new Class({
 
         this.__renderNode(ctx, this.rootNode, delta);
     },
+    ray: function(x,y) {
+        return [this.rootNode];
+    },
     /**
      * @member Window
      * @type {Function}
@@ -402,7 +406,7 @@ Radamn.Window = new Class({
      * @params {Image} image
      * @returns {Boolean}
      */
-    setIcon: function(image) {},
+    setIcon: CRadamn.Window.setIcon,
     /**
      * @member Window
      * @params {Number} color Uint32 Color
@@ -487,7 +491,13 @@ Radamn.Window = new Class({
  * @class Assets
  */
 Radamn.Assets = new Class({
+    __images : null,
+    __fonts : null,
     __pathlist : [],
+    initialize: function() {
+        this.__images = new Hash();
+        this.__fonts = new Hash();
+    },
     /**
      * @member Assets
      */
@@ -515,6 +525,30 @@ Radamn.Assets = new Class({
     },
     /**
      * @member Assets
+     * @private
+     * @params {String} path
+     * @params {String} zipfile (optional)
+     * @returns {Image}
+     */
+    __getImage: function(path, zipfile) {
+        zipfile = zipfile | null;
+
+        var image_pointer = null;
+
+        if((image_pointer = this.__images.get(path)) !== null) {
+            return image_pointer;
+        }
+
+        image_pointer = CRadamn.Image.load(path);
+        image_pointer.path = path;
+        this.__images.set(path, image_pointer);
+
+
+        return image_pointer;
+
+    },
+    /**
+     * @member Assets
      * @params {String} path
      * @params {String} zipfile (optional)
      * @returns {Image}
@@ -522,9 +556,9 @@ Radamn.Assets = new Class({
     getImage: function(path, zipfile) {
         zipfile = zipfile | null;
 
-        var image_pointer = CRadamn.Image.load(path);
-        return new Radamn.Image(image_pointer);
+        var image_pointer = this.__getImage(path, zipfile);
 
+        return new Radamn.Image(image_pointer);
     },
     /**
      * @member Assets
@@ -542,7 +576,8 @@ Radamn.Assets = new Class({
             options = path_to_cfg_or_object;
         }
 
-        var image_pointer = CRadamn.Image.load(path);
+        var image_pointer = this.__getImage(path, zipfile);
+
         return new Radamn.Animation(image_pointer, path_to_cfg_or_object);
     },
     /**
@@ -556,6 +591,27 @@ Radamn.Assets = new Class({
     },
     /**
      * @member Assets
+     * @private
+     * @params {String} path
+     * @params {Number} path
+     * @params {String} zipfile (optional)
+     * @returns {Font}
+     */
+    __getFont: function(path, size, zipfile) {
+        var font_pointer = null;
+        var key = path+":"+size;
+
+        if((font_pointer = this.__fonts.get(key)) !== null) {
+            return font_pointer;
+        }
+
+        var font_pointer = CRadamn.Font.load(path, size);
+        font_pointer.path = path;
+        font_pointer.size = size;
+        return font_pointer;
+    },
+    /**
+     * @member Assets
      * @params {String} path
      * @params {Number} path
      * @params {String} zipfile (optional)
@@ -564,7 +620,8 @@ Radamn.Assets = new Class({
     getFont: function(path, size, zipfile) {
         zipfile = zipfile | null;
 
-        var font_pointer = CRadamn.Font.load(path, size);
+        var font_pointer = this.__getFont(path, size, zipfile);
+
         return new Radamn.Font(font_pointer);
     },
     /**
@@ -584,11 +641,25 @@ Radamn.Assets = new Class({
         switch(resource.__type) {
         case 'Image' :
             CRadamn.Image.destroy(resource.pointer);
+            this.__images.erase(resource.pointer.path);
         break;
         case 'Font' :
             CRadamn.Font.destroy(resource.pointer);
+            this.__fonts.erase(resource.pointer.path + ":" + resource.pointer.size);
         break;
         }
+    },
+    destroyAllImages: function() {
+        this.__images.forEach(function(v,k) {
+            CRadamn.Image.destroy(v);
+        });
+        this.__images.empty();
+    },
+    destroyAllFont: function() {
+        this.__fonts.forEach(function(v,k) {
+            CRadamn.Font.destroy(v);
+        });
+        this.__fonts.empty();
     }
     /**
      * @member Assets
@@ -738,6 +809,12 @@ Radamn.RendereableResource = new Class({
     events: ["moved", "rotated", "scaled"]
 });
 
+Radamn.createRenderable = function(render_function) {
+    var rendereable = new Radamn.RendereableResource();
+    rendereable.draw = render_function;
+    return rendereable;
+}
+
 /**
  * @class Image
  * @super RendereableResource
@@ -884,6 +961,7 @@ Radamn.Font = new Class({
         this.__type = "Font";
     },
     /**
+     * TODO: manage quit event -> destroy all images created if possible!
      * @member Font
      * @param {String} text
      * @returns {Image}
@@ -904,7 +982,6 @@ Radamn.Font = new Class({
         var image = new Radamn.Image(surface);
         image.__draw(canvas, x, y);
         image.destroy();
-
         return this;
     }
 });
@@ -1257,7 +1334,7 @@ Radamn.TranformMatrix = function() {
  * @class Node
  */
 Radamn.Node = new Class({
-    Implements : [ Options ],
+    Implements : [ Options, Events ],
     /**
      * @member Node
      * @type {String}

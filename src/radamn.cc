@@ -32,7 +32,7 @@ init(Handle<Object> target)
   NODE_SET_METHOD(target, "init", Radamn::init);
   NODE_SET_METHOD(target, "quit", Radamn::quit);
   NODE_SET_METHOD(target, "getVersion", Radamn::getVersion);
-  NODE_SET_METHOD(target, "setVideoMode", Radamn::setVideoMode);
+  NODE_SET_METHOD(target, "createWindow", Radamn::createWindow);
   NODE_SET_METHOD(target, "getJoysticks", Radamn::getJoysticks);
   NODE_SET_METHOD(target, "pollEvent", Radamn::pollEvent);
 
@@ -104,7 +104,7 @@ static Handle<Value> Radamn::getVersion(const Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-static Handle<Value> Radamn::setVideoMode(const Arguments& args) {
+static Handle<Value> Radamn::createWindow(const Arguments& args) {
     v8::HandleScope scope;
 
     if (!(args.Length() == 2 && args[0]->IsNumber() && args[1]->IsNumber())) {
@@ -148,22 +148,13 @@ static Handle<Value> Radamn::setVideoMode(const Arguments& args) {
         glMatrixMode(GL_TEXTURE);
         glLoadIdentity ();
 
+        // 2d projection matrix
         glMatrixMode (GL_PROJECTION);
         glLoadIdentity ();
         glOrtho (0, width, height, 0, -1, 1); // flip Y
 
         glMatrixMode (GL_MODELVIEW);
         glLoadIdentity ();
-
-/*
-extra
-    glShadeModel(GL_SMOOTH);                        // Enable Smooth Shading
-    glClearColor(0.0f, 0.0f, 0.0f, 0.5f);                   // Black Background
-    glClearDepth(1.0f);                         // Depth Buffer Setup
-    glEnable(GL_DEPTH_TEST);                        // Enables Depth Testing
-    glDepthFunc(GL_LEQUAL);                         // The Type Of Depth Testing To Do
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-*/
 
 #endif
 

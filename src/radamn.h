@@ -37,7 +37,7 @@ namespace Radamn {
     static v8::Handle<v8::Value> getVersion(const v8::Arguments& args);
 
     static v8::Handle<v8::Value> getVideoModes(const v8::Arguments& args);
-    static v8::Handle<v8::Value> setVideoMode(const v8::Arguments& args);
+    static v8::Handle<v8::Value> createWindow(const v8::Arguments& args);
 
     static v8::Handle<v8::Value> getWindow(const v8::Arguments& args);
 

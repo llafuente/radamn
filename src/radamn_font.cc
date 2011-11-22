@@ -35,21 +35,31 @@ static v8::Handle<v8::Value> Radamn::Font::load(const v8::Arguments& args) {
 //
 
 static v8::Handle<v8::Value> Radamn::Font::getImage(const v8::Arguments& args) {
-  v8::HandleScope scope;
+    v8::HandleScope scope;
 
-  if (!(args.Length() == 3 && args[0]->IsObject() && args[1]->IsString() && args[2]->IsNumber())) {
-    return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected TTF::RenderTextBlended(Font, String, Number)")));
-  }
+    if (!(args.Length() == 3 && args[0]->IsObject() && args[1]->IsString())) {
+        return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected TTF::RenderTextBlended(Font, String, Number)")));
+    }
 
-  TTF_Font* font = 0;
-  V8_UNWRAP_POINTER_ARG(0, TTF_Font, font)
+    TTF_Font* font = 0;
+    V8_UNWRAP_POINTER_ARG(0, TTF_Font, font)
 
-  v8::String::Utf8Value text(args[1]);
+    v8::String::Utf8Value text(args[1]);
 
-  V8_ARG_TO_SDL_NEWCOLOR(2, fg_color)
+    V8_ARG_TO_SDL_NEWCOLOR(2, fg_color)
 
-  SDL_Surface *resulting_text;
-  resulting_text = // TTF_RenderText_Blended(font, *text, fg_color);
+    SDL_Surface *initial;
+    SDL_Surface *image;
+
+    int w,h;
+    GLuint texture;
+
+    /* Use SDL_TTF to render our text */
+    //initial = TTF_RenderText_Blended(font, *text, fg_color);
+    initial = TTF_RenderText_Solid(font, *text, fg_color);
+
+/*
+initial =
 #if RENDER_MODE==0
                 TTF_RenderText_Solid(font, *text, fg_color);
 #elif RENDER_MODE==1
@@ -60,15 +70,60 @@ static v8::Handle<v8::Value> Radamn::Font::getImage(const v8::Arguments& args) {
 #elif RENDER_MODE==2
                 TTF_RenderText_Blended(font, *text, fg_color);
 #endif
+*/
 
 
-  if (!resulting_text) {
-    return ThrowException(v8::Exception::Error(v8::String::Concat(
-      v8::String::New("TTF::"), v8::String::New(TTF_GetError())
-    )));
-  }
+#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
+    //upload to opengl and return this is not efficiency so i maybe need to think another method...
 
-  V8_RETURN_WRAPED_POINTER(scope, SDL_Surface, resulting_text)
+    /* Convert the rendered text to a known format */
+    w = nextpoweroftwo(initial->w);
+    h = nextpoweroftwo(initial->h);
+
+    image = SDL_CreateRGBSurface(0, w, h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+    SDL_BlitSurface(initial, 0, image, 0);
+
+    /* Tell GL about our new texture */
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    GLint bpp = image->format->BytesPerPixel;
+    GLenum texture_format=0;
+
+    if(bpp == 4 ) {
+        texture_format = image->format->Rmask ==0x000000ff ? GL_RGBA : GL_BGRA;
+    } else {
+        texture_format = image->format->Rmask ==0x000000ff ? GL_RGB : GL_BGR;
+    }
+
+    std::cout << "bpp" << bpp << std::endl;
+
+    glTexImage2D(GL_TEXTURE_2D, 0, bpp, image->w, image->h, 0, texture_format, GL_UNSIGNED_BYTE, image->pixels);
+
+
+    /* GL_NEAREST looks horrible, if scaled... */
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+    /* Clean up */
+    SDL_FreeSurface(initial);
+
+    SDL_free(image->pixels); //pixels are not needed so free!
+
+    image->userdata = (OGL_Texture*) new OGL_Texture;
+    ((OGL_Texture*) image->userdata)->textureID = texture;
+#elif
+    image = initial;
+#endif
+
+    if (!image) {
+        return ThrowException(v8::Exception::Error(v8::String::Concat(
+            v8::String::New("TTF::"), v8::String::New(TTF_GetError())
+        )));
+    }
+
+    RETURN_WRAP_IMAGE(image)
 }
 
 //
@@ -87,3 +142,4 @@ static v8::Handle<v8::Value> Radamn::Font::destroy(const v8::Arguments& args) {
 
   return v8::True();
 }
+

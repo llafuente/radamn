@@ -23,24 +23,37 @@ void debug_SDL_Surface(SDL_Surface* surface);
 inline SDL_Rect* getFullRectSurface(SDL_Surface* surface);
 
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
+
     // remeber this is only OPENGL, OPENGLES2 it's different
-    // glBindTexture (GL_TEXTURE_2D, texture_id);
-    #define SDL_RECT_TO_QUAD(TEXTURE_ID, FROM, TO)                                                                    \
-        glBegin(GL_QUADS);                                                                                            \
-        std::cout << "texture" << TEXTURE_ID << std::endl;                                                            \
-        glBindTexture( GL_TEXTURE_2D, TEXTURE_ID );                                                                   \
-        std::cout << "quad [";                                                                 \
-        glColor3f(1, 1, 1);                                                                                           \
-            glTexCoord2i( 0, 0 ); glVertex3f(TO->x, TO->y, 0);                                          \
-            std::cout << TO->x << "," << TO->y << "] [";                                          \
-            glTexCoord2i( 1, 0 ); glVertex3f(TO->w, TO->y, 0);                                          \
-            std::cout << TO->w << "," << TO->y << "] [";                                          \
-            glTexCoord2i( 1, 1 ); glVertex3f(TO->w, TO->h, 0);                                \
-            std::cout << TO->w << "," << TO->h << "] [";                                          \
-            glTexCoord2i( 0, 1 ); glVertex3f(TO->x, TO->h, 0);                                \
-            std::cout << TO->x << "," << TO->h << "]" << std::endl;                                          \
-        glEnd();                                                                                                      \
-    glLoadIdentity();
+    #define SDL_RECT_TO_QUAD(TEXTURE, FROM, TO)                                                                   \
+    {                                                                                                             \
+    debug_SDL_Surface(TEXTURE);                                                                                   \
+    debug_SDL_Rect(FROM);                                                                                         \
+    debug_SDL_Rect(TO);                                                                                           \
+                                                                                                                  \
+    glEnable(GL_TEXTURE_2D);                                                                                      \
+        OGL_Texture* t = (OGL_Texture*)src->userdata;                                                             \
+        glBegin(GL_QUADS);                                                                                        \
+            std::cout << "texture" << t->textureID << std::endl;                                                  \
+            glBindTexture( GL_TEXTURE_2D, t->textureID );                                                         \
+            float xl = FROM->x / TEXTURE->w;                                                                      \
+            float xr = (FROM->x + FROM->w) / TEXTURE->w;                                                          \
+            float yl = FROM->y / TEXTURE->h;                                                                      \
+            float yr = FROM->y + FROM->w / TEXTURE->h;                                                            \
+            std::cout << "texture-size [" << TEXTURE->w << "," << TEXTURE->h << "]" << std::endl;                 \
+            printf("texture [%f,%f,%f,%f]\n", xl, yl, xr, yr);                                                    \
+            std::cout << "quad [";                                                                                \
+            glTexCoord2f(xl, yl); glVertex3f(TO->x, TO->y, 0);                                                    \
+            std::cout << TO->x << "," << TO->y << "] [";                                                          \
+            glTexCoord2f(xr, yl); glVertex3f(TO->w, TO->y, 0);                                                    \
+            std::cout << TO->w << "," << TO->y << "] [";                                                          \
+            glTexCoord2f(xr, yr); glVertex3f(TO->w, TO->h, 0);                                                    \
+            std::cout << TO->w << "," << TO->h << "] [";                                                          \
+            glTexCoord2f(xl, yr); glVertex3f(TO->x, TO->h, 0);                                                    \
+            std::cout << TO->x << "," << TO->h << "]" << std::endl;                                               \
+        glEnd();                                                                                                  \
+        glDisable(GL_TEXTURE_2D);                                                                                 \
+    }                                                                                                             \
 
 #endif
 
@@ -49,3 +62,5 @@ inline SDL_Rect* getFullRectSurface(SDL_Surface* surface);
 
 #endif // SDL_HELPER_H_
 
+
+int nextpoweroftwo(int x);

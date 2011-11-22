@@ -189,6 +189,7 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
 // if alpha!
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE); transparent ??!
 //endif
 
     debug_SDL_Surface(src);
@@ -226,3 +227,4 @@ std::cout << __LINE__ << std::endl;
 
     return v8::True();
 }
+

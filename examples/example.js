@@ -11,6 +11,8 @@ var win = Radamn.createWindow(640, 480);
 //console.log(CRadamn.getVersion());
 //console.log(module.exports);
 
+// i leave it here but dont work for me.
+win.setIcon(process.env.PWD+"/icon.bmp");
 win.setCaption("caption!!", "caption!");
 
 
@@ -20,14 +22,9 @@ var canvas = win.getCanvas();
 * @type Image
 */
 var image = Radamn.Assets.getImage(process.env.PWD+"/rock.png");
-/**
-* @type Font
-*/
-var font = Radamn.Assets.getFont(process.env.PWD+"/Jura-DemiBold.ttf", 32);
 
 
 //animation 80x80 - star-green.png 25,25,21
-
 var animation_cfg = [];
 for(var j = 0; j < 3; ++j) {
     for(var i = 0; i < 25; ++i) {
@@ -37,7 +34,6 @@ for(var j = 0; j < 3; ++j) {
     }
 }
 
-
 var animation = Radamn.Assets.getAnimation(process.env.PWD+"/star-green.png", {
     animation: animation_cfg,
     loop: true,
@@ -46,15 +42,8 @@ var animation = Radamn.Assets.getAnimation(process.env.PWD+"/star-green.png", {
 animation.play();
 
 
-
-/*
-font_image.destroy();
-delete this.font_image;
-font.destroy();
-delete this.font;
-*/
-
-function grid(win, size) {
+var gridResource = Radamn.createRenderable(function (canvas) {
+    var size = 32;
     var x = Math.floor(win.width / size);
     var y = Math.floor(win.height / size);
 
@@ -77,31 +66,42 @@ function grid(win, size) {
         canvas.stroke();
     }
     canvas.translate(0, -y*size);
-}
+});
 
 Radamn.addEvent("quit", function(e) {
     Radamn.quit();
 });
+
 Radamn.addEvent("keydown", function(e) {
     if (e.char == "F5") {
         win.screenshot();
+    } else if (e.char == "Escape") {
+        Radamn.quit();
     }
-    console.log(e);
 });
+
 Radamn.addEvent("wheel", function(e) {
     console.log(e);
 });
 Radamn.addEvent("wheelchange", function(e) {
     console.log(e);
 });
-Radamn.addEvent("mousemove", function(e) {
-    // too much noise!
-    //console.log(e);
+Radamn.addEvent("mousedown", function(e) {
+    var nodes = win.ray(e.x, e.y);
+    var i=0,
+        max=nodes.length;
+    for(; i<max; ++i) {
+        nodes[i].fireEvent("click", [e]);
+    }
 });
 
 win.setBackgroundColor("#000000");
 
 var node = win.getRootNode();
+
+node.addEvent("click", function(e) {
+    console.log(e);
+});
 
 
 var childnode1 = new Radamn.Node();
@@ -110,6 +110,7 @@ var childnode2 = new Radamn.Node();
 console.log(childnode1);
 
 
+node.appendEntity(gridResource);
 childnode1.appendEntity(image);
 childnode2.appendEntity(image);
 
@@ -133,7 +134,6 @@ win.onRequestFrame = function(delta) {
     win.render();
 
     // line test, grid mode :)
-    grid(win, 32);
 
     tt.set(canvas);
 

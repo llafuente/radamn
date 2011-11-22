@@ -32,3 +32,11 @@ inline SDL_Rect* getFullRectSurface(SDL_Surface* surface) {
     return output;
 }
 
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+int nextpoweroftwo(int x) {
+    double logbase2 = log(x) / log(2);
+    return (int) round(pow(2,ceil(logbase2)));
+}

@@ -19,7 +19,6 @@
 
 
 #define V8_WRAP_POINTER(handle_scope, V8WP_TYPE, POINTER, output_var)                              \
-    std::cout << "open";                                                                           \
     if (V8WP_TYPE  ## _template_.IsEmpty()) {                                                      \
         v8::HandleScope handle_scope2;                                                             \
         v8::Handle<v8::ObjectTemplate> result = v8::ObjectTemplate::New();                         \
