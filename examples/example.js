@@ -79,6 +79,9 @@ function grid(win, size) {
     canvas.translate(0, -y*size);
 }
 
+Radamn.addEvent("quit", function(e) {
+    Radamn.quit();
+});
 Radamn.addEvent("keydown", function(e) {
     if (e.char == "F5") {
         win.screenshot();

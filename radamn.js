@@ -1,8 +1,11 @@
+//"use strict"; mootools is not strict :S
+
 // this move the JS to C realm
 // executes Radamn::init and return into CRadamn
 var CRadamn = require(process.env.PWD+ '/../build/Release/radamn.node');
 // include mootools to have a proper class design
 // also add this hack to keep keyboard compatibility :)
+var document;
 
 this.document = document = (function() {
     var events = null;
@@ -40,13 +43,12 @@ nap
 var Radamn = new Class({
     Implements: [Options, Events],
 
-    __fakeIntervalToKeepAppRunning : null,
     intervals : {
         render: null,
         input: null
     },
     /**
-     * @member Window
+     * @member Radamn
      * @type {Array} of Windows
      */
     windows: [],
@@ -56,14 +58,6 @@ var Radamn = new Class({
     $ : null,
     initialize: function() {
         CRadamn.init();
-    },
-    /**
-     * @member Radamn
-     * @param {String} root
-     * @returns {Boolean} true if valid path
-     */
-    setAppRootPath: function(root) {
-        return "<boolean>";
     },
     /**
      * versions of each component
@@ -78,13 +72,6 @@ var Radamn = new Class({
             SDL_mixer: "X.X.X",
             libpng: "X.X.X"
         };
-    },
-    /**
-     * @member Radamn
-     * @returns {String} full path where it's saved!
-     */
-    screenShot: function() {
-        return "/xxx.png";
     },
     /**
      * TODO get it from c-land
@@ -104,9 +91,6 @@ var Radamn = new Class({
      * @returns {Window}
      */
     createWindow: function(width, height) {
-        // XXX why? onRequestFrame should be enough
-        this.__fakeIntervalToKeepAppRunning = setInterval(function() {}, 99999);
-
         var surface = CRadamn.setVideoMode(width, height);
         var window = new Radamn.Window(surface, width, height);
 
@@ -167,6 +151,11 @@ var Radamn = new Class({
         while ((data = CRadamn.pollEvent()) !== false) {
             this.fireEvent(data.type, data);
         }
+    },
+    quit: function() {
+        this.stop();
+        this.stopListeningInput();
+        CRadamn.quit();
     },
     /**
      * @type Screen
@@ -314,7 +303,6 @@ Radamn.Window = new Class({
      * @member Window
      * @type {Canvas}
      */
-    onRequestFrame: null, // buffer flip
     canvas: null,
     /**
      * @member Window
@@ -399,6 +387,7 @@ Radamn.Window = new Class({
     /**
      * @member Window
      * @param {String} caption
+     * @returns {Boolean}
      */
     setCaption: CRadamn.Window.setCaption,
     /**
@@ -408,12 +397,6 @@ Radamn.Window = new Class({
     getCanvas: function() {
         return new Radamn.Canvas(this.surface);
     },
-    /**
-     * @member Window
-     * @param {String} caption
-     * @returns {Boolean}
-     */
-    setCaption: function(caption) {},
     /**
      * @member Window
      * @params {Image} image
@@ -576,7 +559,7 @@ Radamn.Assets = new Class({
      * @params {String} path
      * @params {Number} path
      * @params {String} zipfile (optional)
-     * @returns Font
+     * @returns {Font}
      */
     getFont: function(path, size, zipfile) {
         zipfile = zipfile | null;
@@ -587,7 +570,7 @@ Radamn.Assets = new Class({
     /**
      * @member Assets
      * @params {String} path
-     * @returns Zip
+     * @returns {Zip}
      */
     getZip: function(path) {
 
@@ -595,7 +578,7 @@ Radamn.Assets = new Class({
     /**
      * @member Assets
      * @params {String} path
-     * @returns Zip
+     * @returns {Zip}
      */
     destroy: function(resource) {
         switch(resource.__type) {
@@ -1110,7 +1093,6 @@ Radamn.TranformMatrix = function() {
          * @member TranformMatrix
          * @param {Number} x
          * @param {Number} y
-         * @returns
          */
         translate : function(x, y) {
             // return this.tMatrixMultiply(matrix, this.tTranslationMatrix(x,y))
@@ -1124,7 +1106,6 @@ Radamn.TranformMatrix = function() {
          * @member TranformMatrix
          * @param {Number} x
          * @param {Number} y
-         * @returns
          */
         gTranslate : function(x, y) {
             // return this.tMatrixMultiply(matrix, this.tTranslationMatrix(x,y))
@@ -1138,7 +1119,6 @@ Radamn.TranformMatrix = function() {
          * @member TranformMatrix
          * @param {Number} x
          * @param {Number} y
-         * @returns
          */
         setPosition: function(x, y) {
             // return this.tMatrixMultiply(matrix, this.tTranslationMatrix(x,y))
@@ -1180,8 +1160,7 @@ Radamn.TranformMatrix = function() {
         /**
          * Multiplies two 3x2 affine 2D column-major transformation matrices
          * with each other and stores the result in the first matrix.
-         *
-         * Returns the multiplied matrix m1.
+
          * @member TranformMatrix
          * @param {Array} m2
          */
@@ -1335,7 +1314,7 @@ Radamn.Node = new Class({
      * @todo v2Plus is missing!
      *
      * @member Node
-     * @returns Vector2
+     * @returns {Vector2}
      */
     getDerivedPosition: function() {
         var node = this;
@@ -1351,14 +1330,14 @@ Radamn.Node = new Class({
     },
     /**
      * @member Node
-     * @returns TranformMatrix
+     * @returns {TranformMatrix}
      */
     getMatrix : function() {
         return this.matrix;
     },
     /**
      * @member Node
-     * @returns Boolean
+     * @returns {Boolean}
      */
     isRoot : function() {
         return false;
@@ -1500,7 +1479,7 @@ Radamn.Node = new Class({
      * Get all entities recursive from this node and his children
      *
      * @member Node
-     * @returns Array list of nodes
+     * @returns {Array} list of nodes
      */
     getAllSubEntites : function() {
         var output = this.childEntities.clean();
