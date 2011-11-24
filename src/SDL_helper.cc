@@ -6,7 +6,7 @@
 //
 
 void debug_SDL_Rect(SDL_Rect* rect) {
-  std::cout <<"x: " << rect->x << " y: " << rect->y << " w: " << rect->w << " h: " << rect->h << std::endl;
+  VERBOSE <<"x: " << rect->x << " y: " << rect->y << " w: " << rect->w << " h: " << rect->h << std::endl;
 }
 
 //
@@ -14,7 +14,7 @@ void debug_SDL_Rect(SDL_Rect* rect) {
 //
 
 void debug_SDL_Surface(SDL_Surface* surface) {
-  std::cout <<"w: " << surface->w << " h: " << surface->h << std::endl;
+  VERBOSE <<"w: " << surface->w << " h: " << surface->h << std::endl;
 }
 
 //

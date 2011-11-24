@@ -46,7 +46,6 @@ static v8::Handle<v8::Value> Radamn::Window::clear(const v8::Arguments& args) {
 //
 
 static v8::Handle<v8::Value> Radamn::Window::setIcon(const v8::Arguments& args) {
-std::cout << "xxxxxx";
     v8::HandleScope scope;
 
     if (!(args.Length() == 1 && args[0]->IsString())) {
@@ -65,7 +64,9 @@ std::cout << "xxxxxx";
 
 
     SDL_WM_SetIcon(SDL_LoadBMP( *icon_path ), NULL);
-std::cout << *icon_path << "xxxxxx";
+
+    VERBOSE << "setted icon("<< *icon_path << ")";
+
     return v8::True();
 }
 
@@ -145,8 +146,9 @@ static v8::Handle<v8::Value> Radamn::Window::scale(const v8::Arguments& args) {
 
 static v8::Handle<v8::Value> Radamn::Window::save(const v8::Arguments& args) {
     std::cout << "save" << std::endl;
+    VERBOSE << "save" << std::endl;
     glPushMatrix();
-    std::cout << "saved" << std::endl;
+    VERBOSE << "saved" << std::endl;
     return v8::True();
 }
 
@@ -156,8 +158,9 @@ static v8::Handle<v8::Value> Radamn::Window::save(const v8::Arguments& args) {
 
 static v8::Handle<v8::Value> Radamn::Window::restore(const v8::Arguments& args) {
     std::cout << "restore" << std::endl;
+    VERBOSE << "restore" << std::endl;
     glPopMatrix();
-    std::cout << "restored" << std::endl;
+    VERBOSE << "restored" << std::endl;
     return v8::True();
 }
 
@@ -233,10 +236,10 @@ static v8::Handle<v8::Value> Radamn::Window::transform(const v8::Arguments& args
         0,0,0,1
     };
 
-    std::cout << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
-    std::cout << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
-    std::cout << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
-    std::cout << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
+    VERBOSE << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
+    VERBOSE << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
+    VERBOSE << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
+    VERBOSE << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
 
     V8_ARG_TO_FLOAT(0, m[0]); //m11);
     V8_ARG_TO_FLOAT(1, m[1]); //m21);
@@ -247,10 +250,10 @@ static v8::Handle<v8::Value> Radamn::Window::transform(const v8::Arguments& args
     V8_ARG_TO_FLOAT(5, m[13]); //dy);
 
 
-    std::cout << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
-    std::cout << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
-    std::cout << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
-    std::cout << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
+    VERBOSE << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
+    VERBOSE << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
+    VERBOSE << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
+    VERBOSE << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
 
     glMultMatrixf(m);
 }
@@ -267,10 +270,10 @@ static v8::Handle<v8::Value> Radamn::Window::setTransform(const v8::Arguments& a
         0,0,0,1
     };
 
-    std::cout << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
-    std::cout << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
-    std::cout << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
-    std::cout << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
+    VERBOSE << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
+    VERBOSE << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
+    VERBOSE << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
+    VERBOSE << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
 
     V8_ARG_TO_FLOAT(0, m[0]); //m11);
     V8_ARG_TO_FLOAT(1, m[1]); //m21);
@@ -281,11 +284,11 @@ static v8::Handle<v8::Value> Radamn::Window::setTransform(const v8::Arguments& a
     V8_ARG_TO_FLOAT(5, m[13]); //dy);
 
 
-    std::cout << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
-    std::cout << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
-    std::cout << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
-    std::cout << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
+    VERBOSE << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
+    VERBOSE << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
+    VERBOSE << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
+    VERBOSE << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
 
     glLoadMatrixf(m);
-    std::cout << "setTransformed" << std::endl;
+    VERBOSE << "setTransformed" << std::endl;
 }

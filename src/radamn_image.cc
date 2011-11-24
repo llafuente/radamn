@@ -27,13 +27,10 @@ static v8::Handle<v8::Value> Radamn::Image::load(const v8::Arguments& args) {
     // needed for pngs ?
     //SDL_Surface* optimizedImage = SDL_DisplayFormatAlpha( image );
 
-    ++Radamn::mImageCount;
-    // Radamn::mImages.insert(SDL_SurfacePair(*id, image));
-    // std::cout << image << *id << "/" << Radamn::mImages.size() << std::endl;
-
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 
-    std::cout << "opengl load" << std::endl;
+    std::cout << "load image(opengl)" << *file << ENDL;
+    VERBOSE << "load image(opengl)" << *file << ENDL;
 
     SDL_SetAlpha(image, 0 ,0);
 
@@ -70,7 +67,7 @@ static v8::Handle<v8::Value> Radamn::Image::load(const v8::Arguments& args) {
         texture_format = image->format->Rmask ==0x000000ff ? GL_RGB : GL_BGR;
     }
 
-    std::cout << "bpp" << bpp << std::endl;
+    VERBOSE << "image::load bpp" << bpp << ENDL;
 
     glTexImage2D(GL_TEXTURE_2D, 0, bpp, image->w, image->h, 0, texture_format, GL_UNSIGNED_BYTE, image->pixels);
 
@@ -117,13 +114,13 @@ static v8::Handle<v8::Value> Radamn::Image::destroy(const v8::Arguments& args) {
 static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  std::cout << "draw: " << args.Length() << std::endl;
-  std::cout
+  VERBOSE << "draw: " << args.Length() << ENDL;
+  VERBOSE
     << args[0]->IsObject()
     << args[1]->IsObject()
     << args[2]->IsNumber()
     << args[3]->IsNumber()
-    << std::endl;
+    << ENDL;
 
   // 3 args! <image>,<image>,<number>,<number>
 
@@ -148,7 +145,8 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
     V8_UNWRAP_POINTER_ARG(0, SDL_Surface, src)
     V8_UNWRAP_POINTER_ARG(1, SDL_Surface, dst)
 
-    std::cout << "blit image from: " << src << " to:" << dst << std::endl;
+    std::cout << "blit image from: " << src << " to:" << dst << ENDL;
+    VERBOSE << "blit image from: " << src << " to:" << dst << ENDL;
 
     SDL_Rect* dstrect = 0;
     SDL_Rect* srcrect = 0;
@@ -200,27 +198,27 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
     GLfloat xUpperRight = ((float) (srcrect->x + srcrect->w)) / src->w;
     GLfloat yUpperRight = ((float) (srcrect->y + srcrect->h)) / src->h;
 
-    printf("text-coords [%f,%f,%f,%f]\n", xLowerLeft, yLowerLeft, xUpperRight, yUpperRight);
+    VERBOSEF("text-coords [%f,%f,%f,%f]\n", xLowerLeft, yLowerLeft, xUpperRight, yUpperRight);
 
     glEnable(GL_TEXTURE_2D);
         OGL_Texture* t = (OGL_Texture*)src->userdata;
         glBindTexture( GL_TEXTURE_2D, t->textureID );
         glBegin(GL_QUADS);
-            std::cout << "texture: ID:" << t->textureID << " [" << src->w << "," << src->h << "]"<< std::endl;
-            std::cout << "quad [";
+            VERBOSE << "texture: ID:" << t->textureID << " [" << src->w << "," << src->h << "]"<< ENDL;
+            VERBOSE << "quad [";
             glTexCoord2f(xLowerLeft, yLowerLeft); glVertex3f(dstrect->x, dstrect->y, 0);
-            std::cout << dstrect->x << "," << dstrect->y << "] [";
+            VERBOSEC << dstrect->x << "," << dstrect->y << "] [";
             glTexCoord2f(xUpperRight, yLowerLeft); glVertex3f(dstrect->w, dstrect->y, 0);
-            std::cout << dstrect->w << "," << dstrect->y << "] [";
+            VERBOSEC << dstrect->w << "," << dstrect->y << "] [";
             glTexCoord2f(xUpperRight, yUpperRight); glVertex3f(dstrect->w, dstrect->h, 0);
-            std::cout << dstrect->w << "," << dstrect->h << "] [";
+            VERBOSEC << dstrect->w << "," << dstrect->h << "] [";
             glTexCoord2f(xLowerLeft, yUpperRight); glVertex3f(dstrect->x, dstrect->h, 0);
-            std::cout << dstrect->x << "," << dstrect->h << "]" << std::endl;
+            VERBOSEC << dstrect->x << "," << dstrect->h << "]" << ENDL;
         glEnd();
     glDisable(GL_TEXTURE_2D);
 
     glDisable(GL_BLEND);
-std::cout << __LINE__ << std::endl;
+
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
     return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));
 #endif

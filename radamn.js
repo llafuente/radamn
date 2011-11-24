@@ -7,7 +7,7 @@ var CRadamn = require(process.env.PWD+ '/../build/Release/radamn.node');
 // also add this hack to keep keyboard compatibility :)
 var document;
 
-this.document = document = (function() {
+global.document = this.document = document = (function() {
     var events = null;
     return {
         addEvents: function(events) {
@@ -15,7 +15,11 @@ this.document = document = (function() {
         },
         getEvents: function() {
             return events;
-        }
+        },
+        html : {
+            style : {}
+        },
+        id: function(arg) { return arg; }
     }
 })();
 
@@ -329,7 +333,7 @@ Radamn.Window = new Class({
      */
     __renderNode: function(ctx, node, delta) {
         ctx.save();
-        console.log(node);
+        console.log(node.getMatrix().get());
         node.getMatrix().apply(ctx);
         var i =0;
         for(;i<node.childEntities.length; ++i) {
@@ -848,7 +852,6 @@ Radamn.Image = new Class({
     },
     draw: function(ctx) {
         console.log("----draw----");
-        console.log(this);
         this.__draw(ctx, 0, 0);
     }
 });
@@ -1130,8 +1133,47 @@ glEnd();
 //*********************************************************************************
 //
 
+Radamn.Matrix2D = new Class({
+    /**
+     * Returns a 3x2 2D column-major translation matrix for x and y.
+     * @member TranformMatrix
+     * @param {Number} x
+     * @param {Number} y
+     */
+    translationMatrix : function(x, y) {
+        return [ 1, 0, 0, 1, x, y ];
+    },
+    /**
+     * Returns a 3x2 2D column-major y-skew matrix for the angle.
+     * @member TranformMatrix
+     * @param {Number} angle
+     */
+    skewXMatrix : function(angle) {
+        return [ 1, 0, Math.tan(angle * 0.017453292519943295769236907684886), 1, 0, 0 ];
+    },
+
+    /**
+     * Returns a 3x2 2D column-major y-skew matrix for the angle.
+     * @member TranformMatrix
+     * @param {Number} angle
+     */
+    skewYMatrix : function(angle) {
+        return [ 1, Math.tan(angle * 0.017453292519943295769236907684886), 0, 1, 0, 0 ];
+    },
+    /**
+     * Returns a 3x2 2D column-major scaling matrix for sx and sy.
+     * @member TranformMatrix
+     * @param {Number} sx
+     * @param {Number} sy
+     */
+    scalingMatrix : function(sx, sy) {
+        return [ sx, 0, 0, sy, 0, 0 ];
+    }
+});
+Radamn.Matrix2D = new Radamn.Matrix2D();
 /**
  * based on cakejs
+ * closure to speed up a bit
  *
  * @class TranformMatrix
  */
@@ -1144,6 +1186,12 @@ Radamn.TranformMatrix = function() {
     p[4] = 0;
     p[5] = 0;
 
+    var __scalex = 1;
+    var __scaley = 1;
+    var __skewx = 0;
+    var __skewy = 0;
+    var __rotation = 0;
+
     return {
         /**
          * Rotates a transformation matrix by angle.
@@ -1151,7 +1199,8 @@ Radamn.TranformMatrix = function() {
          * @param {Number} angle
          */
         rotate : function(angle) {
-            // return this.tMatrixMultiply(matrix, this.tRotationMatrix(angle))
+            __rotation +=angle;
+            angle = angle * 0.017453292519943295769236907684886;
             var c = Math.cos(angle);
             var s = Math.sin(angle);
             var m11 = p[0] * c + p[2] * s;
@@ -1163,44 +1212,48 @@ Radamn.TranformMatrix = function() {
             p[2] = m21;
             p[3] = m22;
         },
+        setRotation: function(angle) {
+            var aux = angle - __rotation;
+            this.rotate(aux);
+            __rotation = angle;
+        },
         /**
          * transformation matrix by x and y
-         * Note: Derived translation (include rotation) Translates a
+         * @note  Derived translation (include rotation)
          *
          * @member TranformMatrix
          * @param {Number} x
          * @param {Number} y
          */
         translate : function(x, y) {
-            // return this.tMatrixMultiply(matrix, this.tTranslationMatrix(x,y))
             p[4] += p[0] * x + p[2] * y;
             p[5] += p[1] * x + p[3] * y;
         },
         /**
          * transformation matrix by x and y
-         * Note: Global translation (NO include rotation)
+         * @note Global translation (NO include rotation)
          *
          * @member TranformMatrix
          * @param {Number} x
          * @param {Number} y
          */
         gTranslate : function(x, y) {
-            // return this.tMatrixMultiply(matrix, this.tTranslationMatrix(x,y))
             p[4] += x;
             p[5] += y;
         },
         /**
          * transformation matrix by x and y
-         * Note: Global translation (NO include rotation)
+         * @note Global position (NO include rotation)
          *
          * @member TranformMatrix
-         * @param {Number} x
-         * @param {Number} y
+         * @param {Number} x use false to not skip set
+         * @param {Number} y use false to not skip set
          */
         setPosition: function(x, y) {
-            // return this.tMatrixMultiply(matrix, this.tTranslationMatrix(x,y))
-            p[4] = x;
-            p[5] = y;
+            if(x !== false)
+                p[4] = x;
+            if(y !== false)
+                p[5] = y;
         },
         /**
          * Scales a transformation matrix by sx and sy.
@@ -1210,30 +1263,71 @@ Radamn.TranformMatrix = function() {
          * @param {Number} sy
          */
         scale : function(sx, sy) {
-            // return this.tMatrixMultiply(matrix, this.tScalingMatrix(sx,sy))
+            __scalex = __scalex * sx;
+            __scaley = __scaley * sy;
             p[0] *= sx;
             p[1] *= sx;
             p[2] *= sy;
             p[3] *= sy;
         },
         /**
+         * Scales a transformation matrix by sx and sy.
+         *
+         * @member TranformMatrix
+         * @param {Number} sx
+         * @param {Number} sy
+         */
+        setScale : function(sx, sy) {
+            __scalex = __scalex / sx;
+            __scaley = __scaley / sy;
+            p[0] /= __scalex;
+            p[1] /= __scalex;
+            p[2] /= __scaley;
+            p[3] /= __scaley;
+
+            __scalex = sx;
+            __scaley = sy;
+        },
+        /**
          * Skews a transformation matrix by angle on the x-axis.
+         * TODO optimize!
          * @member TranformMatrix
          * @param {Number} angle
          */
         skewX : function(angle) {
-            return this.matrixMultiply(p, this.skewXMatrix(angle));
+            console.log("skew: "+ angle);
+            __skewx+=angle;
+            this.multiply(Radamn.Matrix2D.skewXMatrix(angle));
+            console.log("skew matrix: ", p);
+            return this;
         },
 
         /**
          * Skews a transformation matrix by angle on the y-axis.
+         * TODO optimize!
          * @member TranformMatrix
          * @param {Number} angle
          */
         skewY : function(angle) {
-            return this.matrixMultiply(p, this.skewYMatrix(angle));
+            __skewy+=angle;
+            return this.multiply(Radamn.Matrix2D.skewYMatrix(angle));
         },
-
+        /**
+         * TODO optimize!
+         */
+        setSkew: function(anglex, angley) {
+            var aux;
+            if(anglex !== false) {
+                aux = anglex  - __skewx;
+                this.skewX(aux);
+                __skewx = anglex;
+            }
+            if(angley !== false) {
+                aux = angley - __skewy;
+                this.skewY(aux);
+                __skewy = angley;
+            }
+        },
         /**
          * Multiplies two 3x2 affine 2D column-major transformation matrices
          * with each other and stores the result in the first matrix.
@@ -1241,7 +1335,7 @@ Radamn.TranformMatrix = function() {
          * @member TranformMatrix
          * @param {Array} m2
          */
-        matrixMultiply : function(m2) {
+        multiply : function(m2) {
             var m11 = p[0] * m2[0] + p[2] * m2[1];
             var m12 = p[1] * m2[0] + p[3] * m2[1];
 
@@ -1257,42 +1351,8 @@ Radamn.TranformMatrix = function() {
             p[3] = m22;
             p[4] = dx;
             p[5] = dy;
-        },
 
-        /**
-         * Returns a 3x2 2D column-major translation matrix for x and y.
-         * @member TranformMatrix
-         * @param {Number} x
-         * @param {Number} y
-         */
-        translationMatrix : function(x, y) {
-            return [ 1, 0, 0, 1, x, y ];
-        },
-        /**
-         * Returns a 3x2 2D column-major y-skew matrix for the angle.
-         * @member TranformMatrix
-         * @param {Number} angle
-         */
-        skewXMatrix : function(angle) {
-            return [ 1, 0, Math.tan(angle), 1, 0, 0 ];
-        },
-
-        /**
-         * Returns a 3x2 2D column-major y-skew matrix for the angle.
-         * @member TranformMatrix
-         * @param {Number} angle
-         */
-        skewYMatrix : function(angle) {
-            return [ 1, Math.tan(angle), 0, 1, 0, 0 ];
-        },
-        /**
-         * Returns a 3x2 2D column-major scaling matrix for sx and sy.
-         * @member TranformMatrix
-         * @param {Number} sx
-         * @param {Number} sy
-         */
-        scalingMatrix : function(sx, sy) {
-            return [ sx, 0, 0, sy, 0, 0 ];
+            return this;
         },
         /**
          * clone and return the array
@@ -1305,7 +1365,7 @@ Radamn.TranformMatrix = function() {
          * clone and return the array
          * @return Array
          */
-        getTranslation : function() {
+        getPosition : function() {
             return {x: p[4], y: p[5]};
         },
         /**

@@ -7,6 +7,36 @@
 #include <SDL.h>
 
 #include <iostream>
+#include <fstream>
+
+#include <stdio.h>
+#include <stdarg.h>
+
+namespace Radamn {
+    char __bigcharbuffer[1024];
+    std::ofstream verbose;
+
+}
+
+
+#define VERBOSE Radamn::verbose << __FILE__ << "@" << __LINE__ << ":" << __FUNCTION__
+#define VERBOSEC Radamn::verbose
+
+int inline VERBOSEF(const char *fmt, ...) {
+    va_list ap;
+    int r;
+    #ifdef __OPTIMIZE__
+      if (inside_main)
+        abort();
+    #endif
+    va_start (ap, fmt);
+    //r = vprintf (string, ap);
+    r= vsprintf(Radamn::__bigcharbuffer, fmt, ap);
+    va_end (ap);
+    return r;
+}
+
+#define ENDL std::endl
 
 #define RADAMN_RENDERER_SOFTWARE 1
 #define RADAMN_RENDERER_OPENGL 2

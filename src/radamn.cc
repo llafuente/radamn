@@ -9,7 +9,11 @@
 using namespace v8;
 
 Handle<Value> Radamn::init(const Arguments& args) {
-    std::cout << "Radamn::init" << std::endl;
+    // init verbose log
+    Radamn::verbose.open("radamn.log");
+
+    VERBOSE << "Radamn::init" << ENDL;
+
     SDL_Init( SDL_INIT_EVERYTHING );
 
     if(TTF_Init() == -1) {
@@ -17,7 +21,7 @@ Handle<Value> Radamn::init(const Arguments& args) {
         sprintf(xx, "TTF_Init: %s\n", TTF_GetError());
         return ThrowException(Exception::TypeError(String::New( xx )));
     }
-    std::cout << "TTF inited" << std::endl;
+    VERBOSE << "TTF inited" << ENDL;
 
 
     static v8::HandleScope scope;
@@ -80,7 +84,11 @@ static Handle<Value> Radamn::quit(const Arguments& args) {
   }
 
   TTF_Quit();
+  VERBOSE << "TTF_Quit" << ENDL;
   SDL_Quit();
+  VERBOSE << "SDL_Quit" << ENDL;
+
+  Radamn::verbose.close();
 
   return Undefined();
 }
