@@ -11,3 +11,4 @@ char *strremchar(char *str, int c, char *target);
 
 char *strcpy(const char *str);
 
+#define MAX(A,B) ((A)>(B) ? (A) : (B))

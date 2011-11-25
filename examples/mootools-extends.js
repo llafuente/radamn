@@ -27,6 +27,15 @@ Array.prototype.append = function(item){
     return this;
 };
 
+Array.prototype.deleteFirst = function(obj) {
+    for ( var i = 0; i < this.length; i++) {
+        if (this[i] == obj) {
+            this.splice(i, 1);
+            return true;
+        }
+    }
+    return false;
+};
 
 /*!
 sprintf() for JavaScript 0.7-beta1

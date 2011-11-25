@@ -19,7 +19,7 @@ namespace Radamn {
 }
 
 
-#define VERBOSE Radamn::verbose << __FILE__ << "@" << __LINE__ << ":" << __FUNCTION__
+#define VERBOSE Radamn::verbose << __FILE__ << "@" << __LINE__ << ":" << __FUNCTION__ << " "
 #define VERBOSEC Radamn::verbose
 
 int inline VERBOSEF(const char *fmt, ...) {
@@ -63,6 +63,7 @@ typedef struct OGL_Texture {
 };
 
 #include "c_helper.cc"
+#include "openGL_helper.cc"
 #include "SDL_helper.cc"
 #include "v8_helper.cc"
 

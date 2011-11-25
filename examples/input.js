@@ -57,4 +57,4 @@ win.onRequestFrame = function(delta) {
 };
 
 Radamn.listenInput(50);
-Radamn.start(50);
+Radamn.start(1000/60);

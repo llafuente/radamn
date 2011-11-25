@@ -216,7 +216,7 @@ var Radamn = new Class({
 //*********************************************************************************
 // Create Radamn object!
 
-Radamn = module.exports = new Radamn();
+Radamn = global.Radamn = module.exports = new Radamn();
 
 //
 //*********************************************************************************
@@ -778,6 +778,7 @@ Radamn.RendereableResource = new Class({
      * @returns {Boolean}
      */
     __draw: function(screen, x, y) {
+        console.log(arguments);
         return CRadamn.Image.draw(this.pointer, screen, x, y);
     },
     /**
@@ -981,6 +982,7 @@ Radamn.Font = new Class({
      * @returns {Boolean}
      */
     write: function(canvas, text, color, x, y) {
+        console.log(arguments);
         var surface = CRadamn.Font.getImage(this.pointer, text, color)
         var image = new Radamn.Image(surface);
         image.__draw(canvas, x, y);
@@ -1029,6 +1031,10 @@ Radamn.Canvas = new Class({
     },
     initialize: function(pointer) {
         this.pointer = pointer;
+    },
+    drawImages: function(image, quads) {
+        console.log(CRadamn.Image);
+        CRadamn.Image.drawImageQuads(image.pointer, this.pointer, quads);
     },
     drawImage: function() {
         console.log("drawImage[", arguments.length,"]");
@@ -1295,10 +1301,8 @@ Radamn.TranformMatrix = function() {
          * @param {Number} angle
          */
         skewX : function(angle) {
-            console.log("skew: "+ angle);
             __skewx+=angle;
             this.multiply(Radamn.Matrix2D.skewXMatrix(angle));
-            console.log("skew matrix: ", p);
             return this;
         },
 
@@ -1640,3 +1644,5 @@ Radamn.Node = new Class({
         }
     }
 });
+
+Radamn.TMX = require( process.env.PWD + "/../radamn.tmx.js").TMX;

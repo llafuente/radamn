@@ -47,7 +47,6 @@ node.addEvent("click", function(e) {
 
 
 var childnode1 = new Radamn.Node();
-console.log(childnode1);
 
 childnode1.appendEntity(image);
 
@@ -73,16 +72,22 @@ childnode1_tween.addEventOnce("complete", function() {
             });
         });
     });
-
 });
 
+
+var fps = require(process.env.PWD+'/fps');
+fps = new fps({
+    font : process.env.PWD+"/Jura-DemiBold.ttf"
+});
+
+win.getRootNode().appendEntity(fps);
 
 var counter = 0;
 win.onRequestFrame = function(delta) {
     ++counter;
 
-    win.render();
+    win.render(delta);
 };
 
 Radamn.listenInput(50);
-Radamn.start(250);
+Radamn.start(1000/50);

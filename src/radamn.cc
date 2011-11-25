@@ -64,6 +64,7 @@ init(Handle<Object> target)
   NODE_SET_METHOD(Image, "load", Radamn::Image::load);
   NODE_SET_METHOD(Image, "destroy", Radamn::Image::destroy);
   NODE_SET_METHOD(Image, "draw", Radamn::Image::draw);
+  NODE_SET_METHOD(Image, "drawImageQuads", Radamn::Image::drawImageQuads);
 
   Local<Object> Font = Object::New();
   target->Set(String::New("Font"), Font);
@@ -126,7 +127,7 @@ static Handle<Value> Radamn::createWindow(const Arguments& args) {
 #if RADAMN_RENDERER == RADAMN_RENDERER_SOFTWARE
     Radamn::mCurrentScreen = SDL_SetVideoMode(width, height, 16, SDL_SWSURFACE);
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
-    Radamn::mCurrentScreen = SDL_SetVideoMode(width, height, 16, SDL_HWSURFACE | SDL_GL_DOUBLEBUFFER | SDL_OPENGL);
+    Radamn::mCurrentScreen = SDL_SetVideoMode(width, height, 16, SDL_OPENGL);
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
     return ThrowException(Exception::TypeError(String::New("OPENGLES is not supported atm")));
 #endif
@@ -165,6 +166,9 @@ static Handle<Value> Radamn::createWindow(const Arguments& args) {
         glLoadIdentity ();
 
 #endif
+
+    debug_SDL_Surface(Radamn::mCurrentScreen);
+
 
     V8_RETURN_WRAPED_POINTER(scope, SDL_Surface, Radamn::mCurrentScreen)
 }

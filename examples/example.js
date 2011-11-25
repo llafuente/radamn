@@ -122,16 +122,13 @@ node.appendChild(childnode2);
 
 tt = new Radamn.TranformMatrix();
 
-//
-//tt.rotate(15);
-
 var counter = 0;
 win.onRequestFrame = function(delta) {
     ++counter;
 
     childnode2.getMatrix().translate(1, 1);
 
-    win.render();
+    win.render(delta);
 
     // line test, grid mode :)
 

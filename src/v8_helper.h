@@ -123,6 +123,17 @@ v8::Local<v8::Array> OUTPUT_NAME = v8::Local<v8::Array>::Cast( args[ ARG_NUMBER 
     Y_OUTPUT_NAME = aux->Get(1)->NumberValue();                                                                        \
 }                                                                                                                      \
 
+#define V8_EXTRACT_FROM_ARRAY(ARRAY, IDX, TYPE, OUTPUT_NAME, COUNT)                                                    \
+TYPE OUTPUT_NAME[COUNT];                                                                                               \
+{                                                                                                                      \
+    int ___I = 0;                                                                                                      \
+    v8::Local<v8::Array> aux = v8::Local<v8::Array>::Cast( ARRAY->Get(IDX) );                                          \
+    for(;___I<COUNT; ++___I) {                                                                                         \
+        OUTPUT_NAME[___I] = aux->Get(___I)->NumberValue();                                                             \
+    }                                                                                                                  \
+}                                                                                                                      \
+
+
 
 #define V8_CHECK_ARGS(POS, ARG_TYPE)           \
 if(args[ POS ]->Is ## ARG_TYPE()) {            \
