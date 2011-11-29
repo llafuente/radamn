@@ -132,6 +132,7 @@ var Radamn = new Class({
         var i=0,max=this.windows.length;
         for(i=0; i<max; ++i) {
             var win = this.windows[i];
+            //win.getRootNode().freeze();
             var canvas = win.getCanvas();
             var now = Date.now();
             canvas.save();
@@ -141,6 +142,7 @@ var Radamn = new Class({
             canvas.flip();
             canvas.restore();
             win.lastRenderDate = now;
+            //win.getRootNode().unfreeze();
         }
     },
     listenInput: function(delay) {
@@ -328,17 +330,24 @@ Radamn.Window = new Class({
 
         window.requestAnimationFrame(this.bound.renderLoop);
     },
+    viewableQuad: function(x,y,w,h) {
+        var pos = this.rootNode.getMatrix().getPosition();
+
+        if(pos.x > x + w) return false;
+        if(x > pos.x + this.width) return false;
+        if(pos.y > y + h) return false;
+        if(y > pos.y + this.height) return false;
+
+        return true;
+    },
     /**
      * @private
      */
     __renderNode: function(ctx, node, delta) {
         ctx.save();
-        console.log(node.getMatrix().get());
         node.getMatrix().apply(ctx);
         var i =0;
         for(;i<node.childEntities.length; ++i) {
-            //console.log(node.childEntities[i]);
-            console.log("render: "+i);
             node.childEntities[i].draw(ctx, delta);
         }
         i =0;
@@ -352,9 +361,7 @@ Radamn.Window = new Class({
      * @type {Function}
      */
     render: function(delta) {
-        var ctx = this.getCanvas();
-
-        this.__renderNode(ctx, this.rootNode, delta);
+        this.__renderNode(this.getCanvas(), this.rootNode, delta);
     },
     ray: function(x,y) {
         return [this.rootNode];
@@ -403,7 +410,7 @@ Radamn.Window = new Class({
      * @return Canvas
      */
     getCanvas: function() {
-        return new Radamn.Canvas(this.surface);
+        return new Radamn.Canvas(this.surface, this);
     },
     /**
      * @member Window
@@ -778,7 +785,6 @@ Radamn.RendereableResource = new Class({
      * @returns {Boolean}
      */
     __draw: function(screen, x, y) {
-        console.log(arguments);
         return CRadamn.Image.draw(this.pointer, screen, x, y);
     },
     /**
@@ -852,7 +858,6 @@ Radamn.Image = new Class({
         this.__type = "Image";
     },
     draw: function(ctx) {
-        console.log("----draw----");
         this.__draw(ctx, 0, 0);
     }
 });
@@ -909,8 +914,6 @@ Radamn.Animation = new Class({
     },
     draw: function(ctx, delta) {
         this.actumulatedTime +=delta;
-        console.log(delta);
-
         /* this is for nodes
         switch(this.options.origin) {
             case $D.ORIGIN_CENTER:
@@ -982,7 +985,6 @@ Radamn.Font = new Class({
      * @returns {Boolean}
      */
     write: function(canvas, text, color, x, y) {
-        console.log(arguments);
         var surface = CRadamn.Font.getImage(this.pointer, text, color)
         var image = new Radamn.Image(surface);
         image.__draw(canvas, x, y);
@@ -996,6 +998,7 @@ Radamn.Font = new Class({
 //
 
 Radamn.Canvas = new Class({
+    __window : null,
     pointer: null,
     /**
      * @type {Number} color
@@ -1029,20 +1032,19 @@ Radamn.Canvas = new Class({
     getSurface: function() {
         return this.pointer;
     },
-    initialize: function(pointer) {
+    initialize: function(pointer, window) {
         this.pointer = pointer;
+        this.__window = window;
+    },
+    getWindow: function() {
+        return this.__window;
     },
     drawImages: function(image, quads) {
-        console.log(CRadamn.Image);
         CRadamn.Image.drawImageQuads(image.pointer, this.pointer, quads);
     },
     drawImage: function() {
-        console.log("drawImage[", arguments.length,"]");
-
         switch(arguments.length) {
         case 3:
-            console.log(this.pointer, arguments[0].pointer, arguments[1], arguments[2]);
-            // <image>, <number>, <number>
             // Object image, float dx, float dy,
             return CRadamn.Image.draw(arguments[0].pointer, this.pointer, arguments[1], arguments[2]);
             break;
@@ -1070,7 +1072,6 @@ Radamn.Canvas = new Class({
     },
     stroke: function() {
         if(this.__closedPath.length > 0) {
-            console.log(this.__closedPath);
             CRadamn.Window.stroke(this.__closedPath, this.lineWidth, this.strokeStyle);
             return true;
         }
@@ -1199,12 +1200,15 @@ Radamn.TranformMatrix = function() {
     var __rotation = 0;
 
     return {
+        readonly : false,
         /**
          * Rotates a transformation matrix by angle.
          * @member TranformMatrix
          * @param {Number} angle
          */
         rotate : function(angle) {
+            if(this.readonly) throw new Exception("matrix is read only!");
+
             __rotation +=angle;
             angle = angle * 0.017453292519943295769236907684886;
             var c = Math.cos(angle);
@@ -1219,6 +1223,8 @@ Radamn.TranformMatrix = function() {
             p[3] = m22;
         },
         setRotation: function(angle) {
+            if(this.readonly) throw new Exception("matrix is read only!");
+
             var aux = angle - __rotation;
             this.rotate(aux);
             __rotation = angle;
@@ -1232,6 +1238,8 @@ Radamn.TranformMatrix = function() {
          * @param {Number} y
          */
         translate : function(x, y) {
+            if(this.readonly) throw new Exception("matrix is read only!");
+
             p[4] += p[0] * x + p[2] * y;
             p[5] += p[1] * x + p[3] * y;
         },
@@ -1244,6 +1252,8 @@ Radamn.TranformMatrix = function() {
          * @param {Number} y
          */
         gTranslate : function(x, y) {
+            if(this.readonly) throw new Exception("matrix is read only!");
+
             p[4] += x;
             p[5] += y;
         },
@@ -1256,6 +1266,8 @@ Radamn.TranformMatrix = function() {
          * @param {Number} y use false to not skip set
          */
         setPosition: function(x, y) {
+            if(this.readonly) throw new Exception("matrix is read only!");
+
             if(x !== false)
                 p[4] = x;
             if(y !== false)
@@ -1269,6 +1281,8 @@ Radamn.TranformMatrix = function() {
          * @param {Number} sy
          */
         scale : function(sx, sy) {
+            if(this.readonly) throw new Exception("matrix is read only!");
+
             __scalex = __scalex * sx;
             __scaley = __scaley * sy;
             p[0] *= sx;
@@ -1284,6 +1298,8 @@ Radamn.TranformMatrix = function() {
          * @param {Number} sy
          */
         setScale : function(sx, sy) {
+            if(this.readonly) throw new Exception("matrix is read only!");
+
             __scalex = __scalex / sx;
             __scaley = __scaley / sy;
             p[0] /= __scalex;
@@ -1301,6 +1317,8 @@ Radamn.TranformMatrix = function() {
          * @param {Number} angle
          */
         skewX : function(angle) {
+            if(this.readonly) throw new Exception("matrix is read only!");
+
             __skewx+=angle;
             this.multiply(Radamn.Matrix2D.skewXMatrix(angle));
             return this;
@@ -1313,6 +1331,8 @@ Radamn.TranformMatrix = function() {
          * @param {Number} angle
          */
         skewY : function(angle) {
+            if(this.readonly) throw new Exception("matrix is read only!");
+
             __skewy+=angle;
             return this.multiply(Radamn.Matrix2D.skewYMatrix(angle));
         },
@@ -1320,6 +1340,8 @@ Radamn.TranformMatrix = function() {
          * TODO optimize!
          */
         setSkew: function(anglex, angley) {
+            if(this.readonly) throw new Exception("matrix is read only!");
+
             var aux;
             if(anglex !== false) {
                 aux = anglex  - __skewx;
@@ -1340,6 +1362,8 @@ Radamn.TranformMatrix = function() {
          * @param {Array} m2
          */
         multiply : function(m2) {
+            if(this.readonly) throw new Exception("matrix is read only!");
+
             var m11 = p[0] * m2[0] + p[2] * m2[1];
             var m12 = p[1] * m2[0] + p[3] * m2[1];
 
@@ -1431,6 +1455,11 @@ Radamn.Node = new Class({
     matrix : null,
     /**
      * @member Node
+     * @type {Boolean}
+     */
+    freeze: false,
+    /**
+     * @member Node
      * @type {NodeOptions}
      */
     options : {
@@ -1441,14 +1470,23 @@ Radamn.Node = new Class({
      * @member Node
      * @params {NodeOptions} options
      */
-    initialize : function(options) {
+    initialize : function(root, options) {
         this.setOptions(options);
 
-        this.root = this;
+        this.root = root;
         this.childNodes = [];
         this.matrix = new Radamn.TranformMatrix();
         //this.AABB = new AABB();
     },
+    freeze: function() {
+        this.freeze = true;
+        this.matrix.readonly = true;
+    },
+    unfreeze: function() {
+        this.freeze = false;
+        this.matrix.readonly = false;
+    },
+
     /**
      * Initialize the CanvasNode and merge an optional config hash.
      *
@@ -1459,11 +1497,11 @@ Radamn.Node = new Class({
      */
     getDerivedPosition: function() {
         var node = this;
-        if(node.isRoot()) return this.getMartix().getTranslation();
+        if(node.isRoot()) return this.getMartix().getPosition();
 
         var out = {x:0, y:0};
         do {
-            out = v2Plus(out, node.getMatrix().getTranslation());
+            out = Radamn.Vector2D.v2Plus(out, node.getMatrix().getPosition());
             node = node.parentNode;
         } while (!node.isRoot());
 
@@ -1644,5 +1682,6 @@ Radamn.Node = new Class({
         }
     }
 });
-
+Radamn.Vector2D = require(process.env.PWD+ '/../radamn.vector2d.js').Vector2D;
 Radamn.TMX = require( process.env.PWD + "/../radamn.tmx.js").TMX;
+

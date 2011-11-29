@@ -64,7 +64,7 @@ init(Handle<Object> target)
   NODE_SET_METHOD(Image, "load", Radamn::Image::load);
   NODE_SET_METHOD(Image, "destroy", Radamn::Image::destroy);
   NODE_SET_METHOD(Image, "draw", Radamn::Image::draw);
-  NODE_SET_METHOD(Image, "drawImageQuads", Radamn::Image::drawImageQuads);
+  //NODE_SET_METHOD(Image, "drawImageQuads", Radamn::Image::drawImageQuads);
 
   Local<Object> Font = Object::New();
   target->Set(String::New("Font"), Font);

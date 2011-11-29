@@ -237,64 +237,38 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
     return v8::True();
 }
 
+
+/*
 //
 // ----------------------------------------------------------------------------------------------------
 //
 // study! http://www.songho.ca/opengl/gl_vertexarray.html
-static v8::Handle<v8::Value> Radamn::Image::drawImageQuads(const v8::Arguments& args) {
-  v8::HandleScope scope;
+static v8::Handle<v8::Value> Radamn::Image::genBufferDraws(const v8::Arguments& args) {
 
-  VERBOSE << "draw[" << args.Length() << "] expected[111] recieved["
-    << args[0]->IsObject()
-    << args[1]->IsObject()
-    << args[2]->IsArray()
-    << "]"
-    << ENDL;
-exit;
-  // 3 args! <image>,<image>,<number>,<number>
+ dont have VBO in my virtual machine... This is so unfortunate
+    OGL_DrawBufferTextured* buffer = new OGL_DrawBufferTextured;
 
-  bool error = false;
+    SDL_Surface* image = 0;
 
-  V8_CHECK_ARGS(0, Object)
-  V8_CHECK_ARGS(1, Object)
-  V8_CHECK_ARGS(2, Array)
+    V8_UNWRAP_POINTER_ARG(0, SDL_Surface, image)
 
-  if(!(
-    args.Length() == 3
-  )) {
-      return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid argument count 3")));
-  }
+    buffer->textureID = ((OGL_Texture*)image->userdata)->textureID;
 
-    SDL_Surface* src = 0;
-    SDL_Surface* dst = 0;
-
-    V8_UNWRAP_POINTER_ARG(0, SDL_Surface, src)
-    V8_UNWRAP_POINTER_ARG(1, SDL_Surface, dst)
-    V8_ARG_TO_NEWARRAY(2, quads)
-
-    std::cout << "blit image from: " << src << " to:" << dst << ENDL;
-    VERBOSE << "blit image from: " << src << " to:" << dst << ENDL;
-
-    debug_SDL_Surface(src);
-    debug_SDL_Surface(dst);
-
-    SDL_Rect* srcrect = getFullRectSurface(src);
-    debug_SDL_Rect(srcrect);
-
-
-    //SDL_Rect* dstrect = 0;
-    //debug_SDL_Rect(dstrect);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_TEXTURE_2D);
-      OGL_Texture* t = (OGL_Texture*)src->userdata;
-      glBindTexture( GL_TEXTURE_2D, t->textureID );
-      glBegin(GL_QUADS);
-
+    V8_ARG_TO_NEWARRAY(1, quads)
     std::cout << "rendering["<< quads->Length() <<"] quads!!" << ENDL;
+
+    unsigned int pi = sizeof(GLfloat) * 8;
+    unsigned int ci = sizeof(GLfloat) * 4;
+
+    buffer->positionSize = pi * quads->Length();
+    buffer->coordsSize = ci * quads->Length();
+
+    //malloc ?
+    buffer->positions = new GLfloat[quads->Length() * 8];
+    buffer->coords = new GLfloat[quads->Length() * 4];
+
     for(int i=0,max=MAX(5, quads->Length()); i<max; ++i) {
-        PLINE;
+
         V8_EXTRACT_FROM_ARRAY(quads, i, GLfloat, quad, 8);
         std::cout
             << quad[0] << ","
@@ -306,7 +280,7 @@ exit;
             << quad[6] << ","
             << quad[7] << ENDL;
 
-        GL_UV_FROM_SDL(src, quad[0], quad[1], quad[2], quad[3], UV)
+        GL_UV_FROM_SDL(image, buffer->positions[0], buffer->positions[1], buffer->positions[2], buffer->positions[3], UV)
         std::cout
             << UV[0] << ","
             << UV[1] << ","
@@ -318,19 +292,59 @@ exit;
              UV[0], UV[1], UV[2], UV[3],
              quad[4], quad[5], quad[6], quad[7]
          )
-/*
-    glVertexPointer(2, GL_FLOAT, 0, spriteVertices);
-    glTexCoordPointer(2, GL_SHORT, 0, spriteTexcoords);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-*/
 
+         buffer->positions[0] = quad[4]; //x
+         buffer->positions[1] = quad[5]; //y
+         buffer->positions[2] = quad[4] + quad[6]; //w
+         buffer->positions[3] = quad[5] + quad[7]; //h
+
+         buffer->positions += pi;
+         buffer->coords += ci;
     }
 
-    glEnd();
-    glDisable(GL_TEXTURE_2D);
+    //position
+    glGenBuffers(1, &buffer->positionBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer->positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, buffer->positionSize, buffer->positions, GL_STATIC_DRAW);
 
-    glDisable(GL_BLEND);
 
-    return v8::True();
+    //coords
+    glGenBuffers(1, &buffer->coordsBuffer);
+    glBindBuffer(GL_TEXTURE_COORD_ARRAY, buffer->coordsBuffer);
+    glBufferData(GL_TEXTURE_COORD_ARRAY, buffer->coordsSize, buffer->coords, GL_STREAM_DRAW);
+
+    //free positions and coords ?
+
 }
+//
+// ----------------------------------------------------------------------------------------------------
+//
+// study! http://www.songho.ca/opengl/gl_vertexarray.html
+static v8::Handle<v8::Value> Radamn::Image::drawBuffer(const v8::Arguments& args) {
 
+    OGL_DrawBufferTextured* buffer = new OGL_DrawBufferTextured;
+
+    V8_UNWRAP_POINTER_ARG(0, OGL_DrawBufferTextured, buffer)
+
+    glBindTexture(GL_TEXTURE_2D, buffer->textureID);
+
+
+    glBindBuffer(GL_ARRAY_BUFFER, buffer->positionBuffer);
+    glVertexPointer(2, GL_FLOAT, 0, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, buffer->coordsBuffer);
+    glTexCoordPointer(2, GL_FLOAT, 0, 0);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, buffer->positionBuffer);
+
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_TEXTURE_COORD_ARRAY, 0);
+
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+}
+*/

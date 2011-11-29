@@ -5,430 +5,49 @@
 var CRadamn = require(process.env.PWD+ '/../build/Release/radamn.node');
 var Radam = global.Radamn;
 
-module.exports.TMX = new Class({
-    Implements: [Options, Events],
-    name : "EntityTMX",
-
-    layerTiles: [],
-    layerEls: null,
-    objects: [],
-    objectEls: null,
-
-    imgContext: null,
-    imgcanvas: null,
-
-    tilesets: [],
-    tileset: {
-        width: false, //get from TMX
-        height: false //get from TMX
-    },
-    tiles: {
-        width: false, //get from TMX
-        height: false //get from TMX
-    },
-    map: {
-        width: false, //get from TMX
-        height: false //get from TMX
-    },
-
-    options: {
-        AABB: null,
-        offset : {
-            x: 500, // false means centered
-            y: 0
-        },
-        gid: 0,
-        x:0,
-        y:0
-    },
-    ready: false,
-    initialize: function(tmx_file, options) {
-        this.setOptions(options);
-
-        this.loadTMX(tmx_file);
-    },
-    loadTMX: function(tmx_file) {
-
-        var util = require('util');
-        var DomJS = require("dom-js").DomJS;
-
-        var domjs = new DomJS();
-
-        var fs = require('fs');
-
-
-        fs.readFile(tmx_file, 'ascii', function (err, data) {
-              if (err) throw err;
-              var xml = domjs.parse(data, function(err, xml) {
-                  this.setXML(xml);
-
-              }.bind(this));
-        }.bind(this));
-    },
-    setXML: function(xml) {
-        function getElements (name, xml, elements) {
-            var output = {children: [], attributes: []};
-            if(xml.children !== undefined) {
-                xml.children.each(function(k) {
-                    if(k.name == name) output.children.push(k);
-                });
-            }
-            return output;
+var TMXIsometric = {
+    getScreenPosition : function(x,y,z) {
+        return {x: ((x - y) * this.tileset.iwidth) + this.options.offset.x, // [-4608, 4608]
+            y: ((y + x) * this.tileset.iheight) + this.options.offset.y,  // [    0, 4608]
+            z: 0
         };
-
-        this.tiles = {
-            width: parseInt(xml.attributes.tilewidth,10) * 0.5,
-            height: parseInt(xml.attributes.tileheight, 10) * 0.5
-        };
-
-        this.map = {
-            x: parseInt(xml.attributes.width, 10),
-            y: parseInt(xml.attributes.height, 10),
-            width : parseInt(xml.attributes.width, 10) * this.tiles.width,
-            height : parseInt(xml.attributes.height, 10) * this.tiles.height
-        };
-
-        var xml_tilesets = xml.children[1]; // tileset should be better match
-
-        var image_URL = null;
-        xml_tilesets.children.each(function(tile, key){
-            if(tile.name == "image") {
-                image_URL = tile.attributes.source;
-                this.tileset = {
-                    width: parseInt(xml_tilesets.attributes.tilewidth, 10),
-                    height: parseInt(xml_tilesets.attributes.tileheight, 10)
-                };
-                this.tileset.x = parseInt(tile.attributes.width, 10) / this.tileset.width;
-                this.tileset.y = parseInt(tile.attributes.height, 10) / this.tileset.height;
-            }
-        }.bind(this));
-
-        this.options.clickMap = false;
-
-        console.log(image_URL);
-        this.tilesets.push(Radamn.Assets.getImage(process.env.PWD+"/"+image_URL));
-
-        var xml_layers = getElements("layer", xml);
-
-        var objectEls = {children: []};
-        xml_layers.children.each(function(v, k) {
-            var aux = getElements("data", v);
-
-            aux.children.each(function(vv) {
-                vv.attributes = v.attributes;
-                vv.attributes.gid = parseInt(k, 10);
-
-                objectEls.children.push(vv);
-            });
-
-        });
-
-        objectEls.children.each(function(layer){
-            this.layerTiles.push([]);
-
-            var name = layer.attributes.name;
-
-            var data = layer.children[0].text;
-            var i=0, max = data.length;
-            var gid = '';
-            var x=-1, y=0;
-            for(;i<max;++i) {
-                if(data[i] === "\n") {
-                    x=-1;
-                    ++y;
-                    continue;
-                } else if(data[i] === ","){
-                    ++x;
-                }
-
-                if(data[i] === ",") {
-                    if(gid.length == 0) continue;
-
-                    gid = parseInt(gid, 10);
-
-                    if(gid !== 0) {
-                        var obj = {
-                            position: {
-                                x: x,
-                                y: y
-                            },
-                            tile: {
-                                id: gid-1
-                            }
-                        };
-                        obj.zIndex = (obj.position.x + obj.position.y * this.map.x) + layer.attributes.gid * this.map.x * this.map.y;
-                        this.layerTiles[layer.attributes.gid].push(obj);
-                    }
-                    gid = '';
-                } else {
-                    gid+=data[i];
-                }
-            }
-        }.bind(this));
-
-        this.__ready();
     },
-    __ready: function() {
-        var tileset_x = this.tileset.x;
-        var tileset_w = this.tileset.width;
-        var tileset_h = this.tileset.height;
+    getTilePosition : function(x,y, as_float) {
+        as_float = as_float | false;
+        x-=this.options.offset.x;
+        y-=this.options.offset.y;
 
-        if(this.options.offset.x === false) {
-            this.options.offset.x = this.map.width * 0.5;
+        tempX = (x / this.tileset.width);// = (mapPoint.X + mapPoint.Y);
+        tempY = (y / this.tileset.height * 0.5);// = (mapPoint.X - mapPoint.Y);
+
+        if(!as_float) {
+            return {
+                x:  Math.floor(tempX + tempY),
+                y:  Math.floor(tempY - tempX)
+            };
         }
-
-        var i=0, max=this.layerTiles.length;
-        var img = this.tilesets[0];
-        for(;i<max; ++i) {
-            var j=0, jmax=this.layerTiles[i].length;
-            for(;j<jmax; ++j) {
-                var tile = this.layerTiles[i][j];
-                tile.tile.x = tile.tile.id % tileset_x;
-                tile.tile.y = Math.floor(tile.tile.id / tileset_x);
-                tile.$position = this.getScreenPosition(tile.position.x, tile.position.y, 0);
-
-
-                //tile.$draw = [img,
-                //    tile.tile.x * tileset_w, tile.tile.y * tileset_h, tileset_w, tileset_h,
-                //    tile.$position.x, tile.$position.y, tileset_w, tileset_h
-                //    ];
-                this.layerTiles[i][j] = [
-                    tile.tile.x * tileset_w, tile.tile.y * tileset_h, tileset_w, tileset_h,
-                    tile.$position.x, tile.$position.y, tileset_w, tileset_h
-                    ];
-            }
-        }
-        i=0;
-        max=this.objects.length;
-        for(;i<max; ++i) {
-            var obj = this.objects[i];
-            obj.x = obj.id % tileset_x;
-            obj.y = Math.floor(obj.id / tileset_x);
-
-            obj.$draw = [img,
-                obj.x * tileset_w, obj.y * tileset_h, tileset_w, tileset_h,
-                //this.options.offset.x + obj.position.x, this.options.offset.y + obj.position.y, tileset_w, tileset_h
-                obj.position.x, obj.position.y, tileset_w, tileset_h
-                ];
-        }
-
-
-        var json = {
-            type: "tileset",
-            properties: [
-            {
-                id: 0,
-                left: true,
-                right: true,
-                top: true,
-                bottom: true,
-                level: 0
-            },
-            {
-                id: 35,
-                left: true,
-                right: true,
-                top: true,
-                bottom: true,
-                level: 1
-            },
-            {
-                id: 61,
-                left: true,
-                right: true,
-                top: true,
-                bottom: true,
-                level: 1
-            },
-            {
-                id: 32,
-                left: true,
-                right: true,
-                top: false,
-                bottom: false,
-                level: 0,
-                ramp: "left-to-right"
-            }
-            ]
+        return {
+            x:tempX + tempY,
+            y:tempY - tempX
         };
-
-        function getProp(id) {
-            var i=0, max=json.properties.length;
-            for(;i<max; ++i) {
-                if(json.properties[i].id == id) return json.properties[i];
-            }
-            return null;
-        }
-
-        var i=0, max=this.map.x;
-        var $path = [];
-
-        for(;i<max; ++i) {
-            var j=0, jmax=this.map.y;
-            $path.push([]);
-            for(;j<jmax; ++j) {
-                $path[i].push(0);
-            }
-        }
-        /*
-        //console.log(JSON.stringify($path));
-        //console.log($path.length);
-        //console.log($path[0].length);
-
-
-        var tiles_ids = [];
-        i=0, max=this.layerTiles.length;
-        for(;i<max; ++i) {
-            var j=0, jmax=this.layerTiles[i].length;
-            for(;j<jmax; ++j) {
-
-                var tile = this.layerTiles[i][j];
-                //$path[tile.position.x][tile.position.y] = getProp(tile.tile.id);
-                if($path[tile.position.x] == undefined) {
-                    //console.log(tile);
-                }
-                $path[tile.position.x][tile.position.y] = tile.tile.id === 60 ? 1 : 0;
-                if(tile.tile.id !== 0) {
-                    //console.log(tile.tile.id);
-                }
-                tiles_ids.push(tile.tile.id);
-            }
-        }
-        */
-
-        this.ready = true;
-        //console.log(JSON.stringify($path));
-        //console.log(JSON.stringify(tiles_ids));
-
-        /*
-        var graph = new Graph($path);
-        this.graph = graph;
-        var start = graph.nodes[21][40];
-        var end = graph.nodes[10][14];
-        var result = astar.search(graph.nodes, start, end);
-        //console.log(result);
-        //console.log(result.length);
-        this.highlightPath(Eli.canvas[0].context, result, 50);
-        */
-
-
-        // result is an array containing the shortest path
-
-        /*
-        var request = new Request.JSON({
-            url: "/images/iso-64x64-outside.js",
-            onError: function() {
-                //console.log(arguments);
-            },
-            onFailure: function() {
-                //console.log(arguments);
-            },
-            onComplete: function(json) {
-                //console.log("WTF!!!!!!!!!!!!!!!!!!!!!!!");
-                //console.log(json);
-
-
-
-
-
-            }.bind(this)
-        }).get();
-        */
     },
-    /**
-     *
-     */
-    getTiles: function(x, y, return_all) {
-        return_all = return_all | false;
-        var found = false;
-        var out = [];
-        var i=this.layerTiles.length-1;
-        for(;i>-1; --i) {
-            var j=0, jmax=this.layerTiles[i].length;
-            for(;j<jmax; ++j) {
-                if(this.layerTiles[i][j].position.x == x && this.layerTiles[i][j].position.y == y) {
-                    if(!return_all)
-                        return [this.layerTiles[i][j]];
-                    out.push(this.layerTiles[i][j]);
-                }
-            }
-        }
-        return out.length === 0 ? null : out;
-    },
-    ray: function(x, y) {
-        var mouse = {x:x, y:y};
-        // get Global position!
-        if(this.parentNode !== null) {
-            var translation = this.parentNode.getDerivedPosition();
-            mouse = v2Sub(mouse, translation);
-        }
+    setTileset: function(nodeEL) {
+        this.tileset = {
+                width: parseInt(nodeEL.attributes.tilewidth, 10),
+                height: parseInt(nodeEL.attributes.tileheight, 10)
+        };
+        this.tileset.iheight = this.tileset.width / 4;
+        this.tileset.iwidth = this.tileset.width / 2;
+    }
+};
 
-        var tilepos = this.getTilePosition(mouse.x, mouse.y);
-
-        //XXX optimize the offsets :) with tilepos as floats... someday :)
-        var offsets = [[0,0]];
-        for(var i=-2;i<3; ++i) {
-            for(var j=-2;j<3; ++j) {
-                offsets.push([i,j]);
-            }
-        }
-
-        //cache
-        var tileset_w = this.tileset.width,
-        tileset_h = this.tileset.height,
-        ok_tiles = [];
-
-        var i=0, max=offsets.length;
-        for(;i<max;++i) {
-            var test_x = tilepos.x + offsets[i][0];
-            var test_y = tilepos.y + offsets[i][1];
-            var pixelOK = false;
-            //console.log("testing: ", test_x, test_y);
-            var tiles = this.getTiles(test_x, test_y, true);
-            //console.log(x,y);
-            //console.log(tile_top_left);
-
-            if(tiles !== null) {
-                var tile_top_left = this.getScreenPosition(test_x, test_y);
-
-                var j=0, jmax=tiles.length;
-                for(;j<jmax;++j) {
-                    var tile = tiles[j];
-
-                    var offset = {
-                            x: ( mouse.x - tile_top_left.x ),
-                            y: ( mouse.y - tile_top_left.y )
-                    };
-                    //console.log("offset", offset);
-                    if(offset.x < 0 || offset.x >= tileset_w || offset.y < 0 || offset.y >= tileset_h) {
-                        continue;
-                    }
-
-                    var pixel = {
-                        x: parseInt(offset.x + tile.tile.x * tileset_w, 10),
-                        y: parseInt(offset.y + tile.tile.y * tileset_h, 10)
-                    };
-                    //console.log("pixel", pixel);
-
-                    if(this.tilesets[0].ray(pixel.x, pixel.y)) {
-                        ok_tiles.push(tile);
-                    }
-                }
-            }
-        }
-
-        if(ok_tiles.length === 1) {
-            return ok_tiles[0];
-        } else if(ok_tiles.length > 1){
-            function sortfunction(a, b) {
-                //Compare "a" and "b" in some fashion, and return -1, 0, or 1
-                return a.zIndex == b.zIndex ? 0 : (a.zIndex > b.zIndex ? -1 : 1);
-            }
-            ok_tiles.sort(sortfunction);
-            return ok_tiles[0];
-        }
-
-        return null;
+var TMXOrtogonal = {
+    getScreenPosition: function(x,y,z) {
+        return {
+            x: (x * this.tileset.iwidth) + this.options.offset.x, // [-4608, 4608]
+            y: (y * this.tileset.iheight) + this.options.offset.y,  // [    0, 4608]
+            z: 0
+        };
     },
     getTilePosition : function(x,y, as_float) {
         as_float = as_float | false;
@@ -449,36 +68,343 @@ module.exports.TMX = new Class({
             y:tempY - tempX
         };
     },
-    getScreenPosition : function(x,y,z) {
-        return {x: ((x - y) * 32) + this.options.offset.x, // [-4608, 4608]
-            y: ((y + x) * 16) + this.options.offset.y,  // [    0, 4608]
-            z: 0
+    setTileset: function(nodeEL) {
+        this.tileset = {
+                width: parseInt(nodeEL.attributes.tilewidth, 10),
+                height: parseInt(nodeEL.attributes.tileheight, 10)
         };
+        this.tileset.iheight = this.tileset.width;
+        this.tileset.iwidth = this.tileset.width;
+    }
+};
+
+/**
+ * @class TMX
+ */
+module.exports.TMX = new Class({
+    Implements: [Options, Events],
+    /**
+     * @member TMX
+     * @type String
+     */
+    name : "TMX",
+    /**
+     * contains the folowing structure
+     * {
+     *     tile_data: []
+     *     tiles: [] // this is an optimizen structure to paint in the canvas
+     * }
+     *
+     * @member TMX
+     * @type Array
+     */
+    layers: [],
+    /**
+     * @member TMX
+     * @type Array
+     */
+    layerTiles: [],
+    /**
+     * @member TMX
+     * @type Array
+     */
+    objects: [],
+    /**
+     * @member TMX
+     * @type Array
+     */
+    tilesets: [],
+    /**
+     * @member TMX
+     * @type Array
+     */
+    tileset: {
+        width: false, //get from TMX
+        height: false, //get from TMX
+        iheight: false, //get from TMX
+        iwidth: false //get from TMX
     },
+    tiles: {
+        width: false, //get from TMX
+        height: false //get from TMX
+    },
+    map: {
+        x: 0, //get from TMX
+        y: 0, //get from TMX
+        width: false, //get from TMX
+        height: false, //get from TMX
+        orientation: "isometric" //get from TMX
+    },
+
+    options: {
+        AABB: null,
+        offset : {
+            x: 0,
+            y: 0
+        },
+        gid: 0,
+        x:0,
+        y:0
+    },
+    ready: false,
+
+    initialize: function(tmx_file, options) {
+        this.setOptions(options);
+
+        this.loadTMX(tmx_file);
+    },
+    loadTMX: function(tmx_file) {
+        var util = require('util');
+        var DomJS = require("dom-js").DomJS;
+
+        var domjs = new DomJS();
+
+        var fs = require('fs');
+
+        //XXX browser support conflict!
+        fs.readFile(tmx_file, 'ascii', function (err, data) {
+              if (err) throw err;
+
+              //XXX browser support conflict!
+              var xml = domjs.parse(data, function(err, xml) {
+                  this.setXML(xml);
+              }.bind(this));
+        }.bind(this));
+    },
+    pushLayer: function(type) {
+        this.layers.push({
+            type: type,
+
+            tile_data: [],
+            tiles: [],
+
+            objects: [],
+
+            raw: []
+        });
+    },
+    setXML: function(xml) {
+        this.tiles = {
+            width: parseInt(xml.attributes.tilewidth,10) * 0.5,
+            height: parseInt(xml.attributes.tileheight, 10) * 0.5
+        };
+
+        this.map = {
+            x: parseInt(xml.attributes.width, 10),
+            y: parseInt(xml.attributes.height, 10),
+            width : parseInt(xml.attributes.width, 10) * this.tiles.width,
+            height : parseInt(xml.attributes.height, 10) * this.tiles.height,
+            orientation: xml.attributes.orientation
+        };
+
+        if(this.map.orientation == "isometric") {
+            Object.each(TMXIsometric, function(fn, fnname) {
+                this[fnname] = fn;
+            }.bind(this));
+        } else {
+            Object.each(TMXOrtogonal, function(fn, fnname) {
+                this[fnname] = fn;
+            }.bind(this));
+        }
+
+        xml.children.each(function(nodeEL) {
+            if(nodeEL.name === undefined) return;
+
+            switch(nodeEL.name) {
+            case "layer" :
+                this.pushLayer("tiles");
+
+                nodeEL.children.each(function(data) {
+                    if(data.name === undefined) return;
+                    this.parseCSVData(data.children[0].text,
+                            this.layers.length -1
+                    );
+                }.bind(this));
+
+                break;
+            case "objectgroup" :
+                this.pushLayer("objects");
+
+                nodeEL.children.each(function(nodeOBJ){
+                    this.parseObject(nodeOBJ,
+                            this.layers.length -1
+                    );
+                }.bind(this));
+                break;
+            case "tileset" :
+                var image_URL = null;
+                nodeEL.children.each(function(image){
+                    if(image.name === undefined) return;
+
+                    image_URL = image.attributes.source;
+
+                    this.setTileset(nodeEL);
+
+                    this.tileset.x = parseInt(image.attributes.width, 10) / this.tileset.width;
+                    this.tileset.y = parseInt(image.attributes.height, 10) / this.tileset.height;
+                }.bind(this));
+
+                this.tilesets.push(Radamn.Assets.getImage(process.env.PWD+"/"+image_URL));
+
+                break;
+            }
+        }.bind(this));
+
+        this.__ready();
+    },
+    parseObject: function(nodeEl, layerid) {
+
+    },
+    parseCSVData: function(data, layerid) {
+        console.log(arguments);
+        var i=0, max = data.length;
+        var gid = '';
+        var x=-1, y=0;
+        for(;i<max;++i) {
+            if(data[i] === "\n") {
+                x=-1;
+                ++y;
+                continue;
+            } else if(data[i] === ","){
+                ++x;
+            }
+
+            if(data[i] === ",") {
+                if(gid.length == 0) continue;
+
+                gid = parseInt(gid, 10);
+
+                if(gid !== 0) {
+                    var obj = {
+                        position: {
+                            x: x,
+                            y: y
+                        },
+                        tile: {
+                            id: gid-1
+                        }
+                    };
+                    obj.zIndex = (obj.position.x + obj.position.y * this.map.x) + layerid * this.map.x * this.map.y;
+                    this.layers[layerid].raw.push(obj);
+                }
+                gid = '';
+            } else {
+                gid+=data[i];
+            }
+        }
+    },
+    __ready: function() {
+        this.__optimizeLayers();
+        this.ready = true;
+    },
+    __optimizeLayers: function() {
+        var tileset_x = this.tileset.x;
+        var tileset_w = this.tileset.width;
+        var tileset_h = this.tileset.height;
+
+        if(this.options.offset.x === false) {
+            this.options.offset.x = this.map.width * 0.5;
+        }
+
+        // per layer!
+        var i=0, max=this.layers.length;
+        for(;i<max; ++i) {
+            console.log("post process layer: "+i);
+            switch(this.layers[i].type) {
+            case 'tiles' :
+                var j=0, jmax=this.layers[i].raw.length;
+                for(;j<jmax; ++j) {
+                    console.log(1);
+                    var tile = this.layers[i].raw[j];
+                    var tile_data = {
+                        x: tile.tile.id % tileset_x,
+                        y: Math.floor(tile.tile.id / tileset_x),
+                        position: this.getScreenPosition(tile.position.x, tile.position.y, 0),
+                    };
+
+                    this.layers[i].tile_data.push(tile_data);
+                    this.layers[i].tiles.push([
+                        tile_data.x * tileset_w, tile_data.y * tileset_h, tileset_w, tileset_h,
+                        tile_data.position.x, tile_data.position.y, tileset_w, tileset_h
+                    ]);
+                }
+                break;
+            case 'objects' :
+                var j=0, jmax=this.layers[i].raw.length;
+                for(;j<jmax; ++j) {
+                    var obj = this.layers[i].raw[j];
+
+                    this.layers[i].tiles.push([
+                        obj.x * tileset_w, obj.y * tileset_h, tileset_w, tileset_h,
+                        //this.options.offset.x + obj.position.x, this.options.offset.y + obj.position.y, tileset_w, tileset_h
+                        obj.position.x, obj.position.y, tileset_w, tileset_h
+                    ]);
+
+                    obj.x = obj.id % tileset_x;
+                    obj.y = Math.floor(obj.id / tileset_x);
+
+                    this.layers[i].objects.push(obj);
+
+                }
+                break;
+            }
+        }
+    },
+    /**
+     * @TODO user layers no layersTiles
+     */
+    getTiles: function(x, y, return_all) {
+        return_all = return_all | false;
+        var found = false;
+        var out = [];
+        var i=this.layerTiles.length-1;
+        for(;i>-1; --i) {
+            var j=0, jmax=this.layerTiles[i].length;
+            for(;j<jmax; ++j) {
+                if(this.layerTiles[i][j].position.x == x && this.layerTiles[i][j].position.y == y) {
+                    if(!return_all)
+                        return [this.layerTiles[i][j]];
+                    out.push(this.layerTiles[i][j]);
+                }
+            }
+        }
+        return out.length === 0 ? null : out;
+    },
+
+
     draw: function(ctx, elapsed_time) {
+
+        var win = ctx.getWindow();
+
+        var pos = this.parentNode.getDerivedPosition();
+
         if(this.ready === false) return;
-        var i=0, max=this.layerTiles.length;
+
+        var i=0, max=this.layers.length;
         max = 1;
         console.log("tiles: " + max);
         for(;i<max; ++i) {
-            var j=0, jmax=this.layerTiles[i].length;
+            var j=0, jmax=this.layers[i].tiles.length;
+            for(;j<jmax; ++j) {
+                var tile = this.layers[i].tiles[j];
 
-            // one batch process per layer!
-
-            ctx.drawImages(this.tilesets[0], this.layerTiles[i]);
+                if(!win.viewableQuad(
+                        tile[4] + pos.x, tile[5] + pos.y,
+                        tile[6],         tile[7])) {
+                    continue;
+                }
+                ctx.drawImage(this.tilesets[0],
+                        tile[0],
+                        tile[1],
+                        tile[2],
+                        tile[3],
+                        tile[4],
+                        tile[5],
+                        tile[6],
+                        tile[7]
+                );
+            }
         }
-
-        return ;
-
-        i=0;
-        max=this.objects.length;
-        max = 10;
-        console.log("objects: " + max);
-        for(;i<max; ++i) {
-            ctx.drawImage.apply(ctx, this.objects[i].$draw);
-        }
-
-        //this.debugIso(ctx);
     },
     highlightPath: function(ctx, path, timeout) {
         var result_idx = 0;

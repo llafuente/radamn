@@ -62,9 +62,27 @@ typedef struct OGL_Texture {
     GLuint textureID;
 };
 
+typedef struct OGL_DrawBufferTextured {
+    GLsizeiptr positionSize;
+    GLfloat* positions;
+    GLuint* positionBuffer;
+
+    GLuint textureID;
+    GLsizeiptr coordsSize;
+    GLfloat* coords;
+    GLuint* coordsBuffer;
+};
+
+
 #include "c_helper.cc"
 #include "openGL_helper.cc"
 #include "SDL_helper.cc"
 #include "v8_helper.cc"
+
+// declare here all needed pointers!
+V8_POINTER_DECLARE(SDL_Font)
+V8_POINTER_DECLARE(SDL_Surface)
+V8_POINTER_DECLARE(OGL_DrawBufferTextured)
+
 
 #endif // RADAMN_PREREQUISITES_H_

@@ -149,10 +149,6 @@ POINTER->y = Y;                                 \
 POINTER->w = W;                                 \
 POINTER->h = H;                                 \
 
-// declare here all needed pointers!
-V8_POINTER_DECLARE(SDL_Font)
-V8_POINTER_DECLARE(SDL_Surface)
-
 #define RETURN_WRAP_IMAGE(POINTER) V8_RETURN_WRAPED_POINTER(scope, SDL_Surface, POINTER)
 #define UNWRAP_IMAGE(ARG_NUMBER, POINTER) V8_UNWRAP_POINTER_ARG(0, target)
 

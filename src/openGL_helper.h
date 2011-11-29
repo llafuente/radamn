@@ -56,3 +56,6 @@
     }                                                                                                                  \
 
 #endif
+
+
+#define OGL_BUFFER_OFFSET(i) ((char *)NULL + (i))
