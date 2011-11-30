@@ -5,13 +5,29 @@
 var CRadamn = require(process.env.PWD+ '/../build/Release/radamn.node');
 var Radam = global.Radamn;
 
+/**
+ * @class TMXIsometric
+ */
+
 var TMXIsometric = {
+    /**
+     * @member TMXIsometric
+     * @params {Number} x
+     * @params {Number} y
+     * @params {Number} z
+     */
     getScreenPosition : function(x,y,z) {
         return {x: ((x - y) * this.tileset.iwidth) + this.options.offset.x, // [-4608, 4608]
             y: ((y + x) * this.tileset.iheight) + this.options.offset.y,  // [    0, 4608]
             z: 0
         };
     },
+    /**
+     * @member TMXIsometric
+     * @params {Number} x
+     * @params {Number} y
+     * @params {Number} as_float
+     */
     getTilePosition : function(x,y, as_float) {
         as_float = as_float | false;
         x-=this.options.offset.x;
@@ -31,6 +47,10 @@ var TMXIsometric = {
             y:tempY - tempX
         };
     },
+    /**
+     * @member TMXIsometric
+     * @params {Object} nodeEL
+     */
     setTileset: function(nodeEL) {
         this.tileset = {
                 width: parseInt(nodeEL.attributes.tilewidth, 10),
@@ -40,8 +60,16 @@ var TMXIsometric = {
         this.tileset.iwidth = this.tileset.width / 2;
     }
 };
-
+/**
+ * @class TMXOrtogonal
+ */
 var TMXOrtogonal = {
+    /**
+     * @member TMXOrtogonal
+     * @params {Number} x
+     * @params {Number} y
+     * @params {Number} z
+     */
     getScreenPosition: function(x,y,z) {
         return {
             x: (x * this.tileset.iwidth) + this.options.offset.x, // [-4608, 4608]
@@ -49,6 +77,12 @@ var TMXOrtogonal = {
             z: 0
         };
     },
+    /**
+     * @member TMXOrtogonal
+     * @params {Number} x
+     * @params {Number} y
+     * @params {Number} as_float
+     */
     getTilePosition : function(x,y, as_float) {
         as_float = as_float | false;
         x-=this.options.offset.x;
@@ -68,6 +102,10 @@ var TMXOrtogonal = {
             y:tempY - tempX
         };
     },
+    /**
+     * @member TMXOrtogonal
+     * @params {Object} nodeEL
+     */
     setTileset: function(nodeEL) {
         this.tileset = {
                 width: parseInt(nodeEL.attributes.tilewidth, 10),
@@ -116,44 +154,134 @@ module.exports.TMX = new Class({
     tilesets: [],
     /**
      * @member TMX
-     * @type Array
+     * @type TilesetProperties
      */
     tileset: {
+        /**
+         * @member TilesetProperties
+         * @type {Number}
+         */
         width: false, //get from TMX
+        /**
+         * @member TilesetProperties
+         * @type {Number}
+         */
         height: false, //get from TMX
+        /**
+         * @member TilesetProperties
+         * @type {Number}
+         */
         iheight: false, //get from TMX
+        /**
+         * @member TilesetProperties
+         * @type {Number}
+         */
         iwidth: false //get from TMX
     },
+    /**
+     * @member TMX
+     * @type {TileProperties}
+     */
     tiles: {
+        /**
+         * @member TileProperties
+         * @type {Number}
+         */
         width: false, //get from TMX
+        /**
+         * @member TileProperties
+         * @type {Number}
+         */
         height: false //get from TMX
     },
+    /**
+     * @member TMX
+     * @type {MapProperties}
+     */
     map: {
+        /**
+         * @member MapProperties
+         * @type {Number}
+         */
         x: 0, //get from TMX
+        /**
+         * @member MapProperties
+         * @type {Number}
+         */
         y: 0, //get from TMX
+        /**
+         * @member MapProperties
+         * @type {Number}
+         */
         width: false, //get from TMX
+        /**
+         * @member MapProperties
+         * @type {Number}
+         */
         height: false, //get from TMX
+        /**
+         * @member MapProperties
+         * @type {String}
+         */
         orientation: "isometric" //get from TMX
     },
-
+    /**
+     * @member TMX
+     * @type {TMXProperties}
+     */
     options: {
+        /**
+         * @member TMXProperties
+         * @type {Boolean}
+         */
         AABB: null,
+        /**
+         * @member TMXProperties
+         * @type {Vector2D}
+         */
         offset : {
             x: 0,
             y: 0
         },
+        /**
+         * @member TMXProperties
+         * @type {Number}
+         */
         gid: 0,
+        /**
+         * @member TMXProperties
+         * @type {Number}
+         */
         x:0,
+        /**
+         * @member TMXProperties
+         * @type {Number}
+         */
         y:0
     },
+    /**
+     * @member TMX
+     * @type {Boolean}
+     */
     ready: false,
 
+    /**
+     * @member TMX
+     * @constructor
+     * @params {String} tmx_file
+     * @params {TMXProperties} options
+     */
     initialize: function(tmx_file, options) {
         this.setOptions(options);
 
-        this.loadTMX(tmx_file);
+        this.__loadTMX(tmx_file);
     },
-    loadTMX: function(tmx_file) {
+    /**
+     * @member TMX
+     * @private
+     * @params {String} tmx_file
+     */
+    __loadTMX: function(tmx_file) {
         var util = require('util');
         var DomJS = require("dom-js").DomJS;
 
@@ -167,11 +295,16 @@ module.exports.TMX = new Class({
 
               //XXX browser support conflict!
               var xml = domjs.parse(data, function(err, xml) {
-                  this.setXML(xml);
+                  this.__setXML(xml);
               }.bind(this));
         }.bind(this));
     },
-    pushLayer: function(type) {
+    /**
+     * @member TMX
+     * @private
+     * @params {String} type
+     */
+    __pushLayer: function(type) {
         this.layers.push({
             type: type,
 
@@ -183,7 +316,12 @@ module.exports.TMX = new Class({
             raw: []
         });
     },
-    setXML: function(xml) {
+    /**
+     * @member TMX
+     * @private
+     * @params {Object} xml
+     */
+    __setXML: function(xml) {
         this.tiles = {
             width: parseInt(xml.attributes.tilewidth,10) * 0.5,
             height: parseInt(xml.attributes.tileheight, 10) * 0.5
@@ -212,7 +350,7 @@ module.exports.TMX = new Class({
 
             switch(nodeEL.name) {
             case "layer" :
-                this.pushLayer("tiles");
+                this.__pushLayer("tiles");
 
                 nodeEL.children.each(function(data) {
                     if(data.name === undefined) return;
@@ -223,9 +361,11 @@ module.exports.TMX = new Class({
 
                 break;
             case "objectgroup" :
-                this.pushLayer("objects");
+                this.__pushLayer("objects");
 
                 nodeEL.children.each(function(nodeOBJ){
+                    if(nodeOBJ.name === undefined) return;
+
                     this.parseObject(nodeOBJ,
                             this.layers.length -1
                     );
@@ -252,9 +392,31 @@ module.exports.TMX = new Class({
 
         this.__ready();
     },
+    /**
+     * leave it "public" so it can be hack-able
+     * @member TMX
+     * @params {Object} nodeEl
+     * @params {Number} layerid
+     */
     parseObject: function(nodeEl, layerid) {
+        var obj = {
+            gid: parseInt(nodeEl.attributes.gid, 10) -1,
+            position: {
+                x: parseInt(nodeEl.attributes.x, 10),
+                y: parseInt(nodeEl.attributes.y, 10)
+            }
+        };
+        obj.x = obj.gid % this.tileset.x;
+        obj.y = Math.floor(obj.gid / this.tileset.x);
 
+        this.layers[layerid].raw.push(obj);
     },
+    /**
+     * leave it "public" so it can be hack-able
+     * @member TMX
+     * @params {String} data
+     * @params {Number} layerid
+     */
     parseCSVData: function(data, layerid) {
         console.log(arguments);
         var i=0, max = data.length;
@@ -293,10 +455,18 @@ module.exports.TMX = new Class({
             }
         }
     },
+    /**
+     * @member TMX
+     * @private
+     */
     __ready: function() {
         this.__optimizeLayers();
         this.ready = true;
     },
+    /**
+     * @member TMX
+     * @private
+     */
     __optimizeLayers: function() {
         var tileset_x = this.tileset.x;
         var tileset_w = this.tileset.width;
@@ -330,6 +500,7 @@ module.exports.TMX = new Class({
                 }
                 break;
             case 'objects' :
+                console.log(this.tileset);
                 var j=0, jmax=this.layers[i].raw.length;
                 for(;j<jmax; ++j) {
                     var obj = this.layers[i].raw[j];
@@ -340,9 +511,6 @@ module.exports.TMX = new Class({
                         obj.position.x, obj.position.y, tileset_w, tileset_h
                     ]);
 
-                    obj.x = obj.id % tileset_x;
-                    obj.y = Math.floor(obj.id / tileset_x);
-
                     this.layers[i].objects.push(obj);
 
                 }
@@ -352,6 +520,9 @@ module.exports.TMX = new Class({
     },
     /**
      * @TODO user layers no layersTiles
+     *
+     * @member TMX
+     * @private
      */
     getTiles: function(x, y, return_all) {
         return_all = return_all | false;
@@ -370,10 +541,14 @@ module.exports.TMX = new Class({
         }
         return out.length === 0 ? null : out;
     },
-
-
+    /**
+     * draw rutine
+     *
+     * @member TMX
+     * @params {Canvas} ctx
+     * @params {Number} elapsed_time
+     */
     draw: function(ctx, elapsed_time) {
-
         var win = ctx.getWindow();
 
         var pos = this.parentNode.getDerivedPosition();
@@ -381,7 +556,6 @@ module.exports.TMX = new Class({
         if(this.ready === false) return;
 
         var i=0, max=this.layers.length;
-        max = 1;
         console.log("tiles: " + max);
         for(;i<max; ++i) {
             var j=0, jmax=this.layers[i].tiles.length;
@@ -406,6 +580,9 @@ module.exports.TMX = new Class({
             }
         }
     },
+    /**
+     * old code, maybe delete
+     */
     highlightPath: function(ctx, path, timeout) {
         var result_idx = 0;
 
@@ -423,6 +600,9 @@ module.exports.TMX = new Class({
 
         interval = setInterval(paint_result, timeout);
     },
+    /**
+     * old code, maybe delete
+     */
     highlightTile: function(ctx, tile) {
         if(this.parentNode === null) return;
         var offset = this.parentNode.getDerivedPosition();
@@ -435,20 +615,5 @@ module.exports.TMX = new Class({
 
         ctx.drawImage.apply(ctx, $draw);
         ctx.restore();
-    },
-    debugIso: function(ctx) {
-        var i=0, max=this.layerTiles.length;
-        for(;i<max; ++i) {
-            var j=0, jmax=this.layerTiles[i].length;
-            for(;j<jmax; ++j) {
-                ctx.strokeStyle = "rgb(255,0,0)";
-                ctx.lineWidth  = 0.5;
-                ctx.strokeRect(this.layerTiles[i][j].$draw[5], this.layerTiles[i][j].$draw[6], this.layerTiles[i][j].$draw[7], this.layerTiles[i][j].$draw[8]);
-                ctx.stroke();
-                //ctx.fillText(this.layerTiles[i][j].position.x+","+this.layerTiles[i][j].position.y,this.layerTiles[i][j].$draw[5]+3, this.layerTiles[i][j].$draw[6]+10);
-                if(i==0)
-                ctx.fillText(this.layerTiles[i][j].zIndex,this.layerTiles[i][j].$draw[5]+3, this.layerTiles[i][j].$draw[6]+10);
-            }
-        }
     }
 });
