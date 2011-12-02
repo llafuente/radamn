@@ -72,6 +72,25 @@ typedef struct OGL_DrawBufferTextured {
     GLfloat* coords;
     GLuint* coordsBuffer;
 };
+struct glColor {
+    GLfloat r;
+    GLfloat g;
+    GLfloat b;
+    GLfloat a;
+
+};
+
+glColor glColor_from(SDL_Color color) {
+    glColor output;
+    output.r = color.r * 0.003921568627450980392156862745098;
+    output.g = color.g * 0.003921568627450980392156862745098;
+    output.b = color.b * 0.003921568627450980392156862745098;
+
+    //output.a = color.a * 0.003921568627450980392156862745098;
+    output.a = 1;
+
+    return output;
+}
 
 
 #include "c_helper.cc"

@@ -59,6 +59,10 @@ init(Handle<Object> target)
   NODE_SET_METHOD(Window, "transform",            Radamn::Window::transform);
   NODE_SET_METHOD(Window, "setTransform",         Radamn::Window::setTransform);
 
+  NODE_SET_METHOD(Window, "arc",                  Radamn::Window::arc);
+  NODE_SET_METHOD(Window, "arcTo",                Radamn::Window::arcTo);
+  NODE_SET_METHOD(Window, "fillRect",             Radamn::Window::fillRect);
+
   Local<Object> Image = Object::New();
   target->Set(String::New("Image"), Image);
   NODE_SET_METHOD(Image, "load", Radamn::Image::load);
@@ -164,6 +168,8 @@ static Handle<Value> Radamn::createWindow(const Arguments& args) {
 
         glMatrixMode (GL_MODELVIEW);
         glLoadIdentity ();
+
+         glDisable(GL_DEPTH_TEST);
 
 #endif
 

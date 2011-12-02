@@ -278,14 +278,14 @@ module.exports.$ = {
         /**
          * @member RadamnBlendings
          */
-        SRC_OVER: "source-over",       // destination + source
-        DST_OVER: "destination-over",  // source + destination
-        SRC_IN: "source-in",           // destination & source
-        DST_IN: "destination-in",      // source & destination
-        SRC_OUT: "source-out",         // source - destination
-        DST_OUT: "destination-out",    // destination - source
-        SRC_ATOP: "source-atop",       // destination + (source & destination)
-        DST_ATOP: "destination-atop",  // source + (destination & source)
+        SOURCE_OVER: "source-over",       // destination + source
+        DESTINATION_OVER: "destination-over",  // source + destination
+        SOURCE_IN: "source-in",           // destination & source
+        DESTINATION_IN: "destination-in",      // source & destination
+        SOURCE_OUT: "source-out",         // source - destination
+        DESTINATION_OUT: "destination-out",    // destination - source
+        SOURCE_ATOP: "source-atop",       // destination + (source & destination)
+        DESTINATION_ATOP: "destination-atop",  // source + (destination & source)
         LIGTHER: "lighter",            // destination + source + lighter(source & destination)
         DARKER: "darker",              // destination + source + darker(source & destination)
         XOR : "xor",                   // source ^ destination
@@ -997,6 +997,29 @@ Radamn.Font = new Class({
 //*********************************************************************************
 //
 
+Radamn.CanvasGradient = new Class({
+    name: "CanvasGradient",
+
+    x0 : 0,
+    y0 : 0,
+    x1 : 0,
+    y1 : 0,
+    colors: [],
+
+    initialize: function(x0, y0, x1, y1) {
+         this.x0 = x0;
+         this.y0 = y0;
+         this.x1 = x1;
+         this.y1 = y1;
+         // just save t
+    },
+    addColorStop: function(offset, color) {
+        colors.push({
+            offset : offset,
+            color : color
+        });
+    },
+});
 Radamn.Canvas = new Class({
     __window : null,
     pointer: null,
@@ -1076,7 +1099,23 @@ Radamn.Canvas = new Class({
             return true;
         }
         return false;
-
+    },
+    fillRect: function(x,y,w,h) {
+        console.log(x, y, w, h, this.fillStyle);
+        CRadamn.Window.fillRect(x, y, w, h, this.fillStyle);
+        return true;
+    },
+    arc: function(x1, y2, radius, startAngle, endAngle, anticlockwise ) {
+        console.log(arguments);
+        for (; startAngle < endAngle; startAngle+=0.25) {
+            this.__path.push([x1 + Math.sin(startAngle) * radius, y1 + Math.cos(startAngle) * radius]);
+        }
+        return true;
+    },
+    arcTo: function(x1, y2, x2, y2, radius) {
+        console.log(arguments);
+        CRadamn.Window.fillRect(x, y, w, h, this.fillStyle);
+        return true;
     },
     beginPath: function() {
         return this.__path.length === 0;
@@ -1682,6 +1721,10 @@ Radamn.Node = new Class({
         }
     }
 });
+
+
+Radamn.Vector2D = require(process.env.PWD+ '/../radamn.math.js').Vector2D;
+
 Radamn.Vector2D = require(process.env.PWD+ '/../radamn.vector2d.js').Vector2D;
 Radamn.TMX = require( process.env.PWD + "/../radamn.tmx.js").TMX;
 

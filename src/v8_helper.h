@@ -65,7 +65,6 @@
     if(strncmp ( ccolor, "#", 1) == 0) {                                                                                \
         int r,g,b;                                                                                                      \
         sscanf(ccolor, "#%02x%02x%02x", &r,&g,&b);                                                                      \
-        std::cout << (int)r << (int)g << (int)b << std::endl;                                                           \
         OUTPUT_NAME.r = (int)r;                                                                                         \
         OUTPUT_NAME.g = (int)g;                                                                                         \
         OUTPUT_NAME.b = (int)b;                                                                                         \
@@ -79,22 +78,23 @@
           char * ptr = strtok (aux, "(");                                                                               \
                                                                                                                         \
           ptr = strtok (NULL, ",");                                                                                     \
-          OUTPUT_NAME.r = atoi(ptr);                                                                                    \
-          std::cout << ptr << (int) OUTPUT_NAME.r << std::endl;                                                         \
+          OUTPUT_NAME.r = (int) atoi(ptr);                                                                                    \
+          VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.r << std::endl;                                                 \
                                                                                                                         \
           ptr = strtok (NULL, ",");                                                                                     \
-          OUTPUT_NAME.g = atoi(ptr);                                                                                    \
-          std::cout << ptr << (int) OUTPUT_NAME.g << std::endl;                                                         \
+          OUTPUT_NAME.g = (int) atoi(ptr);                                                                                    \
+          VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.g << std::endl;                                                 \
                                                                                                                         \
           ptr = strtok (NULL, ")");                                                                                     \
-          OUTPUT_NAME.b = atoi(ptr);                                                                                    \
-          std::cout << ptr << (int) OUTPUT_NAME.b << std::endl;                                                         \
+          OUTPUT_NAME.b = (int) atoi(ptr);                                                                                    \
+          VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.b << std::endl;                                                 \
           ptr = strtok (NULL, "?");                                                                                     \
                                                                                                                         \
           free(aux); /* free the initial pointer!! */                                                                   \
           ptr = 0;                                                                                                      \
     } else if(strncmp ( ccolor, "rgba", 4) == 0) {                                                                      \
     }                                                                                                                   \
+    VERBOSE << "parsed rgb(" << (int) OUTPUT_NAME.r << "," << (int) OUTPUT_NAME.g << "," << (int) OUTPUT_NAME.b << ")" << ENDL;      \
 }                                                                                                                       \
 
 

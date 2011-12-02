@@ -1,6 +1,7 @@
 #include "radamn_window.h"
 
 #include <SDL_stdinc.h>
+#include <math.h>
 
 //
 // ----------------------------------------------------------------------------------------------------
@@ -291,4 +292,113 @@ static v8::Handle<v8::Value> Radamn::Window::setTransform(const v8::Arguments& a
 
     glLoadMatrixf(m);
     VERBOSE << "setTransformed" << std::endl;
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+static v8::Handle<v8::Value> Radamn::Window::fillRect(const v8::Arguments& args) {
+    VERBOSE << "fillRect" << std::endl;
+    std::cout << "fillRect" << std::endl;
+
+    //QUAD
+    V8_ARG_TO_NEWFLOAT(0, x);
+    V8_ARG_TO_NEWFLOAT(1, y);
+    V8_ARG_TO_NEWFLOAT(2, w);
+    V8_ARG_TO_NEWFLOAT(3, h);
+
+    V8_ARG_TO_SDL_NEWCOLOR(4, color_src);
+
+    glColor color;
+    color = glColor_from(color_src);
+
+    //VERBOSE << "OGL rgb(" << (float) color.r << "," << (float) color.g << "," << (float) color.b << ")" << ENDL;      \
+
+    GLfloat before[4];
+    glGetFloatv(GL_CURRENT_COLOR, before);
+
+    glBegin(GL_QUADS);
+    GL_DRAW_COLORED_QUAD(
+        color, color, color, color,
+        x, y, x+w, y+h
+    );
+    glEnd();
+
+    glColor4f(before[0], before[1], before[2], before[3]);
+
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+static v8::Handle<v8::Value> Radamn::Window::arc(const v8::Arguments& args) {
+    VERBOSE << "fillRect" << std::endl;
+    std::cout << "fillRect" << std::endl;
+
+    //QUAD
+    V8_ARG_TO_NEWFLOAT(0, x1);
+    V8_ARG_TO_NEWFLOAT(1, y1);
+    V8_ARG_TO_NEWFLOAT(2, x2);
+    V8_ARG_TO_NEWFLOAT(3, y2);
+    V8_ARG_TO_NEWFLOAT(3, radius);
+
+    V8_ARG_TO_SDL_NEWCOLOR(4, color_src);
+
+    glColor color;
+    color = glColor_from(color_src);
+
+    GLfloat before[4];
+    glGetFloatv(GL_CURRENT_COLOR, before);
+
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(x1, y1);
+
+    float angle = 0;
+    glColor4f(color.r, color.g, color.b, color.a);
+
+    for (angle; angle < M_PI * 2; angle+=0.25) {
+        glVertex2f(x1 + sin(angle) * radius, y1 + cos(angle) * radius);
+    }
+
+    glEnd();
+
+    glColor4f(before[0], before[1], before[2], before[3]);
+
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+static v8::Handle<v8::Value> Radamn::Window::arcTo(const v8::Arguments& args) {
+    VERBOSE << "fillRect" << std::endl;
+    std::cout << "fillRect" << std::endl;
+
+    //QUAD
+    V8_ARG_TO_NEWFLOAT(0, x);
+    V8_ARG_TO_NEWFLOAT(1, y);
+    V8_ARG_TO_NEWFLOAT(2, w);
+    V8_ARG_TO_NEWFLOAT(3, h);
+
+    V8_ARG_TO_SDL_NEWCOLOR(4, color_src);
+
+    glColor color;
+    color = glColor_from(color_src);
+
+    //VERBOSE << "OGL rgb(" << (float) color.r << "," << (float) color.g << "," << (float) color.b << ")" << ENDL;      \
+
+    GLfloat before[4];
+    glGetFloatv(GL_CURRENT_COLOR, before);
+
+    glBegin(GL_QUADS);
+    GL_DRAW_COLORED_QUAD(
+        color, color, color, color,
+        x, y, x+w, y+h
+    );
+    glEnd();
+
+    glColor4f(before[0], before[1], before[2], before[3]);
+
 }

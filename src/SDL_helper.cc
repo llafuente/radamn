@@ -6,7 +6,7 @@
 //
 
 void debug_SDL_Rect(SDL_Rect* rect) {
-  VERBOSE <<"x: " << rect->x << " y: " << rect->y << " w: " << rect->w << " h: " << rect->h << std::endl;
+  VERBOSE <<"SDL_Rect x: " << rect->x << " y: " << rect->y << " w: " << rect->w << " h: " << rect->h << std::endl;
 }
 
 //
@@ -14,7 +14,15 @@ void debug_SDL_Rect(SDL_Rect* rect) {
 //
 
 void debug_SDL_Surface(SDL_Surface* surface) {
-  VERBOSE <<"w: " << surface->w << " h: " << surface->h << std::endl;
+  VERBOSE <<"SDL_Surface w: " << surface->w << " h: " << surface->h << std::endl;
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+void debug_SDL_Color(SDL_Color* color) {
+  VERBOSE <<"SDL_Color rgb( " << color->r << " , " << color->g << " , " << color->b << ")" <<std::endl;
 }
 
 //

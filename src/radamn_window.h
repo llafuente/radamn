@@ -45,6 +45,10 @@ namespace Radamn {
         static v8::Handle<v8::Value> transform(const v8::Arguments& args);
         static v8::Handle<v8::Value> setTransform(const v8::Arguments& args);
 
+        static v8::Handle<v8::Value> fillRect(const v8::Arguments& args);
+        static v8::Handle<v8::Value> arc(const v8::Arguments& args);
+        static v8::Handle<v8::Value> arcTo(const v8::Arguments& args);
+
         // radamn specific
         static v8::Handle<v8::Value> screenshot(const v8::Arguments& args);
     }
