@@ -1,4 +1,9 @@
+var assert = require('assert');
+
 Math.EPS = 10e-3;
+
+Math.RAD_TO_DEG = 180 / Math.PI;
+Math.DEG_TO_RAD = Math.PI / 180;
 
 /**
  * @member Math
@@ -12,15 +17,6 @@ Math.intersection_line2_vs_line2 =  function (aline, bline) {
     ua_t = (b2.x - b1.x) * (a1.y - b1.y) - (b2.y - b1.y) * (a1.x - b1.x),
     ub_t = (a2.x - a1.x) * (a1.y - b1.y) - (a2.y - a1.y) * (a1.x - b1.x),
     u_b  = (b2.y - b1.y) * (a2.x - a1.x) - (b2.x - b1.x) * (a2.y - a1.y);
-
-    console.log("*************");
-    console.log(a1);
-    console.log(a2);
-    console.log(b1);
-    console.log(b2);
-
-    console.log(u_b);
-    console.log("*************");
 
     if ( u_b != 0 ) {
         var ua = ua_t / u_b;
@@ -155,7 +151,7 @@ Math.intersection_circle_vs_line2 = function (circle, line2) {
 
     return result;
 }
-Math.intersection_cirle_vs_cirle = function (acircle, bcircle) {
+Math.intersection_circle_vs_circle = function (acircle, bcircle) {
     var result;
 
     var c1 = acircle.center;
@@ -241,52 +237,83 @@ Math.intersection_segment2_vs_segment2 = function (asegment, bsegment) {
   });
   return output;
 };
-Math.distance_segment2_vs_point2 = function(segment, point) {
-    var LineMag = segment.magnitude(),
-    U = ( ( ( point.x - segment.x1 ) * ( segment.x2 -segment.x1 ) ) +
-            ( ( point.y - segment.y1 ) * ( segment.y2 - segment.y1 ) )
-            //+ ( ( Point->Z - LineStart->Z ) * ( LineEnd->Z - LineStart->Z ) ) )
-    ) /
-    ( LineMag * LineMag );
+Math.distance_segment2_vs_vec2 = function(segment, point) {
+	var r_numerator = (segment.x1-segment.x2)*(point.x-segment.x2) + (segment.y1-segment.y2)*(point.y-segment.y2),
+	r_denomenator = (point.x-segment.x2)*(point.x-segment.x2) + (point.y-segment.y2)*(point.y-segment.y2),
+	r = r_numerator / r_denomenator,
+//
+    px = segment.x2 + r*(point.x-segment.x2),
+    py = segment.y2 + r*(point.y-segment.y2),
+//     
+    s =  ((segment.y2-segment.y1)*(point.x-segment.x2)-(segment.x2-segment.x1)*(point.y-segment.y2) ) / r_denomenator;
 
-    if( U < 0.0 || U > 1.0 )
-        return false;   // closest point does not fall within the line segment
+	var distanceLine = Math.abs(s)*Math.sqrt(r_denomenator);
+	
+//
+// (xx,yy) is the point on the lineSegment closest to (segment.x1,segment.y1)
+//
+	var xx = px;
+	var yy = py;
 
-    var line = new Line2(
-            point.x, point.y,
-            segment.x1 + U * ( segment.x2 - segment.x1 ),
-            segment.y1 + U * ( segment.y2 - segment.y1 )
-    );
-    //Intersection.Z = LineStart->Z + U * ( LineEnd->Z - LineStart->Z );
+	if ( (r >= 0) && (r <= 1) )
+	{
+		distanceSegment = distanceLine = 0;
+	}
+	else
+	{
 
-    return line.magnitude();
+		var dist1 = (segment.x1-segment.x2)*(segment.x1-segment.x2) + (segment.y1-segment.y2)*(segment.y1-segment.y2),
+		dist2 = (segment.x1-point.x)*(segment.x1-point.x) + (segment.y1-point.y)*(segment.y1-point.y);
+		if (dist1 < dist2)
+		{
+			xx = segment.x2;
+			yy = ay;
+			distanceSegment = Math.sqrt(dist1);
+		}
+		else
+		{
+			xx = point.x;
+			yy = point.y;
+			distanceSegment = Math.sqrt(dist2);
+		}
+	}
+
+	return distanceSegment;
 };
-Math.distance_segment2_vs_point2 = function(segment, point) {
-    var LineMag = segment.magnitude(),
-    U = ( ( ( point.x - segment.x1 ) * ( segment.x2 -segment.x1 ) ) +
-        ( ( point.y - segment.y1 ) * ( segment.y2 - segment.y1 ) )
-            //+ ( ( Point->Z - LineStart->Z ) * ( LineEnd->Z - LineStart->Z ) ) )
-        ) /
-        ( LineMag * LineMag );
 
-    if( U < 0.0 || U > 1.0 )
-        return false;   // closest point does not fall within the line segment
+Math.distance_line2_vs_vec2 = function(line, point) {
+	var segment ={
+		x1 : line.x,
+		y1 : line.y,
+		x2 : line.x + line.m,
+		y2 : line.y + line.m
+	};
 
-    var line = new Line2(
-            point.x, point.y,
-            segment.x1 + U * ( segment.x2 - segment.x1 ),
-            segment.y1 + U * ( segment.y2 - segment.y1 )
-            );
-    //Intersection.Z = LineStart->Z + U * ( LineEnd->Z - LineStart->Z );
+	var r_numerator = (segment.x1-segment.x2)*(point.x-segment.x2) + (segment.y1-segment.y2)*(point.y-segment.y2),
+	r_denomenator = (point.x-segment.x2)*(point.x-segment.x2) + (point.y-segment.y2)*(point.y-segment.y2),
+	r = r_denomenator === 0 ? 0 : (r_numerator / r_denomenator),
+//
+    px = segment.x2 + r*(point.x-segment.x2),
+    py = segment.y2 + r*(point.y-segment.y2),
+//     
+    s =  ((segment.y2-segment.y1)*(point.x-segment.x2)-(segment.x2-segment.x1)*(point.y-segment.y2) ) / r_denomenator;
 
-    return line.magnitude();
+	var distanceLine = Math.abs(s)*Math.sqrt(r_denomenator);
+	
+	return ( (r >= 0) && (r <= 1) ) ? 0 : distanceLine;
 };
+
 Math.distance_vec2_vs_vec2 = function(a,b) {
     var x = a.x - b.x;
     var y = a.y - b.y;
-
     return Math.sqrt(x*x + y*y);
 };
+
+Math.distance_circle_vs_circle = function(a,b) {
+	var dist = Math.distance_vec2_vs_vec2(a.center, b.center);
+    return Math.max(0, dist - a.r - b.r);
+};
+
 Math.distance_4points = function(x1,y1,x2,y2) {
     var x = x1 - x2;
     var y = y1 - y2;
@@ -319,14 +346,6 @@ Math.distance_segment_vs_vec2 = function(segment, v2) {
     return Math.distance_4points(v2.x, v2.y, xx, yy);
 };
 
-Math.distance_line2_vs_vec2 = function(line, v2) {
-    var A = x - x1;
-    var B = y - y1;
-    var C = x2 - x1;
-    var D = y2 - y1;
-
-    return Math.abs(A * D - C * B) / Math.sqrt(C * C + D * D);
-};
 Math.isParallel = function(a,b) {
     var types = [];
     types.push(typeOf(a));
@@ -335,7 +354,7 @@ Math.isParallel = function(a,b) {
 
     var fn = "parallel_"+types[0]+"_vs_"+types[1];
 
-    if(this[fn] === undefined) throw new Exception(fn+" is not declared");
+    assert.notEqual(this[fn], undefined, "Math."+fn + " is not declared");
 
     return Math[fn](a,b);
 };
@@ -347,9 +366,7 @@ Math.intersection = function(a,b){
 
     var fn = "intersection_"+types[0]+"_vs_"+types[1];
 
-    console.log(fn);
-
-    if(this[fn] === undefined) throw new Exception(fn+ " is not declared");
+    assert.notEqual(this[fn], undefined, "Math."+fn + " is not declared");
 
     return Math[fn](a,b);
 };
@@ -361,7 +378,7 @@ Math.distance = function(a,b){
 
     var fn = "distance_"+types[0]+"_vs_"+types[1];
 
-    if(this[fn] === undefined) throw new Exception(fn+" is not declared");
+	assert.notEqual(this[fn], undefined, "Math."+fn + " is not declared");
 
     return Math[fn](a,b);
 };
@@ -588,7 +605,7 @@ AABB2.implement({
 });
 
 
-var Line2 = this.Line = new Type('Line2', function(object){
+var Line2 = this.Line2 = new Type('Line2', function(object){
     if(arguments.length == 4) {
         this.set(arguments[0], arguments[1], arguments[2], arguments[3]);
     } else if(arguments.length == 3) {
@@ -616,8 +633,7 @@ Line2.implement({
         return this;
     },
     set: function(x1, y1, x2, y2) {
-        if(arguments.length == 2) {
-            console.log(arguments);
+        if(arguments.length === 2) {
             //compute m
             this.x = x1.x;
             this.y = x1.y;
@@ -627,13 +643,15 @@ Line2.implement({
             return this;
         }
         //compute m
-        this.x = x;
-        this.y = y;
-
-        if(arguments.lenght == 4)
+        this.x = x1;
+        this.y = y1;
+		
+        if(arguments.length === 4) {
             this.m = this.magnitude(x2, y2);
-        if(arguments.lenght == 3)
+		} else if(arguments.lenght == 3) {
             this.m = x2;
+		}
+
         return this;
 
     },
@@ -646,11 +664,11 @@ Line2.implement({
     getParallel: function(d) {
         return new Line2(this.x1,this.x2, -1/m);
     },
-    magnitude: function(x,y) {
-        var _x = this.x - x;
-        var _y = this.y - y;
-
-        return Math.sqrt(_x * _x + _y * _y);
+    magnitude: function(x2,y2) {
+        var _x = this.x - (x2 || 0);
+        var _y = this.y - (y2|| 0);
+		
+        return _x / _y;
     },
 });
 
@@ -661,7 +679,7 @@ var Segment2 = this.Segment = new Type('Segment2', function(){
         this.initialize(arguments[0], arguments[1], arguments[2], arguments[3]);
     }
     if(arguments.length == 2) {
-        this.set(arguments[0], arguments[1]);
+		this.set(arguments[0], arguments[1]);
     }
     else if(arguments.length == 1) {
         if (typeOf(object) == 'segment2') object = Object.clone(object.getClean());
@@ -675,7 +693,6 @@ Segment2.implement({
     y1 : 0,
     x2 : 0,
     y2 : 0,
-    __m  : 0,
     initialize: function(x1, y1, x2, y2) {
         //compute m
         this.x1 = x1;
@@ -694,11 +711,17 @@ Segment2.implement({
 
         return this;
     },
-    magnitude: function() {
+    length: function() {
         var x = this.x2 - this.x1;
         var y = this.y2 - this.y1;
 
-        return (this.__m = Math.sqrt(x * x + y * y));
+        return Math.sqrt(x * x + y * y);
+    },
+    lengthSquared: function() {
+        var x = this.x2 - this.x1;
+        var y = this.y2 - this.y1;
+
+        return x * x + y * y;
     },
     rotate: function(angle) {
 
@@ -715,18 +738,18 @@ Segment2.implement({
 });
 
 
-var Cirle = this.Line = new Type('Cirle', function(object){
+var circle = this.circle = new Type('circle', function(object){
     if(arguments.length == 2) {
         this.set(arguments[0], arguments[1]);
     }
     else if(arguments.length == 1) {
-        if (typeOf(object) == 'cirle') object = Object.clone(object.getClean());
+        if (typeOf(object) == 'circle') object = Object.clone(object.getClean());
         for (var key in object) this[key] = object[key];
     }
     return this;
 });
 
-Cirle.implement({
+circle.implement({
     center: null,
     r: 0,
     set: function(center, r) {
@@ -737,8 +760,6 @@ Cirle.implement({
 
 var Rectangle = this.Rectangle = new Type('Rectangle', function(){
     var object = null;
-
-    console.log(arguments);
 
     if(arguments.length == 2) {
         this.set(arguments[0], arguments[1]);
@@ -766,49 +787,39 @@ Rectangle.implement({
         return this;
     },
 });
-/*
- *
-test case not ready...
 
 
-var v55 = new Vec2(5,5);
-var v77 = new Vec2(7,7);
-var v33 = new Vec2(-1,3);
-
-console.log(v55);
-console.log(v77);
-console.log(v33);
-
-
-console.log("distance from 5,5 to 7,7: ", Math.distance(v77, v55));
-
-var c1 = new Cirle(v55, 3);
-var c2 = new Cirle(v77, 3);
-
-console.log("circle intersection",Math.intersection(c1, c2));
-
-var l1 = new Line2(v55, v77);
-var l2 = new Line2(v55, v33);
-
-console.log(l1);
-console.log(l2);
-console.log("line2 intersection", Math.intersection(l1, l2));
+var Polygon = this.Polygon = new Type('Polygon', function(object){
+this.initialize();
+switch(typeOf(object)) {
+case 'polygon' : 
+		object = Object.clone(object.getClean());
+		for (var key in object) this[key] = object[key];
+break;
+case 'array' :
+	var i = 0,
+	max = object.length;
+	for(;i<max;++i) {
+		this.push(object[i]);
+	}
+break;
+}
+    return this;
+});
 
 
+Polygon.implement({
+    points: null,
+	initialize: function() {
+		this.points = [];
+	},
+    push: function() {
+        if(arguments.length === 2 ) {
+			this.points.push(new Vec2(arguments[0], arguments[1]));
+			return this;
+		}
+		this.points.push(arguments[0]);
 
-var segment = new Segment2(2,2,4,4);
-console.log(typeOf(segment));
-
-console.log("distance: ",
-        Math.distance_segment_vs_vec2(segment, v55)
-);
-
-var zz = new AABB2(2,2,4,4);
-console.log(typeOf(zz));
-
-
-process.exit();
-
-
-
-*/
+        return this;
+    }
+});

@@ -184,21 +184,23 @@ static v8::Handle<v8::Value> Radamn::Window::stroke(const v8::Arguments& args) {
     //glEnable (GL_LINE_SMOOTH);
 
     glLineWidth (width);
+	glEnable (GL_LINE_SMOOTH);
 
     glBegin (GL_LINE_STRIP);
         glColor3f (color.r == 0 ? 0 : color.r/255, color.g == 0 ? 0 : color.g /255, color.b == 0 ? 0 : color.b/255);
-        glVertex3f (0, 0, 0);
         unsigned int i = 0;
         unsigned int max = coords->Length();
         std::cout << "ncoords: "<< max << std::endl;
         float x,y;
         for(;i<max;++i) {
-            std::cout << i<< "( "<< x << "," << y << ")" << std::endl;
             // TODO why is i*2, i dont fucking understant it!
             V8_EXTRACT_COORDS_FROM_ARRAY(coords, i, x, y)
+			std::cout << i<< "( "<< x << "," << y << ")" << std::endl;
             glVertex3f (x, y, 0);
         }
     glEnd ();
+	
+	glDisable(GL_LINE_SMOOTH);
     glColor3f (1,1,1);
 
     return v8::True();

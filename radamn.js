@@ -1091,6 +1091,9 @@ Radamn.Canvas = new Class({
      * @param {Number} y
      */
     lineTo: function(x, y) {
+		if(this.__path.length === 0)
+			this.__path.push([0,0]);
+
         this.__path.push([x,y]);
     },
     stroke: function() {
@@ -1105,10 +1108,10 @@ Radamn.Canvas = new Class({
         CRadamn.Window.fillRect(x, y, w, h, this.fillStyle);
         return true;
     },
-    arc: function(x1, y2, radius, startAngle, endAngle, anticlockwise ) {
+    arc: function(x1, y1, radius, startAngle, endAngle, anticlockwise ) {
         console.log(arguments);
-        for (; startAngle < endAngle; startAngle+=0.25) {
-            this.__path.push([x1 + Math.sin(startAngle) * radius, y1 + Math.cos(startAngle) * radius]);
+        for (; startAngle < endAngle; startAngle+=2) {
+            this.__path.push([x1 + Math.sin(startAngle * Math.DEG_TO_RAD) * radius, y1 + Math.cos(startAngle * Math.DEG_TO_RAD) * radius]);
         }
         return true;
     },
