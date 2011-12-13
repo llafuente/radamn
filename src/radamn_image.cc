@@ -29,7 +29,6 @@ static v8::Handle<v8::Value> Radamn::Image::load(const v8::Arguments& args) {
 
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 
-    std::cout << "load image(opengl)" << *file << ENDL;
     VERBOSE << "load image(opengl)" << *file << ENDL;
 
     SDL_SetAlpha(image, 0 ,0);
@@ -153,7 +152,7 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
     V8_UNWRAP_POINTER_ARG(0, SDL_Surface, src)
     V8_UNWRAP_POINTER_ARG(1, SDL_Surface, dst)
 
-    std::cout << "blit image from: " << src << " to:" << dst << ENDL;
+    VERBOSE << "blit image from: " << src << " to:" << dst << ENDL;
     VERBOSE << "blit image from: " << src << " to:" << dst << ENDL;
 
     debug_SDL_Surface(src);

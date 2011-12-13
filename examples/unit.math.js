@@ -1,7 +1,11 @@
 ﻿/*
+*	LOAD TMX isometric map
+*/
+var Radamn = require('../radamn');
+
+/*
 test case not fully ready need assets!
 */
-
 var vec2_0_0 = new Vec2(0,0);
 var vec2_0_1 = new Vec2(0,1);
 var vec2_1_1 = new Vec2(1,1);
@@ -18,11 +22,11 @@ var line2_m5_to_5 = new Line2(vec2_0_0, vec2_m5_5);
 var line2_1_to_5 = new Line2(vec2_0_1, vec2_5_6);
 
 
-var circle_vec2_5_5_r3 = new circle(vec2_5_5, 3);
-var circle_vec2_7_7_r3 = new circle(vec2_7_7, 3);
+var circle_vec2_5_5_r3 = new Circle(vec2_5_5, 3);
+var circle_vec2_7_7_r3 = new Circle(vec2_7_7, 3);
 
-var circle_vec2_5_5_r1 = new circle(vec2_5_5, 1);
-var circle_vec2_7_7_r1 = new circle(vec2_7_7, 1);
+var circle_vec2_5_5_r1 = new Circle(vec2_5_5, 1);
+var circle_vec2_7_7_r1 = new Circle(vec2_7_7, 1);
 
 
 console.log("vector typeof", typeOf(vec2_0_0));
@@ -70,4 +74,3 @@ console.log(typeOf(zz));
 
 
 process.exit();
-

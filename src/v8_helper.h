@@ -31,7 +31,7 @@
     v8::Handle<v8::Object> result = templ->NewInstance();                                          \
     v8::Handle<v8::External> request_ptr = v8::External::New(POINTER);                             \
     result->SetInternalField(0, request_ptr);                                                      \
-    std::cout << "close";                                                                          \
+    VERBOSE << "close";                                                                          \
     output_var = handle_scope.Close(result);                                                       \
 
 
@@ -61,7 +61,7 @@
 {                                                                                                                       \
     v8::String::Utf8Value strcolor(args[ ARG_NUMBER ]);                                                                 \
     const char* ccolor = *strcolor;                                                                                     \
-    std::cout << "color: " << *strcolor << std::endl;                                                                   \
+    VERBOSE << "color: " << *strcolor << std::endl;                                                                   \
     if(strncmp ( ccolor, "#", 1) == 0) {                                                                                \
         int r,g,b;                                                                                                      \
         sscanf(ccolor, "#%02x%02x%02x", &r,&g,&b);                                                                      \
@@ -69,10 +69,10 @@
         OUTPUT_NAME.g = (int)g;                                                                                         \
         OUTPUT_NAME.b = (int)b;                                                                                         \
     } else if(strncmp ( ccolor, "rgb", 3) == 0) {                                                                       \
-          std::cout << ccolor << "RGB!!!!! --> " << strlen(ccolor) << std::endl;                                        \
+          VERBOSE << ccolor << "RGB!!!!! --> " << strlen(ccolor) << std::endl;                                        \
           char* aux = (char *)malloc(strlen(ccolor)+1); /* strtok so +1!! */                                            \
           strcpy(ccolor, aux);                                                                                          \
-          std::cout << aux << std::endl;                                                                                \
+          VERBOSE << aux << std::endl;                                                                                \
           strremchar(aux, ' ', aux);                                                                                    \
                                                                                                                         \
           char * ptr = strtok (aux, "(");                                                                               \

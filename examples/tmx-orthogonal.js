@@ -27,11 +27,14 @@ Radamn.addEvent("keydown", function(e) {
     }
 });
 
+var TMX = new Radamn.TMX(process.env.PWD+"/tmx-orthogonal.tmx", {});
 
-var TMX = new Radamn.TMX(process.env.PWD+"/tmx-orthogonal.tmx", {
-    offset: {
-        x: false
-    }
+Radamn.addEvent("mousedown", function(e) {
+	console.log(e);
+	console.log(TMX.getTiles(
+		Math.floor(e.x / TMX.getTileWidth()),
+		Math.floor(e.y / TMX.getTileHeight())
+	));
 });
 
 var tmxnode = new Radamn.Node();
@@ -50,6 +53,15 @@ var fpsnode = new Radamn.Node();
 fpsnode.appendEntity(fps);
 
 win.getRootNode().appendChild(fpsnode);
+
+
+var grid = require(process.env.PWD+'/grid');
+grid = new grid({});
+
+var gridnode = new Radamn.Node().appendEntity(grid);
+
+win.getRootNode().appendChild(gridnode);
+
 
 var counter = 0;
 win.onRequestFrame = function(delta) {

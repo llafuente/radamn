@@ -146,7 +146,6 @@ static v8::Handle<v8::Value> Radamn::Window::scale(const v8::Arguments& args) {
 //
 
 static v8::Handle<v8::Value> Radamn::Window::save(const v8::Arguments& args) {
-	std::cout << "save" << std::endl;
 	VERBOSE << "save" << std::endl;
 	glPushMatrix();
 	VERBOSE << "saved" << std::endl;
@@ -158,7 +157,6 @@ static v8::Handle<v8::Value> Radamn::Window::save(const v8::Arguments& args) {
 //
 
 static v8::Handle<v8::Value> Radamn::Window::restore(const v8::Arguments& args) {
-	std::cout << "restore" << std::endl;
 	VERBOSE << "restore" << std::endl;
 	glPopMatrix();
 	VERBOSE << "restored" << std::endl;
@@ -176,7 +174,7 @@ static v8::Handle<v8::Value> Radamn::Window::stroke(const v8::Arguments& args) {
 	V8_ARG_TO_SDL_NEWCOLOR(2, color_src);
 	glColor color = glColor_from(color_src);
 
-	std::cout << "stroking"  <<
+	VERBOSE << "stroking"  <<
 	" w:" << width <<
 	"color rgb(" << (int)color.r << "," << (int)color.g << "," << (int)color.b << ")"
 	<< std::endl;
@@ -194,12 +192,12 @@ static v8::Handle<v8::Value> Radamn::Window::stroke(const v8::Arguments& args) {
 	
 	unsigned int i = 0;
 	unsigned int max = coords->Length();
-	std::cout << "ncoords: "<< max << std::endl;
+	VERBOSE << "ncoords: "<< max << std::endl;
 	float x,y;
 	for(;i<max;++i) {
 		// TODO why is i*2, i dont fucking understant it!
 		V8_EXTRACT_COORDS_FROM_ARRAY(coords, i, x, y)
-		std::cout << i<< "( "<< x << "," << y << ")" << std::endl;
+		VERBOSE << i<< "( "<< x << "," << y << ")" << std::endl;
 		glVertex3f (x, y, 0);
 	}
 	glEnd ();
@@ -223,7 +221,7 @@ static v8::Handle<v8::Value> Radamn::Window::screenshot(const v8::Arguments& arg
 
 	SDL_Surface * image = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
 
-	std::cout <<"screnshot" << height << "x" << width << std::endl;
+	VERBOSE <<"screnshot" << height << "x" << width << std::endl;
 	//glReadBuffer(GL_FRONT);
 	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
 
@@ -307,13 +305,12 @@ static v8::Handle<v8::Value> Radamn::Window::setTransform(const v8::Arguments& a
 
 static v8::Handle<v8::Value> Radamn::Window::fill(const v8::Arguments& args) {
 	VERBOSE << "fill" << std::endl;
-	std::cout << "fill" << std::endl;
 
 	V8_ARG_TO_NEWARRAY(0, coords);
 	V8_ARG_TO_SDL_NEWCOLOR(1, color_src);
 	glColor color = glColor_from(color_src);
 
-	std::cout << "filling with color rgb(" << (int)color.r << "," << (int)color.g << "," << (int)color.b << ")" << std::endl;
+	VERBOSE << "filling with color rgb(" << (int)color.r << "," << (int)color.g << "," << (int)color.b << ")" << std::endl;
 
 	//glDisable(GL_LIGHTING);
 	
@@ -325,12 +322,12 @@ static v8::Handle<v8::Value> Radamn::Window::fill(const v8::Arguments& args) {
 	
 	unsigned int i = 0;
 	unsigned int max = coords->Length();
-	std::cout << "ncoords: "<< max << std::endl;
+	VERBOSE << "ncoords: "<< max << std::endl;
 	float x,y;
 	for(;i<max;++i) {
 		// TODO why is i*2, i dont fucking understant it!
 		V8_EXTRACT_COORDS_FROM_ARRAY(coords, i, x, y)
-		std::cout << i<< "( "<< x << "," << y << ")" << std::endl;
+		VERBOSE << i<< "( "<< x << "," << y << ")" << std::endl;
 		glVertex3f (x, y, 0);
 	}
 	glEnd ();

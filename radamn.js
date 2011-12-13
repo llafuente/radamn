@@ -25,6 +25,7 @@ global.document = this.document = document = (function() {
 
 require(process.env.PWD + '/mootools-core-1.4.1-server');
 require(process.env.PWD + '/mootools-extends');
+require(process.env.PWD+ '/../radamn.math.js');
 
 /***
 //inspiration
@@ -1104,7 +1105,6 @@ Radamn.Canvas = new Class({
         return false;
     },
     fillRect: function(x,y,w,h) {
-        console.log(x, y, w, h, this.fillStyle);
         CRadamn.Window.fill([
 			[x, y],
 			[x+w, y],
@@ -1114,14 +1114,12 @@ Radamn.Canvas = new Class({
         return true;
     },
     arc: function(x1, y1, radius, startAngle, endAngle, anticlockwise ) {
-        console.log(arguments);
         for (; startAngle < endAngle; startAngle+=2) {
             this.__path.push([x1 + Math.sin(startAngle * Math.DEG_TO_RAD) * radius, y1 + Math.cos(startAngle * Math.DEG_TO_RAD) * radius]);
         }
         return true;
     },
     arcTo: function(x1, y2, x2, y2, radius) {
-        console.log(arguments);
         CRadamn.Window.fillRect(x, y, w, h, this.fillStyle);
         return true;
     },
@@ -1554,9 +1552,9 @@ Radamn.Node = new Class({
         var node = this;
         if(node.isRoot()) return this.getMartix().getPosition();
 
-        var out = {x:0, y:0};
+        var out = new Vec2(0, 0);
         do {
-            out = Radamn.Vector2D.v2Plus(out, node.getMatrix().getPosition());
+            out = out.plus(node.getMatrix().getPosition());
             node = node.parentNode;
         } while (!node.isRoot());
 
@@ -1738,7 +1736,5 @@ Radamn.Node = new Class({
     }
 });
 
-
-Radamn.Vector2D = require(process.env.PWD+ '/../radamn.math.js').Vector2D;
 Radamn.TMX = require( process.env.PWD + "/../radamn.tmx.js").TMX;
 

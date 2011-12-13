@@ -10,7 +10,7 @@
 static v8::Handle<v8::Value> Radamn::Font::load(const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  std::cout << args.Length() << " - " << args[0]->IsString() << "/" << args[1]->IsNumber() << std::endl;
+  VERBOSE << args.Length() << " - " << args[0]->IsString() << "/" << args[1]->IsNumber() << std::endl;
 
   if (!(args.Length() == 2 && args[0]->IsString() && args[1]->IsNumber())) {
     return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected TTF::OpenFont(String, Number)")));
@@ -96,7 +96,7 @@ initial =
         texture_format = image->format->Rmask ==0x000000ff ? GL_RGB : GL_BGR;
     }
 
-    std::cout << "bpp" << bpp << std::endl;
+    VERBOSE << "bpp" << bpp << std::endl;
 
     glTexImage2D(GL_TEXTURE_2D, 0, bpp, image->w, image->h, 0, texture_format, GL_UNSIGNED_BYTE, image->pixels);
 

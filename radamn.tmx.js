@@ -280,6 +280,22 @@ module.exports.TMX = new Class({
      * @member TMX
      * @private
      * @params {String} tmx_file
+     */ 
+	 getTileWidth: function() {
+		return this.tileset.iwidth;
+	 },
+	 /**
+     * @member TMX
+     * @private
+     * @params {String} tmx_file
+     */ 
+	 getTileHeight: function() {
+		return this.tileset.iheight;
+	 },
+	 /**
+     * @member TMX
+     * @private
+     * @params {String} tmx_file
      */
     __loadTMX: function(tmx_file) {
         var util = require('util');
@@ -418,7 +434,6 @@ module.exports.TMX = new Class({
      * @params {Number} layerid
      */
     parseCSVData: function(data, layerid) {
-        console.log(arguments);
         var i=0, max = data.length;
         var gid = '';
         var x=-1, y=0;
@@ -479,12 +494,11 @@ module.exports.TMX = new Class({
         // per layer!
         var i=0, max=this.layers.length;
         for(;i<max; ++i) {
-            console.log("post process layer: "+i);
+            console.log("[TMX] post process layer: "+i);
             switch(this.layers[i].type) {
             case 'tiles' :
                 var j=0, jmax=this.layers[i].raw.length;
                 for(;j<jmax; ++j) {
-                    console.log(1);
                     var tile = this.layers[i].raw[j];
                     var tile_data = {
                         x: tile.tile.id % tileset_x,
@@ -500,8 +514,8 @@ module.exports.TMX = new Class({
                 }
                 break;
             case 'objects' :
-                console.log(this.tileset);
-                var j=0, jmax=this.layers[i].raw.length;
+                var j = 0,
+					jmax = this.layers[i].raw.length;
                 for(;j<jmax; ++j) {
                     var obj = this.layers[i].raw[j];
 
@@ -525,17 +539,22 @@ module.exports.TMX = new Class({
      * @private
      */
     getTiles: function(x, y, return_all) {
+		console.log(arguments);
         return_all = return_all | false;
-        var found = false;
-        var out = [];
-        var i=this.layerTiles.length-1;
+        var found = false,
+			out = [];
+			i = this.layers.length-1;
+
         for(;i>-1; --i) {
-            var j=0, jmax=this.layerTiles[i].length;
+            var j=0, jmax=this.layers[i].raw.length,
+				raw = this.layers[i].raw;
+
             for(;j<jmax; ++j) {
-                if(this.layerTiles[i][j].position.x == x && this.layerTiles[i][j].position.y == y) {
+			console.log("tile test", raw[j]);
+                if(raw[j].position.x == x && raw[j].position.y == y) {
                     if(!return_all)
-                        return [this.layerTiles[i][j]];
-                    out.push(this.layerTiles[i][j]);
+                        return [raw[j]];
+                    out.push(raw[j]);
                 }
             }
         }
@@ -549,16 +568,17 @@ module.exports.TMX = new Class({
      * @params {Number} elapsed_time
      */
     draw: function(ctx, elapsed_time) {
-        var win = ctx.getWindow();
+		if(this.ready === false) return;
+	
+        var win = ctx.getWindow(),
+			pos = this.parentNode.getDerivedPosition(),
+			i=0,
+			max=this.layers.length;
 
-        var pos = this.parentNode.getDerivedPosition();
-
-        if(this.ready === false) return;
-
-        var i=0, max=this.layers.length;
-        console.log("tiles: " + max);
         for(;i<max; ++i) {
-            var j=0, jmax=this.layers[i].tiles.length;
+            var j=0,
+				jmax=this.layers[i].tiles.length;
+
             for(;j<jmax; ++j) {
                 var tile = this.layers[i].tiles[j];
 
@@ -572,8 +592,8 @@ module.exports.TMX = new Class({
                         tile[1],
                         tile[2],
                         tile[3],
-                        tile[4],
-                        tile[5],
+                        tile[4] + pos.x,
+                        tile[5] + pos.y,
                         tile[6],
                         tile[7]
                 );
@@ -584,19 +604,17 @@ module.exports.TMX = new Class({
      * old code, maybe delete
      */
     highlightPath: function(ctx, path, timeout) {
-        var result_idx = 0;
-
-        var interval = null;
-        var paint_result = function() {
-            //console.log(result_idx);
-            if(result_idx == path.length) {
-                clearInterval(interval);
-                return ;
-            }
-            var tile = this.getTiles(path[result_idx].x, path[result_idx].y);
-            this.highlightTile(ctx, tile[0]);
-            ++result_idx;
-        }.bind(this);
+        var result_idx = 0,
+			interval = null,
+			paint_result = function() {
+				if(result_idx == path.length) {
+					clearInterval(interval);
+					return ;
+				}
+				var tile = this.getTiles(path[result_idx].x, path[result_idx].y);
+				this.highlightTile(ctx, tile[0]);
+				++result_idx;
+			}.bind(this);
 
         interval = setInterval(paint_result, timeout);
     },
@@ -605,10 +623,12 @@ module.exports.TMX = new Class({
      */
     highlightTile: function(ctx, tile) {
         if(this.parentNode === null) return;
-        var offset = this.parentNode.getDerivedPosition();
+
+        var offset = this.parentNode.getDerivedPosition(),
+			$draw = tile.$draw.clone();
+
         ctx.save();
         ctx.globalCompositeOperation = $D.BMODE.LIGTHER;
-        var $draw = tile.$draw.clone();
 
         $draw[5]+= offset.x;
         $draw[6]+= offset.y;

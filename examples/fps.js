@@ -18,7 +18,6 @@ module.exports = new Class({
         this.font = Radamn.Assets.getFont(this.options.font, this.options.size);
     },
     draw: function(ctx, delta) {
-        console.log(arguments);
         var fps = Math.round(1000 / delta,1)+"";
         this.font.write(ctx, fps, this.options.color, this.options.x, this.options.y);
     }
