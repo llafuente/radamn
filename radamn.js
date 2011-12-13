@@ -1105,7 +1105,12 @@ Radamn.Canvas = new Class({
     },
     fillRect: function(x,y,w,h) {
         console.log(x, y, w, h, this.fillStyle);
-        CRadamn.Window.fillRect(x, y, w, h, this.fillStyle);
+        CRadamn.Window.fill([
+			[x, y],
+			[x+w, y],
+			[x+w, y+h],
+			[x, y+h]
+		], this.fillStyle);
         return true;
     },
     arc: function(x1, y1, radius, startAngle, endAngle, anticlockwise ) {
@@ -1240,6 +1245,12 @@ Radamn.TranformMatrix = function() {
     var __skewx = 0;
     var __skewy = 0;
     var __rotation = 0;
+	
+	function check_readonly() {
+        if(this.readonly) {
+			throw new Error("readonly-matrix");
+		}
+	}
 
     return {
         readonly : false,
@@ -1249,7 +1260,7 @@ Radamn.TranformMatrix = function() {
          * @param {Number} angle
          */
         rotate : function(angle) {
-            if(this.readonly) throw new Exception("matrix is read only!");
+            check_readonly();
 
             __rotation +=angle;
             angle = angle * 0.017453292519943295769236907684886;
@@ -1265,8 +1276,8 @@ Radamn.TranformMatrix = function() {
             p[3] = m22;
         },
         setRotation: function(angle) {
-            if(this.readonly) throw new Exception("matrix is read only!");
-
+			check_readonly();
+		
             var aux = angle - __rotation;
             this.rotate(aux);
             __rotation = angle;
@@ -1280,7 +1291,7 @@ Radamn.TranformMatrix = function() {
          * @param {Number} y
          */
         translate : function(x, y) {
-            if(this.readonly) throw new Exception("matrix is read only!");
+            check_readonly();
 
             p[4] += p[0] * x + p[2] * y;
             p[5] += p[1] * x + p[3] * y;
@@ -1294,7 +1305,7 @@ Radamn.TranformMatrix = function() {
          * @param {Number} y
          */
         gTranslate : function(x, y) {
-            if(this.readonly) throw new Exception("matrix is read only!");
+            check_readonly();
 
             p[4] += x;
             p[5] += y;
@@ -1308,12 +1319,14 @@ Radamn.TranformMatrix = function() {
          * @param {Number} y use false to not skip set
          */
         setPosition: function(x, y) {
-            if(this.readonly) throw new Exception("matrix is read only!");
+            check_readonly();
 
-            if(x !== false)
+            if(x !== false) {
                 p[4] = x;
-            if(y !== false)
+			}
+            if(y !== false) {
                 p[5] = y;
+			}
         },
         /**
          * Scales a transformation matrix by sx and sy.
@@ -1323,7 +1336,7 @@ Radamn.TranformMatrix = function() {
          * @param {Number} sy
          */
         scale : function(sx, sy) {
-            if(this.readonly) throw new Exception("matrix is read only!");
+            check_readonly();
 
             __scalex = __scalex * sx;
             __scaley = __scaley * sy;
@@ -1340,7 +1353,7 @@ Radamn.TranformMatrix = function() {
          * @param {Number} sy
          */
         setScale : function(sx, sy) {
-            if(this.readonly) throw new Exception("matrix is read only!");
+            check_readonly();
 
             __scalex = __scalex / sx;
             __scaley = __scaley / sy;
@@ -1359,7 +1372,7 @@ Radamn.TranformMatrix = function() {
          * @param {Number} angle
          */
         skewX : function(angle) {
-            if(this.readonly) throw new Exception("matrix is read only!");
+            check_readonly();
 
             __skewx+=angle;
             this.multiply(Radamn.Matrix2D.skewXMatrix(angle));
@@ -1373,7 +1386,7 @@ Radamn.TranformMatrix = function() {
          * @param {Number} angle
          */
         skewY : function(angle) {
-            if(this.readonly) throw new Exception("matrix is read only!");
+            check_readonly();
 
             __skewy+=angle;
             return this.multiply(Radamn.Matrix2D.skewYMatrix(angle));
@@ -1382,7 +1395,7 @@ Radamn.TranformMatrix = function() {
          * TODO optimize!
          */
         setSkew: function(anglex, angley) {
-            if(this.readonly) throw new Exception("matrix is read only!");
+            check_readonly();
 
             var aux;
             if(anglex !== false) {
@@ -1404,7 +1417,7 @@ Radamn.TranformMatrix = function() {
          * @param {Array} m2
          */
         multiply : function(m2) {
-            if(this.readonly) throw new Exception("matrix is read only!");
+            check_readonly();
 
             var m11 = p[0] * m2[0] + p[2] * m2[1];
             var m12 = p[1] * m2[0] + p[3] * m2[1];
@@ -1727,7 +1740,5 @@ Radamn.Node = new Class({
 
 
 Radamn.Vector2D = require(process.env.PWD+ '/../radamn.math.js').Vector2D;
-
-Radamn.Vector2D = require(process.env.PWD+ '/../radamn.vector2d.js').Vector2D;
 Radamn.TMX = require( process.env.PWD + "/../radamn.tmx.js").TMX;
 
