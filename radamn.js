@@ -1086,6 +1086,34 @@ Radamn.Canvas = new Class({
             break;
         }
     },
+	drawPrimitive: function(prim, options) {
+		options = options | {};
+		switch(typeOf(prim)) {
+			case 'rectangle' :
+				var path = [];
+				path.push([prim.v1.x, prim.v1.y]);
+				path.push([prim.v2.x, prim.v1.y]);
+				path.push([prim.v2.x, prim.v2.y]);
+				path.push([prim.v1.x, prim.v2.y]);
+				path.push([prim.v1.x, prim.v1.y]);
+				CRadamn.Window.stroke(path, this.lineWidth, this.strokeStyle);
+				break;
+			case 'circle' :
+				break;
+			case 'line2' :
+				break;
+			case 'segment2' :
+				var path = [];
+				path.push([prim.x1, prim.y1]);
+				path.push([prim.x2, prim.y2]);
+				CRadamn.Window.stroke(path, this.lineWidth, this.strokeStyle);
+				break;
+			case 'vec2' :
+				break;
+			case 'polygon' :
+				break;
+		}
+	},
     /**
      * @class Canvas
      * @param {Number} x

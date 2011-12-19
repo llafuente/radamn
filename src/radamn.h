@@ -1,6 +1,13 @@
 #ifndef RADAMN_H_
 #define RADAMN_H_
 
+/*
+   Copyright (C) 2011 by Luis Lafuente <llafuente@noboxout.com>
+   Part of the Radamn Project
+
+   See the LICENSE file for more details.
+*/
+
 
 /*
 info: http://v8.googlecode.com/svn/trunk/test/cctest/test-accessors.cc
@@ -12,7 +19,8 @@ docs: http://osdl.sourceforge.net/main/documentation/rendering/SDL-openGL.html
 
 info: http://www.webkinesia.com/games/sdl-api.php
 opengl es2 2d: http://gamedev.stackexchange.com/questions/4309/opengl-es-2-0-setting-up-2d-projection
-
+opengl es: http://doc.trolltech.com/4.4/opengl-hellogl-es.html#porting-opengl-to-opengl-es
+opengl 2s vs opengl 1.5: http://doc.trolltech.com/4.4/opengl-hellogl-es.html#porting-opengl-to-opengl-es
 */
 
 #include "prerequisites.h"
