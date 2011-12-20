@@ -1,5 +1,7 @@
 //"use strict"; mootools is not strict :S
 
+var assert = require('assert');
+
 // this move the JS to C realm
 // executes Radamn::init and return into CRadamn
 var CRadamn = require(process.env.PWD+ '/../build/Release/radamn.node');
@@ -309,9 +311,19 @@ Radamn.Window = new Class({
     id: null,
     /**
      * @member Window
+     * @type {Number}
+     */
+    width: null,
+    /**
+     * @member Window
+     * @type {Number}
+     */
+    height: null,
+    /**
+     * @member Window
      * @type {Canvas}
      */
-    canvas: null,
+	__canvas: null,
     /**
      * @member Window
      * @type {Function}
@@ -322,6 +334,11 @@ Radamn.Window = new Class({
      * @type {Function}
      */
     enterFrame: null,
+    /**
+     * @member Window
+     * @type {Function}
+     */
+    leaveFrame: null,
     /**
      * this call render but no now in 1ms
      * @param {Number} fps false means: as fast as possible!!!
@@ -369,21 +386,6 @@ Radamn.Window = new Class({
     },
     /**
      * @member Window
-     * @type {Function}
-     */
-    leaveFrame: null,
-    /**
-     * @member Window
-     * @type {Number}
-     */
-    width: null,
-    /**
-     * @member Window
-     * @type {Number}
-     */
-    height: null,
-    /**
-     * @member Window
      * @param {Number} id
      * @param {Canvas} canvas
      */
@@ -411,7 +413,10 @@ Radamn.Window = new Class({
      * @return Canvas
      */
     getCanvas: function() {
-        return new Radamn.Canvas(this.surface, this);
+		if(this.__canvas === null) {
+			this.__canvas = new Radamn.Canvas(this.surface, this);
+		}
+        return this.__canvas;
     },
     /**
      * @member Window
@@ -543,7 +548,7 @@ Radamn.Assets = new Class({
      * @returns {Image}
      */
     __getImage: function(path, zipfile) {
-        zipfile = zipfile | null;
+        zipfile = zipfile || null;
 
         var image_pointer = null;
 
@@ -566,7 +571,7 @@ Radamn.Assets = new Class({
      * @returns {Image}
      */
     getImage: function(path, zipfile) {
-        zipfile = zipfile | null;
+        zipfile = zipfile || null;
 
         var image_pointer = this.__getImage(path, zipfile);
 
@@ -579,7 +584,7 @@ Radamn.Assets = new Class({
      * @returns {Image}
      */
     getAnimation: function(path, path_to_cfg_or_object, zipfile) {
-        zipfile = zipfile | null;
+        zipfile = zipfile || null;
 
         var options = {};
         if(typeOf(path_to_cfg_or_object) == "string") {
@@ -630,7 +635,7 @@ Radamn.Assets = new Class({
      * @returns {Font}
      */
     getFont: function(path, size, zipfile) {
-        zipfile = zipfile | null;
+        zipfile = zipfile || null;
 
         var font_pointer = this.__getFont(path, size, zipfile);
 
@@ -1086,33 +1091,54 @@ Radamn.Canvas = new Class({
             break;
         }
     },
-	drawPrimitive: function(prim, options) {
-		options = options | {};
+	__getPrimitivePath: function(prim) {
+		var path = [];
 		switch(typeOf(prim)) {
 			case 'rectangle' :
-				var path = [];
 				path.push([prim.v1.x, prim.v1.y]);
 				path.push([prim.v2.x, prim.v1.y]);
 				path.push([prim.v2.x, prim.v2.y]);
 				path.push([prim.v1.x, prim.v2.y]);
 				path.push([prim.v1.x, prim.v1.y]);
-				CRadamn.Window.stroke(path, this.lineWidth, this.strokeStyle);
 				break;
 			case 'circle' :
+					i=0,
+					max = Math.PI * 2;
+				for (; i < max; i+=0.2) {
+					path.push([prim.center.x + Math.sin(i) * prim.r, prim.center.y + Math.cos(i) * prim.r]);
+				}
+				path.push([prim.center.x + Math.sin(max) * prim.r, prim.center.y + Math.cos(max) * prim.r]);
 				break;
 			case 'line2' :
 				break;
 			case 'segment2' :
-				var path = [];
 				path.push([prim.x1, prim.y1]);
 				path.push([prim.x2, prim.y2]);
-				CRadamn.Window.stroke(path, this.lineWidth, this.strokeStyle);
 				break;
 			case 'vec2' :
 				break;
 			case 'polygon' :
+				return prim.points;
 				break;
 		}
+		
+		return path;
+	},
+	strokePrimitive: function(prim, options) {
+		options = options || {};
+		var path = this.__getPrimitivePath(prim);
+		
+		CRadamn.Window.stroke(path, options.lineWidth || this.lineWidth, options.color || this.strokeStyle);
+		
+		return this;
+	},
+	fillPrimitive: function(prim, options) {
+		options = options || {};
+		var path = this.__getPrimitivePath(prim);
+		
+		CRadamn.Window.fill(path, options.color || this.fillStyle);
+		
+		return this;
 	},
     /**
      * @class Canvas
@@ -1141,6 +1167,9 @@ Radamn.Canvas = new Class({
 		], this.fillStyle);
         return true;
     },
+	/**
+	 * @todo optimize
+	 */
     arc: function(x1, y1, radius, startAngle, endAngle, anticlockwise ) {
         for (; startAngle < endAngle; startAngle+=2) {
             this.__path.push([x1 + Math.sin(startAngle * Math.DEG_TO_RAD) * radius, y1 + Math.cos(startAngle * Math.DEG_TO_RAD) * radius]);
@@ -1475,7 +1504,7 @@ Radamn.TranformMatrix = function() {
          * @return Array
          */
         getPosition : function() {
-            return {x: p[4], y: p[5]};
+            return new Vec2(p[4], p[5]);
         },
         /**
          * apply (multiply) the transformation to the canvas
@@ -1509,6 +1538,11 @@ Radamn.Node = new Class({
      * @type {String}
      */
     name : "Node",
+    /**
+     * @member Node
+     * @type {Array}
+     */
+    __body : [],
     /**
      * @member Node
      * @type {Array}
@@ -1622,6 +1656,15 @@ Radamn.Node = new Class({
                     .indexOf(this) - 1];
         return null;
     },
+	/**
+	 * Create a new Node, appended and returned
+	 * @returns {Node}
+	 */
+	createNode: function() {
+		var node = new Radamn.Node();
+		this.appendChild(node);
+		return node;
+	},
     /**
      * Appends arguments as childNodes to the node.
      *
@@ -1761,7 +1804,27 @@ Radamn.Node = new Class({
             }
             rootNode.touch();
         }
-    }
+    },
+	addToBody: function(primitive) {
+		assert.notEqual(["polygon", "rectangle", "circle", "segment2"].contains(typeOf(primitive)), false, "Node::addToBody("+typeOf(primitive)+") is not a valid type ['polygon', 'rectangle', 'circle', 'segment2']");
+		
+		this.__body.push(primitive);
+	},
+	getBodyList: function() {
+		return this.__body;
+	},
+	collide: function(operand) {
+		if(this.__body.length == 0) {
+			return {success: false, reason: "nobody"}; //no-body ?
+		}
+		if(this.__body.length > 1) {
+			throw new Exception("multiple body collision is not supported atm!");
+		}
+		
+		var xx = this.__body[0].clone().translate(this.getDerivedPosition());
+		
+		return Math.intersection(xx, operand);
+	}
 });
 
 Radamn.TMX = require( process.env.PWD + "/../radamn.tmx.js").TMX;

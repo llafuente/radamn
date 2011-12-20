@@ -74,8 +74,54 @@ Math.distance_segment2_vs_vec2 = function(segment, v2) {
 /**
 * @member Math
 */
+Math.distance_rectangle_vs_vec2 = function(rect, vec2) {
+	rect.normalize();
+	/*
+	@TODO: Optimize, i cant find the right combination
+	var hcat = vec2.x < rect.v1.x ? 0 : ( vec2.x > rect.v2.x ? 2 : 1 );
+	var vcat = vec2.y > rect.v1.y ? 0 : ( vec2.y < rect.v2.y ? 2 : 1 );
+	console.log(hcat, vcat);
+	
+	if(hcat == 0 && vcat == 0) return Math.distance_vec2_vs_vec2(rect.v1, vec2);
+	if(hcat == 2 && vcat == 2) return Math.distance_vec2_vs_vec2(rect.v2, vec2);
+	                
+	if(hcat == 0 && vcat == 2) return Math.distance_vec2_vs_vec2(new Vec2(rect.v2.x, rect.v1.y), vec2);
+	if(hcat == 2 && vcat == 0) return Math.distance_vec2_vs_vec2(new Vec2(rect.v1.x, rect.v2.y), vec2);
+	                
+	if(hcat == 0 && vcat == 1) return Math.distance_segment2_vs_vec2(new Vec2(rect.v1.x, rect.v1.y), new Vec2(rect.v1.x, rect.v2.y));
+	if(hcat == 1 && vcat == 0) return Math.distance_segment2_vs_vec2(new Vec2(rect.v1.x, rect.v1.y), new Vec2(rect.v2.x, rect.v1.y));
+	                
+	if(hcat == 2 && vcat == 1) return Math.distance_segment2_vs_vec2(new Vec2(rect.v2.x, rect.v1.y), new Vec2(rect.v2.x, rect.v2.y));
+	if(hcat == 1 && vcat == 2) return Math.distance_segment2_vs_vec2(new Vec2(rect.v1.x, rect.v2.y), new Vec2(rect.v2.x, rect.v2.y));
+	*/
+	
+	var s1 = new Segment2(rect.v1, new Vec2(rect.v1.x, rect.v2.y));
+	var s2 = new Segment2(rect.v1, new Vec2(rect.v2.x, rect.v1.y));
+	var s3 = new Segment2(new Vec2(rect.v1.x, rect.v2.y), rect.v2);
+	var s4 = new Segment2(new Vec2(rect.v2.x, rect.v1.y), rect.v2);
+	
+	return Math.min(
+		Math.distance_segment2_vs_vec2(s1, vec2),
+		Math.distance_segment2_vs_vec2(s2, vec2),
+		Math.distance_segment2_vs_vec2(s3, vec2),
+		Math.distance_segment2_vs_vec2(s4, vec2)
+	);
+};
+/**
+* @member Math
+*/
 Math.distance_vec2_vs_vec2 = function(a,b) {
     var x = a.x - b.x;
     var y = a.y - b.y;
     return Math.sqrt(x*x + y*y);
 };
+
+/**
+* @member Math
+*/
+Math.fast_distance_vec2_vs_vec2 = function(a,b) {
+    var x = a.x - b.x;
+    var y = a.y - b.y;
+    return x*x + y*y;
+};
+

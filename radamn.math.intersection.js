@@ -18,7 +18,7 @@ Math.intersection_circle_vs_circle = function (acircle, bcircle) {
     } else if ( c_dist < r_min ) {
         result = { success: false, reason: "inside"};
     } else {
-        result = { success: true, points: []};
+        result = { success: true, reason: "collide", points: []};
 
         var a = (r1*r1 - r2*r2 + c_dist*c_dist) / ( 2*c_dist ),
 			h = Math.sqrt(r1*r1 - a*a),
@@ -74,7 +74,7 @@ Math.intersection_circle_vs_line2 = function (circle, line2) {
                 result = { success: false, reason: "inside"};
             }
         } else {
-            result = { success: true, points: []};
+            result = { success: true, reason: "collide", points: []};
 
             if ( 0 <= u1 && u1 <= 1) {
                 result.points.push( a1.lerp(a2, u1) );
@@ -89,7 +89,8 @@ Math.intersection_circle_vs_line2 = function (circle, line2) {
     return result;
 };
 /**
-* @member Math
+ * @todo inside, outside: test center vs rectangle
+ * @member Math
 */
 Math.intersection_circle_vs_rectangle = function (circle, rectangle) {
     var min        = rectangle.r1.clone().min(rectangle.r2),
@@ -121,18 +122,17 @@ Math.intersection_circle_vs_rectangle = function (circle, rectangle) {
     return result;
 };
 /**
-* @member Math
+ * @member Math
 */
 Math.intersection_circle_vs_vec2 = function (circle, vec2) {
+	var distance_to_center = Math.distance_vec2_vs_vec2(circle.center, vec2);
 
-	var distance_to_center = Math.distance_vec2_vec2(circle.center, vec2);
-	
-	if(distance_to_center == circle.r) {
-		return {succes: true, points: [vec2]};
+	if(Math.abs(distance_to_center) < Math.EPS) {
+		return {success: true, reason: "collide", points: [vec2]};
 	} else if(distance_to_center < circle.r) {
-		return {succes:false, reason: "inside"};
+		return {success: false, reason: "inside", distance: Math.abs( distance_to_center - circle.r )};
 	}
-	return {succes:false, reason: "outside"};
+	return {success: false, reason: "outside", distance: Math.abs( distance_to_center - circle.r )};
 };
 /**
  * @member Math
@@ -142,37 +142,29 @@ Math.intersection_line2_vs_line2 =  function (aline, bline) {
 		a2 = a1.clone().plus(aline.m, 1), // XXX check! m,1 ??
 		b1 = new Vec2(bline.x, bline.y),
 		b2 = b1.clone().plus(bline.m, 1),
-		result,
 		ua_t = (b2.x - b1.x) * (a1.y - b1.y) - (b2.y - b1.y) * (a1.x - b1.x),
 		ub_t = (a2.x - a1.x) * (a1.y - b1.y) - (a2.y - a1.y) * (a1.x - b1.x),
 		u_b  = (b2.y - b1.y) * (a2.x - a1.x) - (b2.x - b1.x) * (a2.y - a1.y);
 
     if ( u_b != 0 ) {
-        var ua = ua_t / u_b;
-        var ub = ub_t / u_b;
+        var ua = ua_t / u_b,
+			ub = ub_t / u_b;
 
         if ( 0 <= ua && ua <= 1 && 0 <= ub && ub <= 1 ) {
-            result = {success: true, points: []};
-            result.points.push(
-                new Vec2(
-                    a1.x + ua * (a2.x - a1.x),
-                    a1.y + ua * (a2.y - a1.y)
-                )
-            );
-        } else {
-            result = {success: false, reason: "no-intersection"};
+            return {success: true, reason: "collide", points: [new Vec2(
+                a1.x + ua * (a2.x - a1.x),
+                a1.y + ua * (a2.y - a1.y)
+            )]};
         }
-    } else {
-        if ( ua_t == 0 || ub_t == 0 ) {
-            result = {success: false, reason: "coincident"};
-        } else {
-            result = {success: false, reason: "parallel"};
-        }
+        return {success: false, reason: "outside"};
     }
-
-    return result;
+    if ( ua_t == 0 || ub_t == 0 ) {
+        return {success: false, reason: "coincident"};
+    }
+    return {success: false, reason: "parallel"};
 };
 /**
+* @todo inside/outside
 * @member Math
 */
 Math.intersection_line2_polygon = function(line2, vec2_list) {
@@ -189,7 +181,7 @@ Math.intersection_line2_polygon = function(line2, vec2_list) {
 
     if ( result.points.length > 0 ) {
 		result.success = true;
-		delete result.reason;
+		result.reason = "collide";
 	}
 
     return result;
@@ -198,30 +190,29 @@ Math.intersection_line2_polygon = function(line2, vec2_list) {
 * @member Math
 */
 Math.intersection_rectangle_vs_vec2 = function (rectangle, vec2) {
-
 	rectangle.normalize();
-	
+
 	if (
-		rectangle.r1.x < vec.x
+		vec2.x < rectangle.v1.x
 		||
-		rectangle.r2.x > vec.x
+		vec2.x > rectangle.v2.x
 		||
-		rectangle.r1.y < vec.y
+		vec2.y > rectangle.v1.y
 		||
-		rectangle.r2.y > vec.y
+		vec2.y < rectangle.v2.y
 		) {
-		return {succes:false, reason: "outside"};
+		return {success:false, reason: "outside", distance: Math.distance_rectangle_vs_vec2(rectangle, vec2)};
 	}
 
 	if (
-		(vec.x == rectangle.r1.x || vec.x == rectangle.r2.x)
+		(vec2.x == rectangle.v1.x || vec2.x == rectangle.v2.x)
 		&&
-		(vec.y == rectangle.r1.y || vec.x == rectangle.r2.y)
+		(vec2.y == rectangle.v1.y || vec2.x == rectangle.v2.y)
 		) {
-		return {succes: true, points: [vec2]};
+		return {success: true, reason: "collide", points: [vec2]};
 	}
-	
-	return {succes:false, reason: "inside"};
+
+	return {success:false, reason: "inside", distance: Math.distance_rectangle_vs_vec2(rectangle, vec2)};
 };
 /**
 * @member Math
@@ -229,11 +220,7 @@ Math.intersection_rectangle_vs_vec2 = function (rectangle, vec2) {
 Math.intersection_rectangle_vs_rectangle = function (rect1, rect2) {
 	rect1.normalize();
 	rect2.normalize();
-	
-	console.log("---");
-	console.log(rect1);
-	console.log(rect2);
-	
+
 	// r1 should be further left.
 	if(rect2.x1 < rect1.x1) {
 		var aux = rect2;
@@ -241,41 +228,40 @@ Math.intersection_rectangle_vs_rectangle = function (rect1, rect2) {
 		rect1 = rect2;
 	}
 
-	var outside = ( 
+	var outside = (
 		rect1.v1.x > rect2.v2.x ||
 		rect1.v2.x < rect2.v1.x ||
 		rect1.v1.y < rect2.v2.y ||
-		rect1.v2.y > rect2.v1.y 
+		rect1.v2.y > rect2.v1.y
     );
-    if(outside) return {"success" : false, "reason" : "outside"};
-	
-	var inside = !( 
+    if(outside) return {success : false, reason : "outside"};
+
+	var inside = !(
 		rect1.v1.x < rect2.v1.x || rect2.v2.x < rect1.v2.x
         ||
 		rect1.v1.y > rect2.v1.y || rect2.v2.y > rect1.v2.y
     );
-    if(inside) return {"success" : false, "reason" : "inside"};
-	
-	var output = {"success" : true, "points" : [], "lines" : []};
-	
+    if(inside) return {success : false, reason : "inside"};
+
+	var output = {success : true, reason: "collide", points : [], lines : []};
+
 	return output;
 };
 Math.intersection_segment2_vs_vec2 = function (seg, vec) {
 	var dis = Math.distance(seg, vec);
 
-	console.log(arguments);
-	console.log("intersection_segment2_vs_vec2: ", dis);
-	
 	if(dis === 0) {
         return {
 			success : true,
+			reason : "collide",
 			points: [vec]
         };
 	}
-	
+
     return {
 		success : false,
-		"reason" : "outside",
+		reason : "outside",
+		distance: dis
     };
 
 };
@@ -283,13 +269,12 @@ Math.intersection_segment2_vs_vec2 = function (seg, vec) {
 * @member Math
 */
 Math.intersection_segment2_vs_segment2 = function (asegment, bsegment) {
-console.log(arguments);
     var mua,
         mub,
         denom,
         numera,
         numerb
-        output = {success: false, points: []};
+        output = {success: false, reason: "outside", points: []};
 
     denom  = (bsegment.y2-bsegment.y1) * (asegment.x2-asegment.x1) - (bsegment.x2-bsegment.x1) * (asegment.y2-asegment.y1);
     numera = (bsegment.x2-bsegment.x1) * (asegment.y1-bsegment.y1) - (bsegment.y2-bsegment.y1) * (asegment.x1-bsegment.x1);
@@ -308,8 +293,8 @@ console.log(arguments);
 			max = points.length,
 		    minp = { distance: false, point: null},
 			maxp = { distance: false, point: null};
-		
-		
+
+
 		for(;i<max;++i) {
 			if(points[i].success === false) {
 				points.splice(i,1);
@@ -317,20 +302,20 @@ console.log(arguments);
 				max = points.length;
 				continue;
 			}
-			
+
 			var dist = points[i].points[0].lengthSquared();
-			
+
 			if(minp.distance === false || minp.distance > dist) {
 				minp.distance = dist;
 				minp.point = points[i].points[0];
 			}
-	
+
 			if(maxp.distance === false || minp.distance < dist) {
 				maxp.distance = dist;
 				maxp.point = points[i].points[0];
 			}
 		}
-		
+
 		if(points.length > 1) {
 			//line intersection!
 			return {
@@ -342,15 +327,11 @@ console.log(arguments);
 		}
 
         return {
-			success : true,
-			reason : "coincident",
-			points: [{
-				x: (asegment.x1 + asegment.x2) * 0.5,
-				y: (asegment.y1 + asegment.y2) * 0.5
-			}]
+			success : false,
+			reason : "coincident"
         };
     }
-    
+
     /* Are the line parallel */
     if (Math.abs(denom) < Math.EPS) {
         return output;
@@ -363,6 +344,7 @@ console.log(arguments);
         return output;
     }
     output.success = true;
+    output.reason = "collide";
     output.points.push({
         x: asegment.x1 + mua * (asegment.x2 - asegment.x1),
         y: asegment.y1 + mua * (asegment.y2 - asegment.y1)

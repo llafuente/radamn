@@ -1284,3 +1284,36 @@ Fx.Tween = new Class({
     //</radamn>
 
 });
+
+Function.implement({
+    maxFPS: function(fps, that) {
+        var __maxFPS_lastExecTime = (new Date()).getTime(),
+            __maxFPS_self = this,
+            F = function(){},
+			__lastExecTime = null;
+
+        var bound = function(){
+            if(that === undefined) { that = this; }
+            var args = arguments.length == 0 ? null : arguments;
+
+            var bound2 = function() {
+                var now = (new Date()).getTime();
+                //exec nothing...
+                if(now < __lastExecTime + fps) return F;
+                __lastExecTime = now;
+
+                var context = that, length = arguments.length;
+                if (this instanceof bound){
+                    F.prototype = __maxFPS_self.prototype;
+                    context = new F;
+                }
+                var result = (!args && !length)
+                    ? __maxFPS_self.call(context)
+                    : __maxFPS_self.apply(context, args && length ? args.concat(Array.slice(arguments)) : args || arguments);
+                return context == that ? result : context;
+            };
+            bound2();
+        };
+        return bound;
+    }
+});

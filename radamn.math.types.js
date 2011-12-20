@@ -11,6 +11,10 @@ Define
 - Vec2
 */
 
+// TODO
+// - rotate based on a rotation point
+// - scale based on a scale point
+
 /**
  * @class Vec2
  */
@@ -63,7 +67,6 @@ Vec2.implement({
      * @returns Vec2 this
      */
     sub : function(b, a) {
-        //Radamn.assert(typeOf(b) != "vec2", "Vec2::sub, b is not a Vec2");
         var btype = typeOf(b);
 		switch(btype) {
 			case 'vec2' :
@@ -72,11 +75,18 @@ Vec2.implement({
 				break;
 			case 'number' :
 				var atype = typeOf(a);
-				if(atype !== "number") {
-					assert.ok(true, "Vec2::sub(b,a), b is not a Vec2 or a Number or b&a are not Number");
+				switch(atype) {
+					case 'null' :
+						this.x -= b;
+						this.y -= b;
+					break;
+					case 'number' : 
+						this.x -= b;
+						this.y -= a;
+					break;
+					default :
+						assert.ok(true, "Vec2::sub(b,a), b is not a Vec2 or a Number or b&a are not Number");
 				}
-				this.x -= b;
-				this.y -= a;
 				break;
 			default : 
 			assert.ok(true, "Vec2::sub(b,a), b is not a Vec2 or a Number or b&a are not Number");
@@ -91,7 +101,6 @@ Vec2.implement({
      */
     plus : function(b, a) {
         var btype = typeOf(b);
-
         switch(btype) {
             case 'vec2' :
                 this.x += b.x;
@@ -99,8 +108,6 @@ Vec2.implement({
                 break;
             case 'number' :
 				var atype = typeOf(a);
-				console.log(atype);
-				console.log("??");
 				switch(atype) {
 					case 'null' :
 						this.x += b;
@@ -196,7 +203,6 @@ Vec2.implement({
     isValid : function() {
         return !(is_infinite(this.x) || isNaN(this.x) || is_infinite(this.y) || isNaN(this.y));
     },
-
     /**
      * @member Vec2
      * @returns Vec2
@@ -230,11 +236,32 @@ Vec2.implement({
 
         return this;
     },
+	/**
+	 * @returns Number 0 equal, 1 top, 2 top-right, 3 right, 4 bottom right, 5 bottom, 6 bottom-left, 7 left, 8 top-left
+	 */
 	compare: function(vec2) {
-		var comparison = '';
-		comparison += vec2.x == this.x ? 'eq' : ( vec2.x < this.x ? 'gt' : 'lt' );
-		comparison += vec2.y == this.y ? 'eq' : ( vec2.y < this.y ? 'gt' : 'lt' );
-		return comparison;
+		if(vec2.x == this.x && vec2.y == this.y) return 0;
+		if(vec2.x == this.x) {
+			return vec2.y > this.y ? 1: 5;
+		}
+		if(vec2.y == this.y) {
+			return vec2.x > this.x ? 3: 7;
+		}
+		
+		if(vec2.x > this.x && vec2.y > this.y) {
+			return 2;
+		}
+		if(vec2.x > this.x && vec2.y < this.y) {
+			return 4;
+		}
+		if(vec2.x < this.x && vec2.y > this.y) {
+			return 6;
+		}
+		if(vec2.x < this.x && vec2.y < this.y) {
+			return 8;
+		}
+		
+		return -1;
 	},
 	gt: function() {
 		return vec2.x > this.x && vec2.y > this.y;
@@ -244,12 +271,16 @@ Vec2.implement({
 	},
 	eq: function() {
 		return vec2.x == this.x && vec2.y == this.y;
-	}
+	},
+	translate: function(b,a) {
+		this.plus(b,a);
+	},
 });
-
-
 /**
- * @class Vec2
+ ******************************************************************************
+ */
+/**
+ * @class AABB2
  */
 var AABB2 = this.AABB2 = global.AABB2 = new Type('AABB2', function(object){
     if(arguments.length == 2) {
@@ -276,8 +307,12 @@ AABB2.implement({
         this.max = b;
     }
 });
-
-
+/**
+ ******************************************************************************
+ */
+ /**
+ * @class Line2
+ */
 var Line2 = this.Line2 = global.Line2 = new Type('Line2', function(object){
     if(arguments.length == 4) {
         this.set(arguments[0], arguments[1], arguments[2], arguments[3]);
@@ -328,11 +363,20 @@ Line2.implement({
         return this;
 
     },
-    rotate: function(angle) {
-
-    },
-    transform: function() {
-
+    translate: function(b,a) {
+		var btype = typeOf(b);
+		switch(btype) {
+			case 'vec2' : 
+				this.x += b.x;
+				this.y += b.y;
+			break;
+			case 'number' : 
+				this.x += b;
+				this.y += a;
+			break;
+		}
+		
+		return this;
     },
     getParallel: function(d) {
         return new Line2(this.x1,this.x2, -1/m);
@@ -344,7 +388,12 @@ Line2.implement({
         return _x / _y;
     },
 });
-
+/**
+ ******************************************************************************
+ */
+ /**
+ * @class Segment2
+ */
 var Segment2 = this.Segment2 = global.Segment2 = new Type('Segment2', function(){
     var object = null;
 
@@ -375,6 +424,17 @@ Segment2.implement({
 
         return this;
     },
+	clone: function() {
+		return new Segment2(this.x1, this.y1, this.x2, this.y2);
+	},
+	translate: function(b,a) {
+		this.x1+=b.x;
+		this.x2+=b.x;
+		this.y1+=b.y;
+		this.y2+=b.y;
+		
+		return this;
+	},	
     set: function(p0, p1) {
         //compute m
         this.x1 = p0.x;
@@ -402,21 +462,13 @@ Segment2.implement({
 
 		return AB.x * AC.y - AB.y * AC.x;
 	},
-    rotate: function(angle) {
-
-    },
-    scale: function(x,y) {
-
-    },
-    translate: function(x,y) {
-
-    },
-    transform: function() {
-
-    }
 });
-
-
+/**
+ ******************************************************************************
+ */
+ /**
+ * @class Circle
+ */
 var Circle = this.Circle = global.Circle = new Type('Circle', function(object){
     if(arguments.length == 2) {
         this.set(arguments[0], arguments[1]);
@@ -434,9 +486,27 @@ Circle.implement({
     set: function(center, r) {
         this.center = center.clone();
         this.r = r;
-    }
+		
+		return this;
+    },
+	clone: function() {
+		var circle =  new Circle();
+		circle.r = this.r;
+		circle.center = this.center.clone();
+		return circle;
+	},
+	translate: function(b,a) {
+		this.center.plus(b,a);
+		
+		return this;
+	}
 });
-
+/**
+ ******************************************************************************
+ */
+ /**
+ * @class Rectangle
+ */
 var Rectangle = this.Rectangle = global.Rectangle = new Type('Rectangle', function(){
     var object = null;
 
@@ -461,8 +531,21 @@ Rectangle.implement({
 		this.normalize();
         return this;
     },
+	clone: function() {
+		var r = new Rectangle();
+		r.v1 = this.v1.clone();
+		r.v2 = this.v2.clone();
+		r.dirty = this.dirty;
+		return r;
+	},
+	translate: function(b,a) {
+		this.v1.plus(b,a);
+		this.v2.plus(b,a);
+		
+		return this;
+	},
 	setTopLeft: function(vec2, normalize) {
-		normalize = normalize | false;
+		normalize = normalize || false;
 		this.r1 = vec2;
 		this.dirty = true;
 		
@@ -470,17 +553,17 @@ Rectangle.implement({
 		
 	},
 	setBottomRight: function(vec2) {
-		normalize = normalize | false;
+		normalize = normalize || false;
 		this.r2 = vec2;
 		this.dirty = true;
 		
 		if(normalize) this.normalize();
 	},
-	center: function() {
+	getCenter: function() {
 		return this.v1.clone().plus(this.v2).mul(0.5);
 	},
 	normalize: function(force) {
-		force = (force | this.dirty) | false;
+		force = (force || this.dirty) || false;
 		if(!force) return;
 		var min        = this.v1.clone().min(this.v2),
 			max        = this.v1.clone().max(this.v2);
@@ -495,23 +578,27 @@ Rectangle.implement({
 		return this;
 	}
 });
-
-
+/**
+ ******************************************************************************
+ */
+ /**
+ * @class Polygon
+ */
 var Polygon = this.Polygon = global.Polygon = new Type('Polygon', function(object){
-this.initialize();
-switch(typeOf(object)) {
-case 'polygon' : 
-		object = Object.clone(object.getClean());
-		for (var key in object) this[key] = object[key];
-break;
-case 'array' :
-	var i = 0,
-	max = object.length;
-	for(;i<max;++i) {
-		this.push(object[i]);
+	this.initialize();
+	switch(typeOf(object)) {
+		case 'polygon' : 
+				object = Object.clone(object.getClean());
+				for (var key in object) this[key] = object[key];
+		break;
+		case 'array' :
+			var i = 0,
+			max = object.length;
+			for(;i<max;++i) {
+				this.push(object[i]);
+			}
+		break;
 	}
-break;
-}
     return this;
 });
 
@@ -531,3 +618,29 @@ Polygon.implement({
         return this;
     }
 });
+
+
+// draw method is the same for all types/primitives
+(function(){
+	function __drawPrimitive(ctx, delta) {
+		var options = this.drawOptions || {style: "stroke"};
+		if(options.style == "stroke") {
+			ctx.strokePrimitive(this, options);
+		}
+		ctx.fillPrimitive(this, options);
+	}
+
+	[Polygon, Rectangle, Circle, Segment2, Line2, AABB2, Vec2].each(function(type) {
+		type.implement({
+			/**
+			* @type DrawOptions
+			*/
+			drawOptions: null,
+			/**
+			 * @param {Canvas} ctx
+			 * @param {Number} delta
+			 */
+			draw: __drawPrimitive
+		});
+	});
+})();

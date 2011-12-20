@@ -31,7 +31,7 @@ var rect1 = new Rectangle(Vec2_origin, vec2_1_1);
 var rect2 = new Rectangle(vec2_1_1, vec2_2_2);
 var rect3 = new Rectangle(Vec2_origin, vec2_5_5);
 
-var circle_vec2_5_5_r3 = new Circle(vec2_5_5, 3);
+var circle_vec2_5_5_r3 = new Circle(vec2_5_5, 30);
 var circle_vec2_7_7_r3 = new Circle(vec2_7_7, 3);
 
 var circle_vec2_5_5_r1 = new Circle(vec2_5_5, 1);
@@ -62,8 +62,6 @@ var segment4 = new Segment2(vec2_3_3, vec2_5_5);
 //console.log("Segment2 intersection line: ",Math.intersection(segment4, segment3));
 
 console.log("Segment2 intersection line: ",Math.intersection(segment1, segment2));
-
-process.exit();
 
 
 console.log("vector typeof", typeOf(Vec2_origin));
@@ -128,32 +126,105 @@ Radamn.addEvent("quit", function(e) {
     Radamn.quit();
 });
 
+var node = null;
+var collideNodeList = [];
+
+//circle
+var collision_test_circle = new Circle(new Vec2(0,0), 30);
+collision_test_circle.drawOptions = {color: "rgb(0,0,255)"};
+node = win.getRootNode().createNode();
+collideNodeList.push(node);
+node.getMatrix().translate(50,50);
+
+node.appendEntity(collision_test_circle);
+node.addToBody(collision_test_circle);
+
+
+//rectangle
+var collision_test_rect = new Rectangle(new Vec2(0,0), new Vec2(50,50));
+collision_test_rect.drawOptions = {color: "rgb(0,0,255)"};
+node = win.getRootNode().createNode();
+collideNodeList.push(node);
+node.getMatrix().translate(150,50);
+
+node.appendEntity(collision_test_rect);
+node.addToBody(collision_test_rect);
+
+
+//segment2
+var collision_test_seg = new Segment2(new Vec2(0,0), new Vec2(50,50));
+collision_test_seg.drawOptions = {style: "stroke", color: "rgb(255,255,255)", lineWidth: 1};
+node = win.getRootNode().createNode();
+collideNodeList.push(node);
+node.getMatrix().translate(100,100);
+
+node.appendEntity(collision_test_seg);
+node.addToBody(collision_test_seg);
+
+
+
+
+var circle_fill_color = "rgb(0,0,255)";
+//basic collision detections
+Radamn.addEvent("mousemove", function(e) {
+	var mousepos = new Vec2(e.x, e.y);
+	
+	for(var i =0,max=collideNodeList.length; i<max;++i) {
+		var intersection = collideNodeList[i].collide(mousepos);
+		//cheating a bit!
+		
+		var color = "rgb(255,255,255)";
+		
+		if(intersection.reason == "outside")
+			color = "rgb(0,255,0)";
+		if(intersection.reason == "inside")
+			color = "rgb(0,0,255)";
+		if(intersection.reason == "collide")
+			color = "rgb(255,0,0)";
+		
+		if(["outside", "inside"].contains(intersection.reason) &&  intersection.distance && intersection.distance < 5) {
+			color = "rgb(255,255,0)";
+		}
+		
+		collideNodeList[i].childEntities[0].drawOptions.color = color;
+		
+		//console.log("mousemove", mousepos, intersection);
+	}
+}.maxFPS(1));
+
+
 win.onRequestFrame = function(delta) {
+	win.render(delta);
+
+	/*
 	canvas.translate(10, 10);
-	canvas.scale(50,50);	
+	//canvas.scale(50,50);	
 	
 	canvas.strokeStyle="rgb(255,0,0)";
-	canvas.drawPrimitive(rect1);
+	canvas.strokePrimitive(rect1);
 	canvas.strokeStyle="rgb(255,255,0)";
-	canvas.drawPrimitive(rect2);
+	canvas.strokePrimitive(rect2);
 	canvas.strokeStyle="rgb(255,255,255)";
-	canvas.drawPrimitive(rect3);
+	canvas.strokePrimitive(rect3);
 	
 	
 	
 	canvas.strokeStyle="rgb(128,128,128)";
-	canvas.drawPrimitive(segment4);
+	canvas.strokePrimitive(segment1);
 	canvas.strokeStyle="rgb(255,255,255)";
-	canvas.drawPrimitive(segment3);
+	canvas.strokePrimitive(segment2);
 
 	canvas.strokeStyle="rgb(255,0,0)";
-	var inter = Math.intersection(segment4, segment3);
+	var inter = Math.intersection(segment1, segment2);
 	console.log(segment4);
 	console.log(segment3);
 	console.log(inter);
 	
-	canvas.drawPrimitive(inter. segments[0]);
+	canvas.strokePrimitive(inter. segments[0]);
+	*/
 	
+	//canvas.fillStyle = circle_fill_color;
+	//canvas.fillPrimitive(circle_vec2_5_5_r3);
 };
 
 Radamn.listenInput(50);
