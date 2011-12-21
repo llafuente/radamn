@@ -378,10 +378,10 @@ module.exports.TMX = new Class({
                 break;
             case "objectgroup" :
                 this.__pushLayer("objects");
-
+				
                 nodeEL.children.each(function(nodeOBJ){
                     if(nodeOBJ.name === undefined) return;
-
+					
                     this.parseObject(nodeOBJ,
                             this.layers.length -1
                     );
@@ -415,6 +415,7 @@ module.exports.TMX = new Class({
      * @params {Number} layerid
      */
     parseObject: function(nodeEl, layerid) {
+	
         var obj = {
             gid: parseInt(nodeEl.attributes.gid, 10) -1,
             position: {
@@ -424,6 +425,25 @@ module.exports.TMX = new Class({
         };
         obj.x = obj.gid % this.tileset.x;
         obj.y = Math.floor(obj.gid / this.tileset.x);
+		obj.properties = {};
+		
+		//parse properties!
+		if(nodeEl.children.length > 0) {
+			var i=0,
+				max = nodeEl.children.length;
+			for(;i<max; ++i) {
+				if(nodeEl.children[i].name === undefined) continue;
+				nodeEl.children[i].children.each(function(k) {
+					if(k.name === undefined) return;
+					var value = k.attributes.value;
+					if(value[0] == '{') {
+						value = JSON.decode(value);
+					}
+					obj.properties[k.attributes.name] = value;
+				});
+			}
+			
+		}
 
         this.layers[layerid].raw.push(obj);
     },
@@ -574,7 +594,7 @@ module.exports.TMX = new Class({
 			pos = this.parentNode.getDerivedPosition(),
 			i=0,
 			max=this.layers.length;
-
+		console.log("pos", pos);
         for(;i<max; ++i) {
             var j=0,
 				jmax=this.layers[i].tiles.length;
@@ -582,9 +602,10 @@ module.exports.TMX = new Class({
             for(;j<jmax; ++j) {
                 var tile = this.layers[i].tiles[j];
 
-                if(!win.viewableQuad(
+				console.log(tile[4]);
+                if(!win.isQuadVisible(
                         tile[4] + pos.x, tile[5] + pos.y,
-                        tile[6],         tile[7])) {
+                        tile[6], tile[7])) {
                     continue;
                 }
                 ctx.drawImage(this.tilesets[0],

@@ -348,15 +348,14 @@ Radamn.Window = new Class({
 
         window.requestAnimationFrame(this.bound.renderLoop);
     },
-    viewableQuad: function(x,y,w,h) {
-        var pos = this.rootNode.getMatrix().getPosition();
+	/**
+	 * is quad viewable, give the coords in screen position!
+	 */
+    isQuadVisible: function(x,y,w,h) {
+	var visible = x + w > 0 && x < this.width && y + h < this.height && y > 0;
+		console.log(this.width, this.height, visible, arguments);
 
-        if(pos.x > x + w) return false;
-        if(x > pos.x + this.width) return false;
-        if(pos.y > y + h) return false;
-        if(y > pos.y + this.height) return false;
-
-        return true;
+		return visible;
     },
     /**
      * @private

@@ -22,4 +22,11 @@
 257,258,259,0,0,0,0,0,0,265,266,267,0,0,0
 </data>
  </layer>
+ <objectgroup name="Capa de Objetos 1" width="15" height="15">
+  <object type="xxx" gid="545" x="80" y="128">
+   <properties>
+    <property name="position" value="xxx"/>
+   </properties>
+  </object>
+ </objectgroup>
 </map>
