@@ -7,7 +7,6 @@ Define
 - Circle
 - Segment2
 - Line2
-- AABB2
 - Vec2
 */
 
@@ -61,6 +60,55 @@ Vec2.implement({
 
         return this;
     },
+	/**
+	 * @member Vec2
+	 * @return Number
+	 */
+	normalize: function() {
+		var fLength = Math.sqrt( this.x * this.x + this.y * this.y);
+		
+		// Will also work for zero-sized vectors, but will change nothing
+		if ( fLength > Math.EPS ) {
+			var fInvLength = 1.0f / fLength;
+			this.x *= fInvLength;
+			this.y *= fInvLength;
+		}
+		
+		return fLength;
+	},
+	/**
+	 * @member Vec2
+	 * @return Vec2 this
+	 */
+	midPoint: function(vec) {
+		this.x = ( this.x + vec.x ) * 0.5f;
+		this.y = ( this.y + vec.y ) * 0.5f;
+		
+		return this;
+	},
+	/**
+	 * @member Vec2
+	 * @return Vec2 this
+	 */
+	perpendicular: function() {
+		var aux = this.x;
+		this.x = -this.y;
+		this.x = aux;
+		
+		return this;
+	},
+	/**
+	 * @member Vec2
+	 * @return Vec2 this
+	 */
+	reflect: function(normal) {
+	
+		var aux = this.clone().dot(normal).mul(normal)
+	
+		this.sub(aux.mul(2));
+	
+		return this;
+	},
     /**
      * @member Vec2
      * @param {Vec2} b
@@ -150,17 +198,20 @@ Vec2.implement({
     /**
      * @member Vec2
      * @param {Vec2} b
-     * @returns Vec2 this
+     * @returns Number
      */
     dot : function(b) {
 		assert.notEqual(typeOf(b) == "vec2", false, "Vec2::dot, b is not a Vec2");
 
         return this.x * b.x + this.y * b.y;
     },
+	cross: function(rkVector) {
+		return this.x * rkVector.y - this.y * rkVector.x;
+	},
     /**
      * @member Vec2
      * @param {Vec2} b
-     * @returns Vec2 this
+     * @returns Number
      */
     length : function() {
         return Math.sqrt(this.x * this.x + this.y * this.y);
@@ -168,7 +219,7 @@ Vec2.implement({
 	/**
      * @member Vec2
      * @param {Vec2} b
-     * @returns Vec2 this
+     * @returns Number
      */
     lengthSquared : function() {
         return this.x * this.x + this.y * this.y;
@@ -237,6 +288,7 @@ Vec2.implement({
         return this;
     },
 	/**
+	 * @member Vec2
 	 * @returns Number 0 equal, 1 top, 2 top-right, 3 right, 4 bottom right, 5 bottom, 6 bottom-left, 7 left, 8 top-left
 	 */
 	compare: function(vec2) {
@@ -263,50 +315,32 @@ Vec2.implement({
 		
 		return -1;
 	},
+	/**
+	 * @member Vec2
+	 * @returns Boolean
+	 */
 	gt: function() {
 		return vec2.x > this.x && vec2.y > this.y;
 	},
+	/**
+	 * @member Vec2
+	 * @returns Boolean
+	 */
 	lt: function() {
 		return vec2.x < this.x && vec2.y < this.y;
 	},
+	/**
+	 * @member Vec2
+	 * @returns Boolean
+	 */
 	eq: function() {
 		return vec2.x == this.x && vec2.y == this.y;
-	},
-	translate: function(b,a) {
-		this.plus(b,a);
-	},
-});
-/**
- ******************************************************************************
- */
-/**
- * @class AABB2
- */
-var AABB2 = this.AABB2 = global.AABB2 = new Type('AABB2', function(object){
-    if(arguments.length == 2) {
-        this.set(arguments[0], arguments[1]);
-    }
-    else if(arguments.length == 4) {
-        var a = new Vec2(arguments[0], arguments[1]);
-        var b = new Vec2(arguments[2], arguments[3]);
-
-        this.set(a, b);
-    }
-    else if(arguments.length == 1) {
-        if (typeOf(object) == 'aabb2') object = Object.clone(object.getClean());
-        for (var key in object) this[key] = object[key];
-    }
-    return this;
+	}
 });
 
-AABB2.implement({
-    min: null,
-    max: null,
-    set: function(a,b) {
-        this.min = a;
-        this.max = b;
-    }
-});
+// translate!
+Vec2.alias('translate', 'plus');
+
 /**
  ******************************************************************************
  */
@@ -618,7 +652,364 @@ Polygon.implement({
         return this;
     }
 });
+ 
+/**
+ * based on cakejs
+ * @class Matrix2D
+ */
+var Matrix2D = this.Matrix2D = global.Matrix2D = new Type('Matrix2D', function(object){
+	this.debug("new Matrix2D");
+	this.reset();
+    if(arguments.length == 1) {
+        this.set(arguments[0]);
+    }
+    else if(arguments.length == 1) {
+        if (typeOf(object) == 'matrix2d') object = Object.clone(object.getClean());
+        for (var key in object) this[key] = object[key];
+    }
+    return this;
+});
 
+Matrix2D.implement({
+	debug: function() {
+		//console.log.apply(arguments);
+	},
+	/**
+	 * @type Array
+	 */
+	p: [],
+	/**
+	 * @type Number
+	 */
+    __scalex : 1,
+	/**
+	 * @type Number
+	 */
+    __scaley : 1,
+	/**
+	 * @type Number
+	 */
+    __skewx : 0,
+	/**
+	 * @type Number
+	 */
+    __skewy : 0,
+	/**
+	 * @type Number
+	 */
+    __rotation : 0,
+	/**
+	 * @type Boolean
+	 */
+	readonly: false,
+	/**
+	 * @member Matrix2D
+	 */
+	reset: function() {
+	    this.p[0] = 1;
+		this.p[1] = 0;
+		this.p[2] = 0;
+		this.p[3] = 1;
+		this.p[4] = 0;
+		this.p[5] = 0;
+		
+		this.__scalex = 1;
+		this.__scaley = 1;
+		this.__skewx = 0;
+		this.__skewy = 0;
+		this.__rotation = 0;
+		
+		this.readonly = false;
+		this.debug("reset", this);
+	},
+	/**
+	 * @member Matrix2D
+	 */
+	set: function(p) {
+		this.p[0] = p[0];
+		this.p[1] = p[1];
+		this.p[2] = p[2];
+		this.p[3] = p[3];
+		this.p[4] = p[4];
+		this.p[5] = p[5];
+		
+		this.debug("set", this.p);
+		
+		return this;
+	},
+	/**
+	 * @member Matrix2D
+	 * @private
+	 */
+	__check_readonly: function () {
+        if(this.readonly) {
+			throw new Error("readonly-matrix");
+		}
+	},
+    /**
+     * Rotates a transformation matrix by angle.
+     * @member Matrix2D
+     * @param {Number} angle
+     */
+    rotate : function(angle) {
+        this.__check_readonly();
+
+        this.__rotation +=angle;
+        angle = angle * 0.017453292519943295769236907684886;
+        var c = Math.cos(angle);
+        var s = Math.sin(angle);
+        var m11 = this.p[0] * c +  this.p[2] * s;
+        var m12 = this.p[1] * c +  this.p[3] * s;
+        var m21 = this.p[0] * -s + this.p[2] * c;
+        var m22 = this.p[1] * -s + this.p[3] * c;
+        this.p[0] = m11;
+        this.p[1] = m12;
+        this.p[2] = m21;
+        this.p[3] = m22;
+		
+		this.debug("rotate", this.p);
+    },
+	/**
+	 * @member Matrix2D
+	 */
+    setRotation: function(angle) {
+		this.__check_readonly();
+	
+        var aux = angle - this.__rotation;
+        this.rotate(aux);
+        this.__rotation = angle;
+		this.debug("setRotation", this.p);
+    },
+    /**
+     * transformation matrix by x and y
+     * @note  Derived translation (include rotation)
+     *
+     * @member Matrix2D
+     * @param {Number} x
+     * @param {Number} y
+     */
+    translate : function(x, y) {
+        this.__check_readonly();
+
+        this.p[4] += this.p[0] * x + this.p[2] * y;
+        this.p[5] += this.p[1] * x + this.p[3] * y;
+		this.debug("translate", this.p);
+    },
+    /**
+     * transformation matrix by x and y
+     * @note Global translation (NO include rotation)
+     *
+     * @member Matrix2D
+     * @param {Number} x
+     * @param {Number} y
+     */
+    gTranslate : function(x, y) {
+        this.__check_readonly();
+
+        this.p[4] += x;
+        this.p[5] += y;
+		this.debug("gTranslate", this.p);
+    },
+    /**
+     * transformation matrix by x and y
+     * @note Global position (NO include rotation)
+     *
+     * @member Matrix2D
+     * @param {Number} x use false to not skip set
+     * @param {Number} y use false to not skip set
+     */
+    setPosition: function(x, y) {
+        this.__check_readonly();
+
+        if(x !== false) {
+            this.p[4] = x;
+		}
+        if(y !== false) {
+            this.p[5] = y;
+		}
+		this.debug("setPosition", this.p);
+    },
+    /**
+     * Scales a transformation matrix by sx and sy.
+     *
+     * @member Matrix2D
+     * @param {Number} sx
+     * @param {Number} sy
+     */
+    scale : function(sx, sy) {
+        this.__check_readonly();
+
+        this.__scalex *= sx;
+        this.__scaley *= sy;
+        this.p[0] *= sx;
+        this.p[1] *= sx;
+        this.p[2] *= sy;
+        this.p[3] *= sy;
+    },
+    /**
+     * Scales a transformation matrix by sx and sy.
+     *
+     * @member Matrix2D
+     * @param {Number} sx
+     * @param {Number} sy
+     */
+    setScale : function(sx, sy) {
+        this.__check_readonly();
+
+        this.__scalex /= sx;
+        this.__scaley /= sy;
+        this.p[0] /= this.__scalex;
+        this.p[1] /= this.__scalex;
+        this.p[2] /= this.__scaley;
+        this.p[3] /= this.__scaley;
+
+        this.__scalex = sx;
+        this.__scaley = sy;
+    },
+    /**
+     * Skews a transformation matrix by angle on the x-axis.
+     * TODO optimize!
+     * @member Matrix2D
+     * @param {Number} angle
+     */
+    skewX : function(angle) {
+        this.__check_readonly();
+
+        this.__skewx+=angle;
+        this.multiply(Matrix2D.skewXMatrix(angle));
+        return this;
+    },
+
+    /**
+     * Skews a transformation matrix by angle on the y-axis.
+     * TODO optimize!
+     * @member Matrix2D
+     * @param {Number} angle
+     */
+    skewY : function(angle) {
+        this.__check_readonly();
+
+        this.__skewy+=angle;
+        return this.multiply(Matrix2D.skewYMatrix(angle));
+    },
+    /**
+     * TODO optimize!
+	 * @member Matrix2D
+     */
+    setSkew: function(anglex, angley) {
+        this.__check_readonly();
+
+        var aux;
+        if(anglex !== false) {
+            aux = anglex  - this.__skewx;
+            this.skewX(aux);
+            this.__skewx = anglex;
+        }
+        if(angley !== false) {
+            aux = angley - this.__skewy;
+            this.skewY(aux);
+            this.__skewy = angley;
+        }
+    },
+    /**
+     * Multiplies two 3x2 affine 2D column-major transformation matrices
+     * with each other and stores the result in the first matrix.
+     * @member Matrix2D
+	 * @todo SUPPORT skew. rotation and scale traking!
+     * @param {Array} m2
+     */
+    multiply : function(m2) {
+        this.__check_readonly();
+
+        var m11 = this.p[0] * m2[0] + this.p[2] * m2[1];
+        var m12 = this.p[1] * m2[0] + this.p[3] * m2[1];
+
+        var m21 = this.p[0] * m2[2] + this.p[2] * m2[3];
+        var m22 = this.p[1] * m2[2] + this.p[3] * m2[3];
+
+        var dx = this.p[0] * m2[4] + this.p[2] * m2[5] + this.p[4];
+        var dy = this.p[1] * m2[4] + this.p[3] * m2[5] + this.p[5];
+
+        this.p[0] = m11;
+        this.p[1] = m12;
+        this.p[2] = m21;
+        this.p[3] = m22;
+        this.p[4] = dx;
+        this.p[5] = dy;
+
+        return this;
+    },
+    /**
+     * clone and return the array
+     * @return Array
+     */
+    get : function() {
+        return Array.clone(this.p);
+    },
+    /**
+     * clone and return the array
+     * @return Array
+     */
+    getPosition : function() {
+        return new Vec2(this.p[4], this.p[5]);
+    },
+    /**
+     * apply (multiply) the transformation to the canvas
+     * @return Array
+     */
+    applyToCanvas : function(ctx) {
+		this.debug("applyToCanvas", this.p);
+        ctx.transform.apply(ctx, this.p);
+    },
+    /**
+     * apply (overwrite) the transformation to the canvas
+     * @return Array
+     */
+    setToCanvas : function(ctx) {
+		this.debug(this.p);
+        ctx.setTransform.apply(ctx, this.p);
+    }
+});
+
+/**
+ * Returns a 3x2 2D column-major translation matrix for x and y.
+ * @member Matrix2D
+ * @static
+ * @param {Number} x
+ * @param {Number} y
+ */
+Matrix2D.translationMatrix = function(x, y) {
+    return [ 1, 0, 0, 1, x, y ];
+};
+/**
+ * Returns a 3x2 2D column-major y-skew matrix for the angle.
+ * @member Matrix2D
+ * @static
+ * @param {Number} angle
+ */
+Matrix2D.skewXMatrix = function(angle) {
+    return [ 1, 0, Math.tan(angle * 0.017453292519943295769236907684886), 1, 0, 0 ];
+};
+
+/**
+ * Returns a 3x2 2D column-major y-skew matrix for the angle.
+ * @member Matrix2D
+ * @static
+ * @param {Number} angle
+ */
+Matrix2D.skewYMatrix = function(angle) {
+    return [ 1, Math.tan(angle * 0.017453292519943295769236907684886), 0, 1, 0, 0 ];
+};
+/**
+ * Returns a 3x2 2D column-major scaling matrix for sx and sy.
+ * @member Matrix2D
+ * @static
+ * @param {Number} sx
+ * @param {Number} sy
+ */
+Matrix2D.scalingMatrix = function(sx, sy) {
+    return [ sx, 0, 0, sy, 0, 0 ];
+};
 
 // draw method is the same for all types/primitives
 (function(){
@@ -630,7 +1021,7 @@ Polygon.implement({
 		ctx.fillPrimitive(this, options);
 	}
 
-	[Polygon, Rectangle, Circle, Segment2, Line2, AABB2, Vec2].each(function(type) {
+	[Polygon, Rectangle, Circle, Segment2, Line2, Vec2].each(function(type) {
 		type.implement({
 			/**
 			* @type DrawOptions

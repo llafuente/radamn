@@ -97,11 +97,18 @@ var Radamn = new Class({
      * @param {Number} options
      * @returns {Window}
      */
-    createWindow: function(width, height) {
+    createWindow: function(internal_width, internal_height, width, height) {
+		width = width || internal_width;
+		height = height || internal_height;
+		
         var surface = CRadamn.createWindow(width, height);
         var window = new Radamn.Window(surface, width, height);
 
         this.windows.push(window);
+		// this is how you hack the restriction of scaling the root node
+		// this is done this way so YOU KNOW WHAT YOU ARE DOING!
+		var scale_matrix = Matrix2D.scalingMatrix(width / internal_width, height / internal_height);
+		window.getRootNode().getMatrix().multiply(scale_matrix);
 
         //this.Input.addEvent("quit");
         return window;
@@ -352,17 +359,14 @@ Radamn.Window = new Class({
 	 * is quad viewable, give the coords in screen position!
 	 */
     isQuadVisible: function(x,y,w,h) {
-	var visible = x + w > 0 && x < this.width && y + h < this.height && y > 0;
-		console.log(this.width, this.height, visible, arguments);
-
-		return visible;
+		return x + w > 0 && x < this.width && y + h < this.height && y > 0;
     },
     /**
      * @private
      */
     __renderNode: function(ctx, node, delta) {
         ctx.save();
-        node.getMatrix().apply(ctx);
+        node.getMatrix().applyToCanvas(ctx);
         var i =0;
         for(;i<node.childEntities.length; ++i) {
             node.childEntities[i].draw(ctx, delta);
@@ -397,6 +401,12 @@ Radamn.Window = new Class({
         this.rootNode = new Radamn.Node();
         this.rootNode.isRoot = function() {
             return true;
+        };
+        this.rootNode.scale = function() {
+            throw new Error("scaling root node is not allowed!");
+        };
+        this.rootNode.setScale = function() {
+            throw new Error("scaling root node is not allowed!");
         };
 
         return this;
@@ -1241,292 +1251,6 @@ glEnd();
 //*********************************************************************************
 //
 
-Radamn.Matrix2D = new Class({
-    /**
-     * Returns a 3x2 2D column-major translation matrix for x and y.
-     * @member TranformMatrix
-     * @param {Number} x
-     * @param {Number} y
-     */
-    translationMatrix : function(x, y) {
-        return [ 1, 0, 0, 1, x, y ];
-    },
-    /**
-     * Returns a 3x2 2D column-major y-skew matrix for the angle.
-     * @member TranformMatrix
-     * @param {Number} angle
-     */
-    skewXMatrix : function(angle) {
-        return [ 1, 0, Math.tan(angle * 0.017453292519943295769236907684886), 1, 0, 0 ];
-    },
-
-    /**
-     * Returns a 3x2 2D column-major y-skew matrix for the angle.
-     * @member TranformMatrix
-     * @param {Number} angle
-     */
-    skewYMatrix : function(angle) {
-        return [ 1, Math.tan(angle * 0.017453292519943295769236907684886), 0, 1, 0, 0 ];
-    },
-    /**
-     * Returns a 3x2 2D column-major scaling matrix for sx and sy.
-     * @member TranformMatrix
-     * @param {Number} sx
-     * @param {Number} sy
-     */
-    scalingMatrix : function(sx, sy) {
-        return [ sx, 0, 0, sy, 0, 0 ];
-    }
-});
-Radamn.Matrix2D = new Radamn.Matrix2D();
-/**
- * based on cakejs
- * closure to speed up a bit
- *
- * @class TranformMatrix
- */
-Radamn.TranformMatrix = function() {
-    var p = [];
-    p[0] = 1;
-    p[1] = 0;
-    p[2] = 0;
-    p[3] = 1;
-    p[4] = 0;
-    p[5] = 0;
-
-    var __scalex = 1;
-    var __scaley = 1;
-    var __skewx = 0;
-    var __skewy = 0;
-    var __rotation = 0;
-	
-	function check_readonly() {
-        if(this.readonly) {
-			throw new Error("readonly-matrix");
-		}
-	}
-
-    return {
-        readonly : false,
-        /**
-         * Rotates a transformation matrix by angle.
-         * @member TranformMatrix
-         * @param {Number} angle
-         */
-        rotate : function(angle) {
-            check_readonly();
-
-            __rotation +=angle;
-            angle = angle * 0.017453292519943295769236907684886;
-            var c = Math.cos(angle);
-            var s = Math.sin(angle);
-            var m11 = p[0] * c + p[2] * s;
-            var m12 = p[1] * c + p[3] * s;
-            var m21 = p[0] * -s + p[2] * c;
-            var m22 = p[1] * -s + p[3] * c;
-            p[0] = m11;
-            p[1] = m12;
-            p[2] = m21;
-            p[3] = m22;
-        },
-        setRotation: function(angle) {
-			check_readonly();
-		
-            var aux = angle - __rotation;
-            this.rotate(aux);
-            __rotation = angle;
-        },
-        /**
-         * transformation matrix by x and y
-         * @note  Derived translation (include rotation)
-         *
-         * @member TranformMatrix
-         * @param {Number} x
-         * @param {Number} y
-         */
-        translate : function(x, y) {
-            check_readonly();
-
-            p[4] += p[0] * x + p[2] * y;
-            p[5] += p[1] * x + p[3] * y;
-        },
-        /**
-         * transformation matrix by x and y
-         * @note Global translation (NO include rotation)
-         *
-         * @member TranformMatrix
-         * @param {Number} x
-         * @param {Number} y
-         */
-        gTranslate : function(x, y) {
-            check_readonly();
-
-            p[4] += x;
-            p[5] += y;
-        },
-        /**
-         * transformation matrix by x and y
-         * @note Global position (NO include rotation)
-         *
-         * @member TranformMatrix
-         * @param {Number} x use false to not skip set
-         * @param {Number} y use false to not skip set
-         */
-        setPosition: function(x, y) {
-            check_readonly();
-
-            if(x !== false) {
-                p[4] = x;
-			}
-            if(y !== false) {
-                p[5] = y;
-			}
-        },
-        /**
-         * Scales a transformation matrix by sx and sy.
-         *
-         * @member TranformMatrix
-         * @param {Number} sx
-         * @param {Number} sy
-         */
-        scale : function(sx, sy) {
-            check_readonly();
-
-            __scalex = __scalex * sx;
-            __scaley = __scaley * sy;
-            p[0] *= sx;
-            p[1] *= sx;
-            p[2] *= sy;
-            p[3] *= sy;
-        },
-        /**
-         * Scales a transformation matrix by sx and sy.
-         *
-         * @member TranformMatrix
-         * @param {Number} sx
-         * @param {Number} sy
-         */
-        setScale : function(sx, sy) {
-            check_readonly();
-
-            __scalex = __scalex / sx;
-            __scaley = __scaley / sy;
-            p[0] /= __scalex;
-            p[1] /= __scalex;
-            p[2] /= __scaley;
-            p[3] /= __scaley;
-
-            __scalex = sx;
-            __scaley = sy;
-        },
-        /**
-         * Skews a transformation matrix by angle on the x-axis.
-         * TODO optimize!
-         * @member TranformMatrix
-         * @param {Number} angle
-         */
-        skewX : function(angle) {
-            check_readonly();
-
-            __skewx+=angle;
-            this.multiply(Radamn.Matrix2D.skewXMatrix(angle));
-            return this;
-        },
-
-        /**
-         * Skews a transformation matrix by angle on the y-axis.
-         * TODO optimize!
-         * @member TranformMatrix
-         * @param {Number} angle
-         */
-        skewY : function(angle) {
-            check_readonly();
-
-            __skewy+=angle;
-            return this.multiply(Radamn.Matrix2D.skewYMatrix(angle));
-        },
-        /**
-         * TODO optimize!
-         */
-        setSkew: function(anglex, angley) {
-            check_readonly();
-
-            var aux;
-            if(anglex !== false) {
-                aux = anglex  - __skewx;
-                this.skewX(aux);
-                __skewx = anglex;
-            }
-            if(angley !== false) {
-                aux = angley - __skewy;
-                this.skewY(aux);
-                __skewy = angley;
-            }
-        },
-        /**
-         * Multiplies two 3x2 affine 2D column-major transformation matrices
-         * with each other and stores the result in the first matrix.
-
-         * @member TranformMatrix
-         * @param {Array} m2
-         */
-        multiply : function(m2) {
-            check_readonly();
-
-            var m11 = p[0] * m2[0] + p[2] * m2[1];
-            var m12 = p[1] * m2[0] + p[3] * m2[1];
-
-            var m21 = p[0] * m2[2] + p[2] * m2[3];
-            var m22 = p[1] * m2[2] + p[3] * m2[3];
-
-            var dx = p[0] * m2[4] + p[2] * m2[5] + p[4];
-            var dy = p[1] * m2[4] + p[3] * m2[5] + p[5];
-
-            p[0] = m11;
-            p[1] = m12;
-            p[2] = m21;
-            p[3] = m22;
-            p[4] = dx;
-            p[5] = dy;
-
-            return this;
-        },
-        /**
-         * clone and return the array
-         * @return Array
-         */
-        get : function() {
-            return Array.clone(p);
-        },
-        /**
-         * clone and return the array
-         * @return Array
-         */
-        getPosition : function() {
-            return new Vec2(p[4], p[5]);
-        },
-        /**
-         * apply (multiply) the transformation to the canvas
-         * @return Array
-         */
-        apply : function(ctx) {
-            ctx.transform.apply(ctx, p);
-        },
-        /**
-         * apply (overwrite) the transformation to the canvas
-         * @return Array
-         */
-        set : function(ctx) {
-            ctx.setTransform.apply(ctx, p);
-        }
-
-    };
-};
-
-//
-//*********************************************************************************
-//
-
 /**
  * @class Node
  */
@@ -1589,7 +1313,7 @@ Radamn.Node = new Class({
 
         this.root = root;
         this.childNodes = [];
-        this.matrix = new Radamn.TranformMatrix();
+        this.matrix = new Matrix2D();
         //this.AABB = new AABB();
     },
     freeze: function() {

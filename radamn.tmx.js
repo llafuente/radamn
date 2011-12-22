@@ -281,7 +281,7 @@ module.exports.TMX = new Class({
      * @private
      * @params {String} tmx_file
      */ 
-	 getTileWidth: function() {
+	getTileWidth: function() {
 		return this.tileset.iwidth;
 	 },
 	 /**
@@ -289,9 +289,16 @@ module.exports.TMX = new Class({
      * @private
      * @params {String} tmx_file
      */ 
-	 getTileHeight: function() {
+	getTileHeight: function() {
 		return this.tileset.iheight;
-	 },
+	},
+	/**
+	 * returns the AABB with the origin in the parentNode, so this AABB is not globally aligned
+	 * @returns Rectangle
+	 */
+	getAABB: function() {
+		return new Rectangle(0, 0,  this.tileset.iwidth * this.map.width, this.tileset.iheight * this.map.height);
+	},
 	 /**
      * @member TMX
      * @private
@@ -408,25 +415,7 @@ module.exports.TMX = new Class({
 
         this.__ready();
     },
-    /**
-     * leave it "public" so it can be hack-able
-     * @member TMX
-     * @params {Object} nodeEl
-     * @params {Number} layerid
-     */
-    parseObject: function(nodeEl, layerid) {
-	
-        var obj = {
-            gid: parseInt(nodeEl.attributes.gid, 10) -1,
-            position: {
-                x: parseInt(nodeEl.attributes.x, 10),
-                y: parseInt(nodeEl.attributes.y, 10)
-            }
-        };
-        obj.x = obj.gid % this.tileset.x;
-        obj.y = Math.floor(obj.gid / this.tileset.x);
-		obj.properties = {};
-		
+	parseObjectProperties: function(nodeEl) {
 		//parse properties!
 		if(nodeEl.children.length > 0) {
 			var i=0,
@@ -444,8 +433,46 @@ module.exports.TMX = new Class({
 			}
 			
 		}
+	},
+    /**
+     * leave it "public" so it can be hack-able
+	 * @TODO REGIONs!
+     * @member TMX
+     * @params {Object} nodeEl
+     * @params {Number} layerid
+     */
+    parseObject: function(nodeEl, layerid) {
+	
+		var gid = parseInt(nodeEl.attributes.gid, 10) -1,
+		// is an Object
+		if(gid > -1) {
+			var obj = {
+				gid: parseInt(nodeEl.attributes.gid, 10) -1,
+				position: {
+					x: parseInt(nodeEl.attributes.x, 10),
+					y: parseInt(nodeEl.attributes.y, 10)
+				}
+			};
+			obj.x = obj.gid % this.tileset.x;
+			obj.y = Math.floor(obj.gid / this.tileset.x);
+			
+			obj.properties = this.parseObjectProperties(nodeEl);
 
-        this.layers[layerid].raw.push(obj);
+			this.layers[layerid].raw.push(obj);
+			return ;
+		}
+		/* 
+		// is a Region
+		var region = new Rectangle(
+			parseInt(nodeEl.attributes.x, 10),
+			parseInt(nodeEl.attributes.y, 10),
+			parseInt(nodeEl.attributes.y, 10),
+			parseInt(nodeEl.attributes.y, 10)
+		);
+		region.properties = this.parseObjectProperties(nodeEl);
+		
+		this.layers[layerid].raw.push(region);
+		*/
     },
     /**
      * leave it "public" so it can be hack-able
@@ -594,7 +621,6 @@ module.exports.TMX = new Class({
 			pos = this.parentNode.getDerivedPosition(),
 			i=0,
 			max=this.layers.length;
-		console.log("pos", pos);
         for(;i<max; ++i) {
             var j=0,
 				jmax=this.layers[i].tiles.length;
@@ -602,7 +628,6 @@ module.exports.TMX = new Class({
             for(;j<jmax; ++j) {
                 var tile = this.layers[i].tiles[j];
 
-				console.log(tile[4]);
                 if(!win.isQuadVisible(
                         tile[4] + pos.x, tile[5] + pos.y,
                         tile[6], tile[7])) {
