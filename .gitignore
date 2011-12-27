@@ -1,2 +1,4 @@
 build/
 lib/radamn.node
+examples/radamn.log
+examples/node_modules
