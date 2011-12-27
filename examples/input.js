@@ -1,13 +1,13 @@
-var Radamn = require('../radamn');
+require('./../lib/radamn');
 
 /**
 * @type Window
 */
-var win = Radamn.createWindow(640, 480);
+var win = Radamn.createWindow(640, 480, 640, 480);
 win.setCaption("input test!", "input test!");
 
 // i leave it here but dont work for me.
-win.setIcon(process.env.PWD+"/icon.bmp");
+win.setIcon("./resources/images/icon.bmp");
 
 
 var canvas = win.getCanvas();
@@ -15,7 +15,7 @@ var canvas = win.getCanvas();
 /**
 * @type Font
 */
-var font = Radamn.Assets.getFont(process.env.PWD+"/Jura-DemiBold.ttf", 32);
+var font = Radamn.Assets.getFont("./resources/fonts/Jura-DemiBold.ttf", 32);
 
 
 Radamn.addEvent("quit", function(e) {
@@ -57,4 +57,4 @@ win.onRequestFrame = function(delta) {
 };
 
 Radamn.listenInput(50);
-Radamn.start(1000/60);
+Radamn.start(1000/1);

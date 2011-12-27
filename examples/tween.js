@@ -1,4 +1,4 @@
-var Radamn = require('../radamn');
+require('./../lib/radamn');
 
 //var screen = module.exports.createScreen(640, 480, module.exports.$.INIT.OPENGL);
 //segmentation fault on linux xD
@@ -12,7 +12,7 @@ var win = Radamn.createWindow(640, 480);
 //console.log(module.exports);
 
 // i leave it here but dont work for me.
-win.setIcon(process.env.PWD+"/icon.bmp");
+win.setIcon("./resources/images/icon.bmp");
 win.setCaption("caption!!", "caption!");
 
 
@@ -21,7 +21,7 @@ var canvas = win.getCanvas();
 /**
 * @type Image
 */
-var image = Radamn.Assets.getImage(process.env.PWD+"/rock.png");
+var image = Radamn.Assets.getImage("./resources/images/rock.png");
 
 Radamn.addEvent("quit", function(e) {
     Radamn.quit();
@@ -78,9 +78,9 @@ childnode1_tween.addEventOnce("complete", function() {
 
 console.log("***");
 
-var fps = require(process.env.PWD+'/fps');
+var fps = require("./fps");
 fps = new fps({
-    font : process.env.PWD+"/Jura-DemiBold.ttf"
+    font : "./resources/fonts/Jura-DemiBold.ttf"
 });
 
 win.getRootNode().appendEntity(fps);

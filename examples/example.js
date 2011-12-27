@@ -1,18 +1,18 @@
-var Radamn = require('../radamn');
+require('./../lib/radamn');
 
 //var screen = module.exports.createScreen(640, 480, module.exports.$.INIT.OPENGL);
 //segmentation fault on linux xD
 /**
 * @type Window
 */
-var win = Radamn.createWindow(640, 480);
+var win = Radamn.createWindow(320,240, 640, 480);
 
 //console.log(CRadamn);
 //console.log(CRadamn.getVersion());
 //console.log(module.exports);
 
 // i leave it here but dont work for me.
-win.setIcon(process.env.PWD+"/icon.bmp");
+win.setIcon("./resources/images/icon.bmp");
 win.setCaption("caption!!", "caption!");
 
 
@@ -21,7 +21,7 @@ var canvas = win.getCanvas();
 /**
 * @type Image
 */
-var image = Radamn.Assets.getImage(process.env.PWD+"/rock.png");
+var image = Radamn.Assets.getImage("./resources/images/rock.png");
 
 
 //animation 80x80 - star-green.png 25,25,21
@@ -33,13 +33,14 @@ for(var j = 0; j < 3; ++j) {
         animation_cfg.push([i*80,j*80, 80, 80]);
     }
 }
-
-var animation = Radamn.Assets.getAnimation(process.env.PWD+"/star-green.png", {
+/*
+var animation = Radamn.Assets.getAnimation("./resources/images/star-green.png", {
     animation: animation_cfg,
     loop: true,
     fps: 12
 });
 animation.play();
+*/
 
 
 var gridResource = Radamn.createRenderable(function (canvas) {
@@ -107,38 +108,34 @@ node.addEvent("click", function(e) {
 var childnode1 = new Radamn.Node();
 var childnode2 = new Radamn.Node();
 
-console.log(childnode1);
-
-
 node.appendEntity(gridResource);
 childnode1.appendEntity(image);
 childnode2.appendEntity(image);
 
-childnode1.getMatrix().translate(32, 0);
-childnode2.getMatrix().translate(32, 32);
+
+childnode1.matrix.gTranslate(32, 0);
+childnode2.matrix.translate(32, 32);
 
 node.appendChild(childnode1);
 node.appendChild(childnode2);
-
-tt = new Radamn.TranformMatrix();
 
 var counter = 0;
 win.onRequestFrame = function(delta) {
     ++counter;
 
-    childnode2.getMatrix().translate(1, 1);
+    childnode2.matrix.translate(1, 1);
 
     win.render(delta);
 
     // line test, grid mode :)
 
-    tt.set(canvas);
-
+	/*
     // animation test
     canvas.save();
         canvas.translate(256, 256);
         animation.draw(canvas, delta, 0, 0);
     canvas.restore();
+	*/
 
     // some draw test
     canvas.save();

@@ -28,17 +28,14 @@ Radamn.addEvent("keydown", function(e) {
 });
 
 
-var TMX = new Radamn.TMX("./resources/tmx/tmx-isometric.tmx", {
-    offset: {
-        x: false
-    }
+var TMX = new Radamn.TMX("./resources/tmx/tmx-object-test.tmx", {
 });
 
 var tmxnode = new Radamn.Node();
 
 tmxnode.appendEntity(TMX);
 win.getRootNode().appendChild(tmxnode);
-
+tmxnode.matrix.translate(-120, 0);
 
 var fps = require('./fps');
 fps = new fps({

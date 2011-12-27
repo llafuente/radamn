@@ -1,7 +1,7 @@
 ﻿/*
 *	LOAD TMX isometric map
 */
-var Radamn = require('../radamn');
+require('./../lib/radamn');
 
 /*
 test case not fully ready need assets!

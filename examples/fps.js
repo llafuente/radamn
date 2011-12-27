@@ -6,7 +6,7 @@ module.exports = new Class({
     font: null,
 
     options: {
-        font: "Jura-DemiBold.ttf",
+        font: "./resources/fonts/Jura-DemiBold.ttf",
         size: 32,
         color: "#00FF00",
         x: 0,

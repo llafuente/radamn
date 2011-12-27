@@ -1,5 +1,5 @@
 /**
-*	LOAD TMX isometric map
+*    LOAD TMX isometric map
 */
 require('./../lib/radamn');
 
@@ -28,10 +28,7 @@ Radamn.addEvent("keydown", function(e) {
 });
 
 
-var TMX = new Radamn.TMX("./resources/tmx/tmx-isometric.tmx", {
-    offset: {
-        x: false
-    }
+var TMX = new Radamn.TMX("./resources/tmx/tmx-orthogonal-scrolled.tmx", {
 });
 
 var tmxnode = new Radamn.Node();
@@ -40,7 +37,7 @@ tmxnode.appendEntity(TMX);
 win.getRootNode().appendChild(tmxnode);
 
 
-var fps = require('./fps');
+var fps = require(process.env.PWD+'/fps');
 fps = new fps({
     font : "./resources/fonts/Jura-DemiBold.ttf"
     ,x: 400
@@ -51,12 +48,15 @@ fpsnode.appendEntity(fps);
 
 win.getRootNode().appendChild(fpsnode);
 
+//tmxnode.matrix.translate(-256, false);
+
 var counter = 0;
 win.onRequestFrame = function(delta) {
     ++counter;
 
     win.render(delta);
+    tmxnode.matrix.translate(-64, false);
 };
 
 Radamn.listenInput(50);
-Radamn.start(50);
+Radamn.start(1000);

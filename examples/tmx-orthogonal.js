@@ -1,7 +1,7 @@
 /**
 *	LOAD TMX isometric map
 */
-var Radamn = require('../radamn');
+require('./../lib/radamn');
 
 /**
 * @type Window
@@ -9,7 +9,7 @@ var Radamn = require('../radamn');
 var win = Radamn.createWindow(640, 480);
 
 // i leave it here but dont work for me.
-win.setIcon(process.env.PWD+"/icon.bmp");
+win.setIcon("./resources/images/icon.bmp");
 win.setCaption("caption!!", "caption!");
 
 
@@ -27,7 +27,7 @@ Radamn.addEvent("keydown", function(e) {
     }
 });
 
-var TMX = new Radamn.TMX(process.env.PWD+"/tmx-orthogonal.tmx", {});
+var TMX = new Radamn.TMX("./resources/tmx/tmx-orthogonal.tmx", {});
 
 Radamn.addEvent("mousedown", function(e) {
 	console.log(e);
@@ -43,9 +43,9 @@ tmxnode.appendEntity(TMX);
 win.getRootNode().appendChild(tmxnode);
 
 
-var fps = require(process.env.PWD+'/fps');
+var fps = require("./fps");
 fps = new fps({
-    font : process.env.PWD+"/Jura-DemiBold.ttf"
+    font : "./resources/fonts/Jura-DemiBold.ttf"
     ,x: 400
 });
 
@@ -55,7 +55,7 @@ fpsnode.appendEntity(fps);
 win.getRootNode().appendChild(fpsnode);
 
 
-var grid = require(process.env.PWD+'/grid');
+var grid = require('./grid');
 grid = new grid({});
 
 var gridnode = new Radamn.Node().appendEntity(grid);
