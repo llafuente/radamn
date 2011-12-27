@@ -49,7 +49,7 @@ int inline VERBOSEF(const char *fmt, ...) {
 
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 // on centos: yum install mesa-libGL mesa-libGL-devel mesa-libGLU mesa-libGLU-devel
-#include <SDL/SDL_opengl.h>
+#include <SDL_opengl.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 //#include <GL/glaux.h>
@@ -60,7 +60,7 @@ int inline VERBOSEF(const char *fmt, ...) {
 
 typedef struct OGL_Texture {
     GLuint textureID;
-};
+}OGL_Texture;
 
 typedef struct OGL_DrawBufferTextured {
     GLsizeiptr positionSize;
@@ -71,14 +71,15 @@ typedef struct OGL_DrawBufferTextured {
     GLsizeiptr coordsSize;
     GLfloat* coords;
     GLuint* coordsBuffer;
-};
-struct glColor {
+}OGL_DrawBufferTextured;
+
+typedef struct glColor {
     GLfloat r;
     GLfloat g;
     GLfloat b;
     GLfloat a;
 
-};
+}glColor;
 
 glColor glColor_from(SDL_Color color) {
     glColor output;

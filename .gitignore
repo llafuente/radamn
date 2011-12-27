@@ -2,3 +2,22 @@ build/
 lib/radamn.node
 examples/radamn.log
 examples/node_modules
+
+#remove all dlls for now
+lib/*.dll
+
+# various stuff that VC++ produces/uses
+Debug/
+Release/
+*.sln
+!nodemsi.sln
+*.suo
+*.vcproj
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
+UpgradeLog*.XML
+_UpgradeReport_Files/
+ipch/
+*.sdf
+*.opensdf

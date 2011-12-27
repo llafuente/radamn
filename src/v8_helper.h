@@ -6,10 +6,10 @@
 
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 // on centos: yum install mesa-libGL mesa-libGL-devel mesa-libGLU mesa-libGLU-devel
-#include <SDL/SDL_opengl.h>
-#include <gl.h>
-#include <glu.h>
-//#include <GL/glaux.h>
+#include <SDL_opengl.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
 // include the proper libs
 #endif

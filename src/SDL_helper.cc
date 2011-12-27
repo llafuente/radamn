@@ -44,7 +44,7 @@ inline SDL_Rect* getFullRectSurface(SDL_Surface* surface) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-int nextpoweroftwo(int x) {
-    double logbase2 = log(x) / log(2);
-    return (int) round(pow(2,ceil(logbase2)));
+int nextpoweroftwo(float x) {
+    double logbase2 = log(x) / log(2.0f);
+	return (int) floor(pow(2,ceil(logbase2))  + 0.5 );
 }
