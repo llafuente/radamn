@@ -58,14 +58,6 @@ Required libraries:
     make; make install
     cd ..</pre>
 
-### SDL_gfx (software rendered, almost deprecated)
-If you plan to use software renderer, I dont know If my plan is to suppor it myself right now...
-<pre>    wget http://www.ferzkopp.net/Software/SDL_gfx-2.0/SDL_gfx-2.0.22.tar.gz
-    tar xsfv SDL_gfx-2.0.22.tar.gz
-    cd SDL_gfx-2.0.22
-    ./configure  --prefix=/usr --bindir=/usr/bin/ --libdir=/usr/lib/
-    make; make install</pre>
-
 <pre>    cd radamn
     node-waf configure build</pre>
 

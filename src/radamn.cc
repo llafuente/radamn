@@ -1,6 +1,5 @@
 #include "radamn.h"
 
-#include <SDL/SDL_gfxBlitFunc.h> // blit + resize
 #include <SDL_version.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>

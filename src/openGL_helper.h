@@ -4,9 +4,9 @@
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 // on centos: yum install mesa-libGL mesa-libGL-devel mesa-libGLU mesa-libGLU-devel
 // and "X", in my case gnome
-#include <SDL/SDL_opengl.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
+#include <SDL_opengl.h>
+#include <gl.h>
+#include <glu.h>
 //#include <GL/glaux.h>
 
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES

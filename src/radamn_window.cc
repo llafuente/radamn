@@ -255,6 +255,9 @@ static v8::Handle<v8::Value> Radamn::Window::transform(const v8::Arguments& args
 	V8_ARG_TO_FLOAT(4, m[12]); //dx);
 	V8_ARG_TO_FLOAT(5, m[13]); //dy);
 
+	if(isnan(m[0])) {
+		return v8::ThrowException(v8::Exception::Error(v8::String::New("NaN!")));
+	}
 
 	VERBOSE << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
 	VERBOSE << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;

@@ -35,11 +35,7 @@ def build(bld):
   obj = bld.new_task_gen('cxx', 'shlib', 'node_addon')
   obj.target = "radamn"
   obj.cxxflags = ["-pthread", "-Wall"]
-  obj.linkflags = ["-lSDL_ttf", "-lSDL_image", "-lSDL_gfx", "-lGL", "-lGLU"]
-  obj.includes = ["/usr/include/SDL", "./src"]
-#  obj.source = ["src/radamn.cc", "src/radamn_image.cc", "src/radamn_window.cc", "src/radamn_font.cc", "src/SDL_helper.cc", "src/v8_helper.cc"]
-#  obj.source = [ "src/radamn_font.cc"]
-#  obj.source = [ "src/radamn_window.cc"]
-#  obj.source = ["src/SDL_helper.cc", "src/v8_helper.cc","src/radamn_image.cc", "src/radamn_window.cc", "src/radamn_font.cc", "src/radamn.cc"]
+  obj.linkflags = ["-lSDL_ttf", "-lSDL_image", "-lGL", "-lGLU"]
+  obj.includes = ["/usr/include/SDL", "/usr/include/GL", "./src"]
   obj.source = ["src/radamn.cc"]
   obj.uselib = "SDL"
