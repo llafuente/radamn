@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from os import popen
+import shutil
 
 srcdir = '.'
 blddir = 'build'
@@ -39,3 +40,6 @@ def build(bld):
   obj.includes = ["/usr/include/SDL", "/usr/include/GL", "./src"]
   obj.source = ["src/radamn.cc"]
   obj.uselib = "SDL"
+
+def install(bld):
+  shutil.copy2('./build/Release/radamn.node', "./lib/radamn.node")

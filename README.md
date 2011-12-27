@@ -59,7 +59,8 @@ Required libraries:
     cd ..</pre>
 
 <pre>    cd radamn
-    node-waf configure build</pre>
+    node-waf configure build install
+	this will not install into your system, just move radamn.node to lib, needed to run everything properly</pre>
 
 
 ### my test enviroment
