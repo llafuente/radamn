@@ -108,7 +108,7 @@ var Radamn = new Class({
 		// this is how you hack the restriction of scaling the root node
 		// this is done this way so YOU KNOW WHAT YOU ARE DOING!
 		var scale_matrix = Matrix2D.scalingMatrix(width / internal_width, height / internal_height);
-		window.getRootNode().getMatrix().multiply(scale_matrix);
+		window.getRootNode().matrix.multiply(scale_matrix);
 
         //this.Input.addEvent("quit");
         return window;
@@ -366,7 +366,7 @@ Radamn.Window = new Class({
      */
     __renderNode: function(ctx, node, delta) {
         ctx.save();
-        node.getMatrix().applyToCanvas(ctx);
+        node.matrix.applyToCanvas(ctx);
         var i =0;
         for(;i<node.childEntities.length; ++i) {
             node.childEntities[i].draw(ctx, delta);
@@ -382,7 +382,9 @@ Radamn.Window = new Class({
      * @type {Function}
      */
     render: function(delta) {
+		console.log("-------");
         this.__renderNode(this.getCanvas(), this.rootNode, delta);
+		console.log("-------");
     },
     ray: function(x,y) {
         return [this.rootNode];
@@ -1114,9 +1116,9 @@ Radamn.Canvas = new Class({
 					i=0,
 					max = Math.PI * 2;
 				for (; i < max; i+=0.2) {
-					path.push([prim.center.x + Math.sin(i) * prim.r, prim.center.y + Math.cos(i) * prim.r]);
+					path.push([prim.c.x + Math.sin(i) * prim.r, prim.c.y + Math.cos(i) * prim.r]);
 				}
-				path.push([prim.center.x + Math.sin(max) * prim.r, prim.center.y + Math.cos(max) * prim.r]);
+				path.push([prim.c.x + Math.sin(max) * prim.r, prim.c.y + Math.cos(max) * prim.r]);
 				break;
 			case 'line2' :
 				break;
@@ -1335,22 +1337,15 @@ Radamn.Node = new Class({
      */
     getDerivedPosition: function() {
         var node = this;
-        if(node.isRoot()) return this.getMartix().getPosition();
+        if(node.isRoot()) return this.matrix.getPosition();
 
         var out = new Vec2(0, 0);
         do {
-            out = out.plus(node.getMatrix().getPosition());
+            out = out.plus(node.matrix.getPosition());
             node = node.parentNode;
         } while (!node.isRoot());
 
         return out;
-    },
-    /**
-     * @member Node
-     * @returns {TranformMatrix}
-     */
-    getMatrix : function() {
-        return this.matrix;
     },
     /**
      * @member Node

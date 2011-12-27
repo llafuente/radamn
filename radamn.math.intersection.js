@@ -3,15 +3,15 @@
 */
 Math.intersection_circle_vs_circle = function (acircle, bcircle) {
     var result,
-		c1 = acircle.center,
-		c2 = bcircle.center,
+		c1 = acircle.c,
+		c2 = bcircle.c,
 		r1 = acircle.r,
 		r2 = bcircle.r,
 		// Determine minimum and maximum radii where circles can intersect
 		r_max = acircle.r + bcircle.r,
 		r_min = Math.abs(acircle.r - bcircle.r),
 		// Determine actual distance between circle circles
-		c_dist = Math.distance(acircle.center, bcircle.center );
+		c_dist = Math.distance(acircle.c, bcircle.c );
 
     if ( c_dist > r_max ) {
         result = { success: false, reason: "outside"};
@@ -45,7 +45,7 @@ Math.intersection_circle_vs_circle = function (acircle, bcircle) {
 * @member Math
 */
 Math.intersection_circle_vs_line2 = function (circle, line2) {
-    var c = circle.center,
+    var c = circle.c,
 		a1 = new Vec2(line2.x1, line2.y1),
 		a2 = new Vec2(line2.x2, line2.y2),
 		result,
@@ -125,7 +125,7 @@ Math.intersection_circle_vs_rectangle = function (circle, rectangle) {
  * @member Math
 */
 Math.intersection_circle_vs_vec2 = function (circle, vec2) {
-	var distance_to_center = Math.distance_vec2_vs_vec2(circle.center, vec2);
+	var distance_to_center = Math.distance_vec2_vs_vec2(circle.c, vec2);
 
 	if(Math.abs(distance_to_center) < Math.EPS) {
 		return {success: true, reason: "collide", points: [vec2]};

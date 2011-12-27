@@ -5,9 +5,19 @@ Math.EPS = 10e-3;
 Math.RAD_TO_DEG = 180 / Math.PI;
 Math.DEG_TO_RAD = Math.PI / 180;
 
-require(process.env.PWD + "/../radamn.math.types.js");
-require(process.env.PWD + "/../radamn.math.distance.js");
-require(process.env.PWD + "/../radamn.math.intersection.js");
+Math.clamp = function(f, min, max) {
+	return Math.min(Math.max(f, min), max);
+};
+Math.lerp = function(f1, f2, t) {
+	return f1*(1.0 - t) + f2*t;
+};
+Math.lerpconst = function(f1, f2, d){
+	return f1 + Math.clamp(f2 - f1, -d, d);
+}
+
+require("./radamn.math.types.js");
+require("./radamn.math.distance.js");
+require("./radamn.math.intersection.js");
 
 /**
 * @member Math

@@ -104,11 +104,6 @@ console.log(typeOf(polygon));
 console.log((polygon));
 
 
-var zz = new AABB2(2,2,4,4);
-console.log(typeOf(zz));
-
-
-
 // visual test
 var win = Radamn.createWindow(640, 480);
 win.setCaption("math", "math");
@@ -134,7 +129,7 @@ var collision_test_circle = new Circle(new Vec2(0,0), 30);
 collision_test_circle.drawOptions = {color: "rgb(0,0,255)"};
 node = win.getRootNode().createNode();
 collideNodeList.push(node);
-node.getMatrix().translate(50,50);
+node.matrix.translate(50,50);
 
 node.appendEntity(collision_test_circle);
 node.addToBody(collision_test_circle);
@@ -143,23 +138,24 @@ node.addToBody(collision_test_circle);
 //rectangle
 var collision_test_rect = new Rectangle(new Vec2(0,0), new Vec2(50,50));
 collision_test_rect.drawOptions = {color: "rgb(0,0,255)"};
-node = win.getRootNode().createNode();
-collideNodeList.push(node);
-node.getMatrix().translate(150,50);
+var node2 = win.getRootNode().createNode();
+collideNodeList.push(node2);
+node2.matrix.translate(150,50);
 
-node.appendEntity(collision_test_rect);
-node.addToBody(collision_test_rect);
+node2.appendEntity(collision_test_rect);
+node2.addToBody(collision_test_rect);
 
 
 //segment2
 var collision_test_seg = new Segment2(new Vec2(0,0), new Vec2(50,50));
 collision_test_seg.drawOptions = {style: "stroke", color: "rgb(255,255,255)", lineWidth: 1};
-node = win.getRootNode().createNode();
-collideNodeList.push(node);
-node.getMatrix().translate(100,100);
+var node3 = win.getRootNode().createNode();
+collideNodeList.push(node3);
 
-node.appendEntity(collision_test_seg);
-node.addToBody(collision_test_seg);
+node3.matrix.translate(100,100);
+
+node3.appendEntity(collision_test_seg);
+node3.addToBody(collision_test_seg);
 
 
 

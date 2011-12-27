@@ -442,8 +442,8 @@ module.exports.TMX = new Class({
      * @params {Number} layerid
      */
     parseObject: function(nodeEl, layerid) {
-	
-		var gid = parseInt(nodeEl.attributes.gid, 10) -1,
+		var gid = parseInt(nodeEl.attributes.gid, 10) -1;
+
 		// is an Object
 		if(gid > -1) {
 			var obj = {

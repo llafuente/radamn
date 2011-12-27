@@ -59,6 +59,8 @@ var childnode1_tween = new Fx.Tween(childnode1, {
     fps: 12
 });
 
+console.log("!!!!");
+
 // chain! and morph!
 childnode1_tween.start("x", 0, 250, false);
 childnode1_tween.addEventOnce("complete", function() {
@@ -74,6 +76,7 @@ childnode1_tween.addEventOnce("complete", function() {
     });
 });
 
+console.log("***");
 
 var fps = require(process.env.PWD+'/fps');
 fps = new fps({

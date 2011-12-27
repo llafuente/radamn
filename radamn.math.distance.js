@@ -10,9 +10,9 @@ Math.distance_4points = function(x1,y1,x2,y2) {
 /**
 * @member Math
 */
-Math.distance_circle_vs_circle = function(a,b) {
-	var dist = Math.distance_vec2_vs_vec2(a.center, b.center);
-    return Math.max(0, dist - a.r - b.r);
+Math.distance_circle_vs_circle = function(acircle, bcircle) {
+	var dist = Math.distance_vec2_vs_vec2(acircle.c, bcircle.c);
+    return Math.max(0, dist - acircle.r - bcircle.r);
 };
 /**
 * @member Math
@@ -41,7 +41,7 @@ Math.distance_line2_vs_vec2 = function(line, point) {
 * @member Math
 */
 Math.distance_rectangle_vs_rectangle = function(rect1, rect2) {
-	return rect1.center().sub(rect2.center());
+	return rect1.c().sub(rect2.c());
 };
 /**
 * @member Math

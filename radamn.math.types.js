@@ -47,13 +47,6 @@ Vec2.implement({
      * @member Vec2
      * @returns Vec2 this
      */
-    lerp : function(that,t){
-        return new Vec2(this.x+(that.x-this.x)*t,this.y+(that.y-this.y)*t);
-    },
-    /**
-     * @member Vec2
-     * @returns Vec2 this
-     */
     zero: function() {
         this.x = 0;
         this.y = 0;
@@ -69,20 +62,48 @@ Vec2.implement({
 		
 		// Will also work for zero-sized vectors, but will change nothing
 		if ( fLength > Math.EPS ) {
-			var fInvLength = 1.0f / fLength;
+			var fInvLength = 1.0 / fLength;
 			this.x *= fInvLength;
 			this.y *= fInvLength;
 		}
 		
 		return fLength;
 	},
+    /**
+     * @member Vec2
+     * @returns Vec2 this
+     */
+	negative: function() {
+		this.x = -this.x;
+		this.y = -this.y;
+		
+		return this;
+	},
+    /**
+     * @member Vec2
+     * @param {Vec2} v2
+     * @returns Number this
+     */
+	dist: function(v2){
+		return this.clone().sub(v2).length();
+		//return cpvlength(cpvsub(v1, v2));
+	},
+	distSquared: function(v2){
+		return this.clone().sub(v2).lengthSquared();
+		//return cpvlengthsq(cpvsub(v1, v2));
+	},
+	near: function(v2, dist){
+		return this.distSquared(v2) < dist * dist;
+		//return cpvdistsq(v1, v2) < dist*dist;
+	},
 	/**
 	 * @member Vec2
+     * @param {Vec2} v2
 	 * @return Vec2 this
 	 */
-	midPoint: function(vec) {
-		this.x = ( this.x + vec.x ) * 0.5f;
-		this.y = ( this.y + vec.y ) * 0.5f;
+	midPoint: function(v2) {
+		this.x = ( this.x + v2.x ) * 0.5;
+		this.y = ( this.y + v2.y ) * 0.5;
 		
 		return this;
 	},
@@ -99,10 +120,10 @@ Vec2.implement({
 	},
 	/**
 	 * @member Vec2
+     * @param {Vec2} normal
 	 * @return Vec2 this
 	 */
 	reflect: function(normal) {
-	
 		var aux = this.clone().dot(normal).mul(normal)
 	
 		this.sub(aux.mul(2));
@@ -111,7 +132,8 @@ Vec2.implement({
 	},
     /**
      * @member Vec2
-     * @param {Vec2} b
+     * @param {Vec2|Number} b
+     * @param {Number|Null} a
      * @returns Vec2 this
      */
     sub : function(b, a) {
@@ -144,7 +166,8 @@ Vec2.implement({
     },
     /**
      * @member Vec2
-     * @param {Vec2} b
+     * @param {Vec2|Number} b
+     * @param {Number|Null} a
      * @returns Vec2 this
      */
     plus : function(b, a) {
@@ -181,7 +204,7 @@ Vec2.implement({
      */
     mul : function(factor) {
         var btype = typeOf(factor);
-		assert.notEqual(["vec2", "number"].contains(btype), false, "Vec2::mul, b is not a Vec2 or a Number");
+		assert.notEqual(["vec2", "number"].contains(btype), false, "Vec2::mul("+btype+"), b is not a Vec2 or a Number");
 		
         switch(btype) {
             case 'number' :
@@ -197,16 +220,150 @@ Vec2.implement({
     },
     /**
      * @member Vec2
-     * @param {Vec2} b
+     * @param {Vec2} v2
      * @returns Number
      */
-    dot : function(b) {
-		assert.notEqual(typeOf(b) == "vec2", false, "Vec2::dot, b is not a Vec2");
+    dot : function(v2) {
+		assert.notEqual(typeOf(v2) == "vec2", false, "Vec2::dot, v2 is not a Vec2");
 
-        return this.x * b.x + this.y * b.y;
+        return this.x * v2.x + this.y * v2.y;
     },
-	cross: function(rkVector) {
-		return this.x * rkVector.y - this.y * rkVector.x;
+    /**
+     * @member Vec2
+     * @param {Vec2} v2
+     * @returns Number
+     */
+	cross: function(v2) {
+		return this.x * v2.y - this.y * v2.x;
+	},
+    /**
+     * @member Vec2
+     * @returns Vec2 this
+     */
+	perp: function() {
+		var aux = this.x;
+		this.x = -this.y;
+		this.y = aux;
+		
+		return this;
+	},
+    /**
+     * @member Vec2
+     * @returns Vec2 this
+     */
+	rerp: function() {
+		var aux = this.x;
+		this.x = this.y;
+		this.y = -aux;
+		
+		return this;
+	},
+    /**
+     * @member Vec2
+     * @param {Vec2} v2
+     * @param {Number} t
+     * @returns Vec2 this
+     */
+    lerp : function(v2, t){
+		this.x = this.x+(v2.x-this.x)*t;
+		this,y = this.y+(v2.y-this.y)*t;
+		
+		return this;
+    },
+    /**
+     * @member Vec2
+     * @param {Vec2} v2
+     * @param {Number} d
+     * @returns Vec2 this
+     */
+	lerpconst: function(v2, d){
+		this.plus(v2.clamp(v1,d));
+		
+		return this;
+		//return cpvadd(v1, cpvclamp(cpvsub(v2, v1), d));
+	},
+    /**
+     * @member Vec2
+     * @param {Vec2} v2
+     * @param {Number} t
+     * @returns Vec2 cloned!!
+     */
+	slerp: function(v2, t){
+		var omega = Math.acos( this.dot(v2) );
+		
+		if(omega){
+			var denom = 1.0/Math.sin(omega);
+			
+			var comp1 = this.clone().mul(Math.sin((1.0 - t)*omega)*denom);
+			return comp1.plus(v2.clone().mul(Math.sin(t*omega)*denom));
+			
+			//return cpvadd(cpvmult(v1, cpfsin((1.0 - t)*omega)*denom), cpvmult(v2, Math.sin(t*omega)*denom));
+		} else {
+			return this.clone();
+		}
+	},
+    /**
+     * @member Vec2
+     * @param {Vec2} v2
+     * @param {Number} a
+     * @returns Vec2 cloned!!
+     */
+	slerpconst: function(v2, a){
+		var angle = Math.acos(this.dot(v2));
+		return this.slerp(v2, Math.min(a, angle)/angle);
+	},
+    /**
+     * @member Vec2
+     * @param {Number} a Radians!
+     * @returns Vec2 cloned!!
+     */
+	forangle: function(a) {
+		this.x = Math.cos(a);
+		this.y = Math.sin(a);
+		
+		return this;
+	},
+    /**
+     * @member Vec2
+     * @returns Number Radians!
+     */
+	toangle: function() {
+		return Math.atan2(this.y, this.x);
+	},
+    /**
+     * @member Vec2
+     * @param {Vec2} v2
+     * @returns Vec2 this
+     */
+	project: function(v2) {
+		var dot1 = this.dot(v2);
+		var dot2 = v2.dot(v2);
+		
+		this.mul(v2, dot1/dot2);
+		
+		return this;
+	},
+    /**
+     * @member Vec2
+     * @param {Vec2} v2
+     * @returns Vec2 this
+     */
+	rotate: function(v2) {
+		this.x = this.x*v2.x - this.y*v2.y;
+		this.y = this.x*v2.y + this.y*v2.x;
+		
+		return this;
+	},
+    /**
+     * @member Vec2
+     * @param {Vec2} v2
+     * @returns Vec2 this
+     */
+	unrotate: function(v2){
+		this.x = this.x*v2.x + this.y*v2.y;
+		this.y = this.y*v2.x - this.x*v2.y;
+		
+		return this;
 	},
     /**
      * @member Vec2
@@ -287,6 +444,17 @@ Vec2.implement({
 
         return this;
     },
+    /**
+     * @member Vec2
+     * @returns Vec2 cloned!!
+     */
+	clamp: function(len){
+		if(this.dot(this) > len * len) {
+			return this.clone().normalize().mul(len);
+		}
+		
+		return this.clone();
+	},
 	/**
 	 * @member Vec2
 	 * @returns Number 0 equal, 1 top, 2 top-right, 3 right, 4 bottom right, 5 bottom, 6 bottom-left, 7 left, 8 top-left
@@ -515,24 +683,27 @@ var Circle = this.Circle = global.Circle = new Type('Circle', function(object){
 });
 
 Circle.implement({
-    center: null,
+    c: null,
     r: 0,
-    set: function(center, r) {
-        this.center = center.clone();
-        this.r = r;
+    set: function(center, radious) {
+        this.c = center.clone();
+        this.r = radious;
 		
 		return this;
     },
 	clone: function() {
 		var circle =  new Circle();
 		circle.r = this.r;
-		circle.center = this.center.clone();
+		circle.c = this.c.clone();
 		return circle;
 	},
 	translate: function(b,a) {
-		this.center.plus(b,a);
+		this.c.plus(b,a);
 		
 		return this;
+	},
+	applyMatrix: function(matrix) {
+		//matrix.
 	}
 });
 /**
@@ -660,7 +831,7 @@ Polygon.implement({
 var Matrix2D = this.Matrix2D = global.Matrix2D = new Type('Matrix2D', function(object){
 	this.debug("new Matrix2D");
 	this.reset();
-    if(arguments.length == 1) {
+    if(arguments.length == 1 && typeOf(arguments[0]) == "array") {
         this.set(arguments[0]);
     }
     else if(arguments.length == 1) {
@@ -672,7 +843,7 @@ var Matrix2D = this.Matrix2D = global.Matrix2D = new Type('Matrix2D', function(o
 
 Matrix2D.implement({
 	debug: function() {
-		//console.log.apply(arguments);
+		console.log(arguments);
 	},
 	/**
 	 * @type Array
@@ -706,6 +877,11 @@ Matrix2D.implement({
 	 * @member Matrix2D
 	 */
 	reset: function() {
+		/*
+			delete this.p;
+			this.p =[1,0,0,1,0,0];
+		*/
+
 	    this.p[0] = 1;
 		this.p[1] = 0;
 		this.p[2] = 0;
@@ -790,6 +966,7 @@ Matrix2D.implement({
      */
     translate : function(x, y) {
         this.__check_readonly();
+		
 
         this.p[4] += this.p[0] * x + this.p[2] * y;
         this.p[5] += this.p[1] * x + this.p[3] * y;
@@ -968,7 +1145,40 @@ Matrix2D.implement({
     setToCanvas : function(ctx) {
 		this.debug(this.p);
         ctx.setTransform.apply(ctx, this.p);
-    }
+    },
+	apply: function(vec2) {
+		return new Vec2(
+			vec2.x * this.p[0] + vec2.x * this.p[2] + vec2.x * this.p[4],
+			vec2.x * this.p[1] + vec2.x * this.p[3] + vec2.x * this.p[5]
+		);
+	},
+	/**
+	 * @todo do it
+	 */
+	inverse: function() {},
+	/**
+	 * @todo do it
+	 */
+	transpose: function() {},
+	/**
+	 * @todo transform to a 0-6
+	 */
+	determinant: function() {
+		var fCofactor00 = this.p[1][1]*this.p[2][2] -
+		this.p[1][2]*this.p[2][1];
+		var fCofactor10 = this.p[1][2]*this.p[2][0] -
+		this.p[1][0]*this.p[2][2];
+		var fCofactor20 = this.p[1][0]*this.p[2][1] -
+		this.p[1][1]*this.p[2][0];
+
+		var fDet =
+		this.p[0][0]*fCofactor00 +
+		this.p[0][1]*fCofactor10 +
+		this.p[0][2]*fCofactor20;
+
+		return fDet;
+	}
+	
 });
 
 /**
