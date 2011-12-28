@@ -84,10 +84,14 @@ The proyect is not mature enough t start documenting.
 
 Priority
 
-* Compatible events beetween radamn and a browser (almost done: Keyboard, Mouse and Joystick ready)
-* Nodes, with z-index sorting functions (Node ready z-index sorting not done)
 * Sprites
 * Animation (done based on a single image)
+* memoryleak.log (like the old Ogre3d has)
+
+Done
+
+* Compatible events beetween radamn and a browser (almost done: Keyboard, Mouse and Joystick ready)
+* Nodes, with z-index sorting functions (Node ready z-index sorting not done)
 * manage quit the APP, destroy everything. No memory is left behind soldier! (event ready but no memory free)
 
 Someday/sometime

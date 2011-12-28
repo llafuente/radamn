@@ -155,13 +155,11 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
     VERBOSE << "blit image from: " << src << " to:" << dst << ENDL;
     VERBOSE << "blit image from: " << src << " to:" << dst << ENDL;
 
-    debug_SDL_Surface(src);
-    debug_SDL_Surface(dst);
-
     SDL_Rect* dstrect = 0;
     SDL_Rect* srcrect = 0;
 
     if(args.Length() == 4) {
+	VERBOSE << "WTF!" << args[2]->Int32Value();
         dstrect = new SDL_Rect();
         dstrect->x = args[2]->Int32Value();
         dstrect->y = args[3]->Int32Value();
@@ -186,9 +184,6 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
         SDL_RECT_P(dstrect, args[6]->Int32Value(), args[7]->Int32Value(), args[6]->Int32Value() + args[8]->Int32Value(), args[7]->Int32Value() + args[9]->Int32Value())
     }
 
-    debug_SDL_Rect(srcrect);
-    debug_SDL_Rect(dstrect);
-
 #if RADAMN_RENDERER == RADAMN_RENDERER_SOFTWARE
     if (SDL_gfxBlitRGBA(src, srcrect, dst, dstrect) < 0) { //SDL_BlitSurface
         //return ThrowSDLException(__func__);
@@ -199,6 +194,10 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE); transparent ??!
 //endif
+
+    debug_SDL_Surface(src);
+    debug_SDL_Rect(srcrect);
+    debug_SDL_Rect(dstrect);
 
     SDL_RECT_TO_QUAD(src, srcrect, dstrect)
 

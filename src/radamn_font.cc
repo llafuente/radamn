@@ -57,6 +57,8 @@ static v8::Handle<v8::Value> Radamn::Font::getImage(const v8::Arguments& args) {
     /* Use SDL_TTF to render our text */
     //initial = TTF_RenderText_Blended(font, *text, fg_color);
     initial = TTF_RenderText_Solid(font, *text, fg_color);
+	//initial = TTF_RenderUTF8_Blended(font, *text, fg_color);
+	
 
 /*
 initial =
@@ -79,7 +81,7 @@ initial =
     /* Convert the rendered text to a known format */
     w = nextpoweroftwo(initial->w);
     h = nextpoweroftwo(initial->h);
-
+	VERBOSE << "Expand texture to: ["<< w << "," << h << "]";
     image = SDL_CreateRGBSurface(0, w, h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
     SDL_BlitSurface(initial, 0, image, 0);
 
@@ -119,7 +121,7 @@ initial =
 
     if (!image) {
         return ThrowException(v8::Exception::Error(v8::String::Concat(
-            v8::String::New("TTF::"), v8::String::New(TTF_GetError())
+            v8::String::New("TTF::??"), v8::String::New(TTF_GetError())
         )));
     }
 

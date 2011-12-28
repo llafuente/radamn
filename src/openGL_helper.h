@@ -16,18 +16,8 @@
 
 // macros and functions
 
-#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 
-    #define GL_DRAW_TEXTURED_QUAD(uv_x_lleft, uv_y_lleft, uv_x_uright, uv_y_uright, x, y, x_plus_w, y_plus_h)                   \
-        VERBOSE << "quad [";                                                                                           \
-        glTexCoord2f(uv_x_lleft, uv_y_lleft); glVertex3f(x, y, 0);                                                     \
-        VERBOSEC << x << "," << y << "] [";                                                                    \
-        glTexCoord2f(uv_x_uright, uv_y_lleft); glVertex3f(x_plus_w, y, 0);                                             \
-        VERBOSEC << x_plus_w << "," << y << "] [";                                                                    \
-        glTexCoord2f(uv_x_uright, uv_y_uright); glVertex3f(x_plus_w, y_plus_h, 0);                                     \
-        VERBOSEC << x_plus_w << "," << y_plus_h << "] [";                                                                    \
-        glTexCoord2f(uv_x_lleft, uv_y_uright); glVertex3f(x, y_plus_h, 0);                                             \
-        VERBOSEC << x << "," << y_plus_h << "]" << ENDL;                                                              \
+#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 
     #define GL_DRAW_COLORED_QUAD(color_x_lleft, color_y_lleft, color_x_uright, color_y_uright, x, y, x_plus_w, y_plus_h)                   \
     {                                                                                                                                      \
@@ -44,31 +34,52 @@
      }                                                                                                                                     \
 
 
-    #define GL_UV_FROM_SDL(SURFACE, __X, __Y, __W, __H, OUTPUT_NAME)                                                                 \
-        GLfloat OUTPUT_NAME[4]  = {((float) __X) / SURFACE->w,                                                     \
-            ((float) __Y) / SURFACE->h,                                                                            \
-            ((float) (__X + __W)) / SURFACE->w,                                                                \
-            ((float) (__Y + __W)) / SURFACE->h,                                                                \
-         };                                                                                                            \
+	inline void opengl_draw_textured_quad(OGL_Texture* texture, GLfloat* uvs, SDL_Rect* dst) {
+		glEnable(GL_TEXTURE_2D);
+		  glBindTexture( GL_TEXTURE_2D, texture->textureID );
+		    glBegin(GL_QUADS);
+			    VERBOSE << "texture: ID:" << texture->textureID << ENDL;
+			    GLfloat
+					width = dst->x + dst->w,
+					height = dst->y + dst->h;
 
-    // remeber this is only OPENGL, OPENGLES2 it's different
-    #define SDL_RECT_TO_QUAD(TEXTURE, FROM, TO)                                                                        \
-    {                                                                                                                  \
-        GL_UV_FROM_SDL(TEXTURE, FROM->x, FROM->y, FROM->w, FROM->h, UV)                                                                              \
-        VERBOSEF("text-coords [%f,%f,%f,%f]\n", UV[0], UV[1], UV[2], UV[3]);                                           \
-                                                                                                                       \
-        glEnable(GL_TEXTURE_2D);                                                                                       \
-            OGL_Texture* t = (OGL_Texture*)TEXTURE->userdata;                                                          \
-            glBindTexture( GL_TEXTURE_2D, t->textureID );                                                              \
-            glBegin(GL_QUADS);                                                                                         \
-                VERBOSE << "texture: ID:" << t->textureID << " [" << TEXTURE->w << "," << TEXTURE->h << "]"<< ENDL;    \
-                GL_DRAW_TEXTURED_QUAD(                                                                                          \
-                    UV[0], UV[1], UV[2], UV[3],                                                                         \
-                    TO->x, TO->y, TO->w, TO->h                                                                         \
-                )                                                                                                      \
-            glEnd();                                                                                                   \
-        glDisable(GL_TEXTURE_2D);                                                                                      \
-    }                                                                                                                  \
+				VERBOSE << "quad [";                                                                                                               \
+				glTexCoord2f(uvs[0], uvs[1]); glVertex3f(dst->x, dst->y, 0);                                                                         \
+				VERBOSEC << dst->x << "(" << uvs[0] << ")," << dst->y << "(" << uvs[1]<< ")] [";                                                     \
+				glTexCoord2f(uvs[2], uvs[1]); glVertex3f(width, dst->y, 0);                                                                 \
+				VERBOSEC << width << "(" << uvs[2] << ")," << dst->y << "("<< uvs[1]<< "] [";                                               \
+				glTexCoord2f(uvs[2], uvs[3]); glVertex3f(width, height, 0);                                                         \
+				VERBOSEC << width << "(" << uvs[2] << ")," << height << "(" << uvs[3] << ")] [";                                    \
+				glTexCoord2f(uvs[0], uvs[3]); glVertex3f(dst->x, height, 0);                                                                 \
+				VERBOSEC << dst->x << "(" << uvs[0] <<")," << height << "(" << uvs[3] <<")]" << ENDL;
+
+		    glEnd();
+		glDisable(GL_TEXTURE_2D);
+	}
+
+	inline GLfloat* opengl_uv_from(SDL_Surface* surface, SDL_Rect* rect) {
+		GLfloat* uvs = (GLfloat*) malloc(4*sizeof(GLfloat));
+
+		uvs[0] = rect->x / surface->w;
+		uvs[1] = rect->y / surface->h;
+		uvs[2] = rect->x + rect->w / surface->w;
+		uvs[3] = rect->y + rect->h / surface->h;
+		
+		VERBOSE "text-coords [" << uvs[0] << "," << uvs[1] << "," << uvs[2] << "," << uvs[3] << ENDL;
+
+		return uvs;
+	}
+
+	// remeber this is only OPENGL, OPENGLES2 it's different
+	inline void opengl_draw_textured_SDL_Rect(SDL_Surface* surface, SDL_Rect* from, SDL_Rect* to) {
+		GLfloat* uvs = opengl_uv_from(surface, from);
+		opengl_draw_textured_quad(
+		    ((OGL_Texture*)surface->userdata),
+			uvs,
+			to);
+		free(uvs);
+	}
+
 
 #endif
 
