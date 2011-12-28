@@ -87,6 +87,9 @@ Priority
 * Sprites
 * Animation (done based on a single image)
 * memoryleak.log (like the old Ogre3d has)
+* Paralax mapping (http://en.wikipedia.org/wiki/Parallax_scrolling)
+* canvas blending modes
+* drag&drop ¿using mootools?
 
 Done
 
