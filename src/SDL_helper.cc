@@ -5,23 +5,23 @@
 // ----------------------------------------------------------------------------------------------------
 //
 
-void debug_SDL_Rect(SDL_Rect* rect) {
-  VERBOSE <<"SDL_Rect x: " << rect->x << " y: " << rect->y << " w: " << rect->w << " h: " << rect->h << std::endl;
+void debug_SDL_Rect(const SDL_Rect* rect, const char* id) {
+  VERBOSE << id << "[ x: " << rect->x << " y: " << rect->y << " w: " << rect->w << " h: " << rect->h << "]" << std::endl;
 }
 
 //
 // ----------------------------------------------------------------------------------------------------
 //
 
-void debug_SDL_Surface(SDL_Surface* surface) {
-  VERBOSE <<"SDL_Surface w: " << surface->w << " h: " << surface->h << std::endl;
+void debug_SDL_Surface(const SDL_Surface* surface, const char* id) {
+  VERBOSE << id << "[ w: " << surface->w << " h: " << surface->h << "]" << std::endl;
 }
 
 //
 // ----------------------------------------------------------------------------------------------------
 //
 
-void debug_SDL_Color(SDL_Color* color) {
+void debug_SDL_Color(const SDL_Color* color) {
   VERBOSE <<"SDL_Color rgb( " << color->r << " , " << color->g << " , " << color->b << ")" <<std::endl;
 }
 
@@ -30,7 +30,7 @@ void debug_SDL_Color(SDL_Color* color) {
 //
 
 inline SDL_Rect* getFullRectSurface(SDL_Surface* surface) {
-    SDL_Rect* output = new SDL_Rect();
+	SDL_Rect* output = (SDL_Rect *) SDL_malloc(sizeof(SDL_Rect));
 
     output->x = 0;
     output->y = 0;

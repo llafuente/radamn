@@ -28,8 +28,7 @@ Radamn.addEvent("keydown", function(e) {
 });
 
 
-var TMX = new Radamn.TMX("./resources/tmx/tmx-orthogonal-scrolled.tmx", {
-});
+var TMX = new Radamn.TMX("./resources/tmx/tmx-orthogonal-scrolled.tmx", {});
 
 var tmxnode = new Radamn.Node();
 
@@ -55,8 +54,8 @@ win.onRequestFrame = function(delta) {
     ++counter;
 
     win.render(delta);
-    tmxnode.matrix.translate(-64, false);
+    tmxnode.matrix.translate(-(delta / 1000) * 100, false);
 };
 
 Radamn.listenInput(50);
-Radamn.start(1000);
+Radamn.start(50);

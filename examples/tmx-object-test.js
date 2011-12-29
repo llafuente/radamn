@@ -28,8 +28,7 @@ Radamn.addEvent("keydown", function(e) {
 });
 
 
-var TMX = new Radamn.TMX("./resources/tmx/tmx-object-test.tmx", {
-});
+var TMX = new Radamn.TMX("./resources/tmx/tmx-object-test.tmx", {});
 
 var tmxnode = new Radamn.Node();
 

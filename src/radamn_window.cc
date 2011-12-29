@@ -146,9 +146,9 @@ static v8::Handle<v8::Value> Radamn::Window::scale(const v8::Arguments& args) {
 //
 
 static v8::Handle<v8::Value> Radamn::Window::save(const v8::Arguments& args) {
-	VERBOSE << "save" << std::endl;
+	//VERBOSE << "save" << std::endl;
 	glPushMatrix();
-	VERBOSE << "saved" << std::endl;
+	//VERBOSE << "saved" << std::endl;
 	return v8::True();
 }
 
@@ -157,9 +157,9 @@ static v8::Handle<v8::Value> Radamn::Window::save(const v8::Arguments& args) {
 //
 
 static v8::Handle<v8::Value> Radamn::Window::restore(const v8::Arguments& args) {
-	VERBOSE << "restore" << std::endl;
+	//VERBOSE << "restore" << std::endl;
 	glPopMatrix();
-	VERBOSE << "restored" << std::endl;
+	//VERBOSE << "restored" << std::endl;
 	return v8::True();
 }
 

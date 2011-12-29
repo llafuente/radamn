@@ -22,7 +22,7 @@ namespace Radamn {
 #define VERBOSE Radamn::verbose << __FILE__ << "@" << __LINE__ << ":" << __FUNCTION__ << " "
 #define VERBOSEC Radamn::verbose
 
-int inline VERBOSEF(const char *fmt, ...) {
+inline char* VERBOSEF(const char *fmt, ...) {
     va_list ap;
     int r;
     #ifdef __OPTIMIZE__
@@ -31,9 +31,9 @@ int inline VERBOSEF(const char *fmt, ...) {
     #endif
     va_start (ap, fmt);
     //r = vprintf (string, ap);
-    r= vsprintf(Radamn::__bigcharbuffer, fmt, ap);
+    r = vsprintf(Radamn::__bigcharbuffer, fmt, ap);
     va_end (ap);
-    return r;
+    return Radamn::__bigcharbuffer;
 }
 
 #define ENDL std::endl

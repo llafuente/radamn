@@ -119,120 +119,88 @@ static v8::Handle<v8::Value> Radamn::Image::destroy(const v8::Arguments& args) {
 //
 
 static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
-  v8::HandleScope scope;
+	v8::HandleScope scope;
 
-  VERBOSE << "draw[" << args.Length() << "] expected[1111] recieved["
-    << args[0]->IsObject()
-    << args[1]->IsObject()
-    << args[2]->IsNumber()
-    << args[3]->IsNumber()
-    << "]"
-    << ENDL;
+	VERBOSE << "draw[" << args.Length() << "] expected[1111] recieved["
+	<< args[0]->IsObject()
+	<< args[1]->IsString()
+	<< args[2]->IsNumber()
+	<< args[3]->IsNumber()
+	<< "]"
+	<< ENDL;
 
-  // 3 args! <image>,<image>,<number>,<number>
+	// 3 args! <image>,<image>,<number>,<number>
 
-  bool error = false;
+	bool error = false;
 
-  V8_CHECK_ARGS(0, Object)
-  V8_CHECK_ARGS(1, Object)
-  V8_CHECK_ARGS(1, Number)
-  V8_CHECK_ARGS(1, Number)
+	V8_CHECK_ARGS(0, Object)
+	V8_CHECK_ARGS(1, String)
+	V8_CHECK_ARGS(1, Number)
+	V8_CHECK_ARGS(1, Number)
 
-  if(!(
-    args.Length() == 4
-    || args.Length() == 6
-    || args.Length() == 10
-  )) {
-      return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid argument count [4,6,10]")));
-  }
+	if(!(
+		args.Length() == 4
+		|| args.Length() == 6
+		|| args.Length() == 10
+		)) {
+		return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid argument count [4,6,10]")));
+	}
 
-    SDL_Surface* src = 0;
-    SDL_Surface* dst = 0;
 
-    V8_UNWRAP_POINTER_ARG(0, SDL_Surface, src)
-    V8_UNWRAP_POINTER_ARG(1, SDL_Surface, dst)
+	SDL_Surface* src = 0;
 
-    VERBOSE << "blit image from: " << src << " to:" << dst << ENDL;
-    VERBOSE << "blit image from: " << src << " to:" << dst << ENDL;
+	V8_UNWRAP_POINTER_ARG(0, SDL_Surface, src)
 
-    SDL_Rect* dstrect = 0;
-    SDL_Rect* srcrect = 0;
+	v8::String::Utf8Value mode(args[1]);
 
-    if(args.Length() == 4) {
-	VERBOSE << "WTF!" << args[2]->Int32Value();
-        dstrect = new SDL_Rect();
-        dstrect->x = args[2]->Int32Value();
-        dstrect->y = args[3]->Int32Value();
-        dstrect->w = dstrect->x + src->w;
-        dstrect->h = dstrect->y + src->h;
+	opengl_operators emode = opengl_operator_from_string(*mode);
 
-        srcrect = getFullRectSurface(src);
-    }
+	SDL_Rect* dstrect = 0;
+	SDL_Rect* srcrect = 0;
 
-    if(args.Length() == 6) {
-        dstrect = new SDL_Rect();
-        dstrect->x = args[2]->Int32Value();
-        dstrect->y = args[3]->Int32Value();
-        dstrect->w = dstrect->x + args[4]->Int32Value();
-        dstrect->h = dstrect->y + args[5]->Int32Value();
+	if(args.Length() == 4) {
+		VERBOSE << "WTF!" << args[2]->Int32Value();
+		dstrect = new SDL_Rect();
+		dstrect->x = args[2]->Int32Value();
+		dstrect->y = args[3]->Int32Value();
+		dstrect->w = src->w;
+		dstrect->h = src->h;
 
-        SDL_RECT_P(srcrect, 0, 0, args[4]->Int32Value(), args[5]->Int32Value())
-    }
+		srcrect = getFullRectSurface(src);
+	}
 
-    if(args.Length() == 10) {
-        SDL_RECT_P(srcrect, args[2]->Int32Value(), args[3]->Int32Value(), args[4]->Int32Value(), args[5]->Int32Value())
-        SDL_RECT_P(dstrect, args[6]->Int32Value(), args[7]->Int32Value(), args[6]->Int32Value() + args[8]->Int32Value(), args[7]->Int32Value() + args[9]->Int32Value())
-    }
+	if(args.Length() == 6) {
+		dstrect = new SDL_Rect();
+		dstrect->x = args[2]->Int32Value();
+		dstrect->y = args[3]->Int32Value();
+		dstrect->w = args[4]->Int32Value();
+		dstrect->h = args[5]->Int32Value();
 
-#if RADAMN_RENDERER == RADAMN_RENDERER_SOFTWARE
-    if (SDL_gfxBlitRGBA(src, srcrect, dst, dstrect) < 0) { //SDL_BlitSurface
-        //return ThrowSDLException(__func__);
-    }
-#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
-// if alpha!
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE); transparent ??!
-//endif
+		SDL_RECT_P(srcrect, 0, 0, args[4]->Int32Value(), args[5]->Int32Value())
+	}
 
-    debug_SDL_Surface(src);
-    debug_SDL_Rect(srcrect);
-    debug_SDL_Rect(dstrect);
+	if(args.Length() == 10) {
+		SDL_RECT_P(srcrect, args[2]->Int32Value(), args[3]->Int32Value(), args[4]->Int32Value(), args[5]->Int32Value())
+		//SDL_RECT_P(dstrect, args[6]->Int32Value(), args[7]->Int32Value(), args[6]->Int32Value() + args[8]->Int32Value(), args[7]->Int32Value() + args[9]->Int32Value())
+		SDL_RECT_P(dstrect, args[6]->Int32Value(), args[7]->Int32Value(), args[8]->Int32Value(), args[9]->Int32Value())
+	}
 
-    SDL_RECT_TO_QUAD(src, srcrect, dstrect)
+#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 
-/*
-    GLfloat xLowerLeft  = ((float) srcrect->x) / src->w;
-    GLfloat yLowerLeft  = ((float) srcrect->y) / src->h;
-    GLfloat xUpperRight = ((float) (srcrect->x + srcrect->w)) / src->w;
-    GLfloat yUpperRight = ((float) (srcrect->y + srcrect->h)) / src->h;
+	debug_SDL_Surface(src);
+	debug_SDL_Rect(srcrect);
+	debug_SDL_Rect(dstrect);
 
-    VERBOSEF("text-coords [%f,%f,%f,%f]\n", xLowerLeft, yLowerLeft, xUpperRight, yUpperRight);
-
-    glEnable(GL_TEXTURE_2D);
-        OGL_Texture* t = (OGL_Texture*)src->userdata;
-        glBindTexture( GL_TEXTURE_2D, t->textureID );
-        glBegin(GL_QUADS);
-            VERBOSE << "texture: ID:" << t->textureID << " [" << src->w << "," << src->h << "]"<< ENDL;
-            VERBOSE << "quad [";
-            glTexCoord2f(xLowerLeft, yLowerLeft); glVertex3f(dstrect->x, dstrect->y, 0);
-            VERBOSEC << dstrect->x << "," << dstrect->y << "] [";
-            glTexCoord2f(xUpperRight, yLowerLeft); glVertex3f(dstrect->w, dstrect->y, 0);
-            VERBOSEC << dstrect->w << "," << dstrect->y << "] [";
-            glTexCoord2f(xUpperRight, yUpperRight); glVertex3f(dstrect->w, dstrect->h, 0);
-            VERBOSEC << dstrect->w << "," << dstrect->h << "] [";
-            glTexCoord2f(xLowerLeft, yUpperRight); glVertex3f(dstrect->x, dstrect->h, 0);
-            VERBOSEC << dstrect->x << "," << dstrect->h << "]" << ENDL;
-        glEnd();
-    glDisable(GL_TEXTURE_2D);
-*/
-    glDisable(GL_BLEND);
+	opengl_draw_textured_SDL_Rect(src, srcrect, dstrect, emode);
 
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
-    return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));
+	return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));
 #endif
 
-    return v8::True();
+	SDL_free(srcrect);
+	SDL_free(dstrect);
+
+	return v8::True();
 }
 
 

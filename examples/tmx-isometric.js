@@ -28,15 +28,12 @@ Radamn.addEvent("keydown", function(e) {
 });
 
 
-var TMX = new Radamn.TMX("./resources/tmx/tmx-isometric.tmx", {
-    offset: {
-        x: false
-    }
-});
+var TMX = new Radamn.TMX("./resources/tmx/tmx-isometric.tmx", {});
 
 var tmxnode = new Radamn.Node();
 
 tmxnode.appendEntity(TMX);
+tmxnode.matrix.translate(250, 0);
 win.getRootNode().appendChild(tmxnode);
 
 
