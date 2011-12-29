@@ -31,7 +31,6 @@
     v8::Handle<v8::Object> result = templ->NewInstance();                                          \
     v8::Handle<v8::External> request_ptr = v8::External::New(POINTER);                             \
     result->SetInternalField(0, request_ptr);                                                      \
-    VERBOSE << "close";                                                                          \
     output_var = handle_scope.Close(result);                                                       \
 
 
@@ -149,7 +148,24 @@ POINTER->y = Y;                                 \
 POINTER->w = W;                                 \
 POINTER->h = H;                                 \
 
-#define RETURN_WRAP_IMAGE(POINTER) V8_RETURN_WRAPED_POINTER(scope, SDL_Surface, POINTER)
+#define RETURN_WRAP_IMAGE(POINTER)                                                                 \
+    if (SDL_Surface_template_.IsEmpty()) {                                                      \
+        v8::HandleScope handle_scope2;                                                             \
+        v8::Handle<v8::ObjectTemplate> result = v8::ObjectTemplate::New();                         \
+        result->SetInternalFieldCount(1);                                                          \
+        v8::Handle<v8::ObjectTemplate> raw_template = handle_scope2.Close(result);                 \
+        SDL_Surface_template_ = v8::Persistent<v8::ObjectTemplate>::New(raw_template);          \
+    }                                                                                              \
+                                                                                                   \
+    v8::Handle<v8::ObjectTemplate> templ = SDL_Surface_template_;                               \
+    v8::Handle<v8::Object> result = templ->NewInstance();                                          \
+    v8::Handle<v8::External> request_ptr = v8::External::New(POINTER);                             \
+    result->SetInternalField(0, request_ptr);                                                      \
+    result->Set(v8::String::New("width"), v8::Number::New(POINTER->w));                                                      \
+    result->Set(v8::String::New("height"), v8::Number::New(POINTER->h));                                                      \
+    return result;                                                                                    \
+
+
 #define UNWRAP_IMAGE(ARG_NUMBER, POINTER) V8_UNWRAP_POINTER_ARG(0, target)
 
 

@@ -17,4 +17,5 @@ echo "new size: ${p2w} - ${p2h}"
 
 convert ${input} -background transparent -gravity NorthWest -define png:bit-depth=16 -extent ${p2w}x${p2h} ${output}
 
-# ./pow2texture.sh '/mnt/hgfs/C/noboxout/nodejs/radamn/examples/tileset-platformer.png' '/mnt/hgfs/C/noboxout/nodejs/radamn/examples/tileset-platformer-po2.png'
+# ./pow2texture.sh '/mnt/hgfs/C/noboxout/nodejs/radamn/examples/resources/images/Vegetation_(middle_layer).png' '/mnt/hgfs/C/noboxout/nodejs/radamn/examples/resources/images/Vegetation_po2.png'
+# ./pow2texture.sh '/mnt/hgfs/C/noboxout/nodejs/radamn/examples/resources/images/Sky_back_layer.png' '/mnt/hgfs/C/noboxout/nodejs/radamn/examples/resources/images/sky_po2.png'

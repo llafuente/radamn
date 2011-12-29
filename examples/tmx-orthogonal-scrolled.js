@@ -32,6 +32,16 @@ var TMX = new Radamn.TMX("./resources/tmx/tmx-orthogonal-scrolled.tmx", {});
 
 var tmxnode = new Radamn.Node();
 
+var ParalaxBackground = require("./plugins/ParalaxBackground.js");
+ParalaxBackground = new ParalaxBackground(tmxnode);
+
+ParalaxBackground.push("./resources/images/sky_po2.png", 0.01);
+ParalaxBackground.push("./resources/images/vegetation_po2.png", 1.25);
+
+
+
+tmxnode.appendEntity(ParalaxBackground);
+
 tmxnode.appendEntity(TMX);
 win.getRootNode().appendChild(tmxnode);
 
