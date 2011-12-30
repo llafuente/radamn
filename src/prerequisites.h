@@ -85,11 +85,11 @@ typedef struct glColor {
  */
 glColor glColor_from(SDL_Color color) {
     glColor output;
-    output.r = color.r * 0.003921568627450980392156862745098;
-    output.g = color.g * 0.003921568627450980392156862745098;
-    output.b = color.b * 0.003921568627450980392156862745098;
+    output.r = color.r * 0.003921568627450980392156862745098f;
+    output.g = color.g * 0.003921568627450980392156862745098f;
+    output.b = color.b * 0.003921568627450980392156862745098f;
 
-    output.a = color.unused *0.001;
+    output.a = color.unused *0.001f;
 
     return output;
 }

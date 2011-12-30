@@ -146,10 +146,10 @@ OUTPUT_NAME = args[ ARG_NUMBER ]->NumberValue();                                
 double OUTPUT_NAME = args[ ARG_NUMBER ]->NumberValue();                                                                \
 
 #define V8_ARG_TO_FLOAT(ARG_NUMBER, OUTPUT_NAME)                                                                       \
-OUTPUT_NAME = args[ ARG_NUMBER ]->NumberValue();                                                                       \
+OUTPUT_NAME = (float) args[ ARG_NUMBER ]->NumberValue();                                                               \
 
 #define V8_ARG_TO_NEWFLOAT(ARG_NUMBER, OUTPUT_NAME)                                                                    \
-float OUTPUT_NAME = args[ ARG_NUMBER ]->NumberValue();                                                                 \
+float OUTPUT_NAME = (float)args[ ARG_NUMBER ]->NumberValue();                                                          \
 
 #define V8_ARG_TO_NEWARRAY(ARG_NUMBER, OUTPUT_NAME)                                                                    \
 v8::Local<v8::Array> OUTPUT_NAME = v8::Local<v8::Array>::Cast( args[ ARG_NUMBER ] );                                   \
@@ -157,8 +157,8 @@ v8::Local<v8::Array> OUTPUT_NAME = v8::Local<v8::Array>::Cast( args[ ARG_NUMBER 
 #define V8_EXTRACT_COORDS_FROM_ARRAY(ARRAY, IDX, X_OUTPUT_NAME, Y_OUTPUT_NAME)                                         \
 {                                                                                                                      \
     v8::Local<v8::Array> aux = v8::Local<v8::Array>::Cast( ARRAY->Get(IDX) );                                          \
-    X_OUTPUT_NAME = aux->Get(0)->NumberValue();                                                                        \
-    Y_OUTPUT_NAME = aux->Get(1)->NumberValue();                                                                        \
+    X_OUTPUT_NAME = (float) aux->Get(0)->NumberValue();                                                                \
+    Y_OUTPUT_NAME = (float) aux->Get(1)->NumberValue();                                                                \
 }                                                                                                                      \
 
 #define V8_EXTRACT_FROM_ARRAY(ARRAY, IDX, TYPE, OUTPUT_NAME, COUNT)                                                    \

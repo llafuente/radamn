@@ -79,8 +79,8 @@ initial =
     //upload to opengl and return this is not efficiency so i maybe need to think another method...
 
     /* Convert the rendered text to a known format */
-    w = nextpoweroftwo(initial->w);
-    h = nextpoweroftwo(initial->h);
+    w = nextpoweroftwo((float) initial->w);
+    h = nextpoweroftwo((float) initial->h);
 	VERBOSE << "Expand texture to: ["<< w << "," << h << "]";
     image = SDL_CreateRGBSurface(0, w, h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
     SDL_BlitSurface(initial, 0, image, 0);

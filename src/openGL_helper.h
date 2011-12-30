@@ -1,4 +1,4 @@
-#include <SDL_helper.h>
+#include "SDL_helper.h"
 #include <iostream>
 #include <iomanip>
 #include <limits>
@@ -37,16 +37,16 @@
     }                                                                                                                                      \
 	
 	inline void opengl_draw_colored_poly(glColor color, SDL_Rect rect) {
-		GLfloat y_plus_h = rect.y + rect.h,
-				x_plus_w = rect.x + rect.w;
+		GLfloat y_plus_h = (GLfloat) rect.y + rect.h,
+				x_plus_w = (GLfloat) rect.x + rect.w;
         VERBOSE << "quad [";                                                                                         
-        glColor4f(color.r, color.g, color.b, color.a); glVertex3f(rect.x, rect.y, 0);                 
+        glColor4f(color.r, color.g, color.b, color.a); glVertex3f((float)rect.x,   (float)rect.y, 0);                 
         VERBOSEC << rect.x << "," << rect.y << "] [";                                                                
-        glColor4f(color.r, color.g, color.b, color.a); glVertex3f(x_plus_w, rect.y, 0);               
+        glColor4f(color.r, color.g, color.b, color.a); glVertex3f((float)x_plus_w, (float)rect.y, 0);               
         VERBOSEC << x_plus_w << "," << rect.y << "] [";                                                              
-        glColor4f(color.r, color.g, color.b, color.a); glVertex3f(x_plus_w, y_plus_h, 0);             
+        glColor4f(color.r, color.g, color.b, color.a); glVertex3f((float)x_plus_w, (float)y_plus_h, 0);             
         VERBOSEC << x_plus_w << "," << y_plus_h << "] [";                                                            
-        glColor4f(color.r, color.g, color.b, color.a); glVertex3f(rect.x, y_plus_h, 0);               
+        glColor4f(color.r, color.g, color.b, color.a); glVertex3f((float)rect.x,   (float)y_plus_h, 0);               
         VERBOSEC << rect.x << "," << y_plus_h << "]" << ENDL;                                                        
 	}
 
@@ -201,17 +201,17 @@
 		    glBegin(GL_QUADS);
 			    VERBOSE << "texture: ID:" << texture->textureID << ENDL;
 			    GLfloat
-					width = dst->x + dst->w,
-					height = dst->y + dst->h;
+					width =  (float)dst->x + dst->w,
+					height = (float)dst->y + dst->h;
 
 				VERBOSE << "quad [";                                                                                                               \
-				glTexCoord2f(uvs[0], uvs[1]); glVertex3f(dst->x, dst->y, 0);                                                                         \
+				glTexCoord2f(uvs[0], uvs[1]); glVertex3f((float)dst->x, (float)dst->y, 0);                                                                         \
 				VERBOSEC << dst->x << "(" << uvs[0] << ")," << dst->y << "(" << uvs[1]<< ")] [";                                                     \
-				glTexCoord2f(uvs[2], uvs[1]); glVertex3f(width, dst->y, 0);                                                                 \
+				glTexCoord2f(uvs[2], uvs[1]); glVertex3f((float)width,  (float)dst->y, 0);                                                                 \
 				VERBOSEC << width << "(" << uvs[2] << ")," << dst->y << "("<< uvs[1]<< "] [";                                               \
-				glTexCoord2f(uvs[2], uvs[3]); glVertex3f(width, height, 0);                                                         \
+				glTexCoord2f(uvs[2], uvs[3]); glVertex3f((float)width,  (float)height, 0);                                                         \
 				VERBOSEC << width << "(" << uvs[2] << ")," << height << "(" << uvs[3] << ")] [";                                    \
-				glTexCoord2f(uvs[0], uvs[3]); glVertex3f(dst->x, height, 0);                                                                 \
+				glTexCoord2f(uvs[0], uvs[3]); glVertex3f((float)dst->x, (float)height, 0);                                                                 \
 				VERBOSEC << dst->x << "(" << uvs[0] <<")," << height << "(" << uvs[3] <<")]" << ENDL;
 
 		    glEnd();

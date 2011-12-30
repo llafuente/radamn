@@ -251,7 +251,7 @@ Handle<Value> Radamn::pollEvent(const Arguments& args) {
 	switch (event.type) {
 	case SDL_ACTIVEEVENT:
 		evt->Set(String::New("type"), String::New("ACTIVEEVENT"));
-		evt->Set(String::New("gain"), Boolean::New(event.active.gain));
+		evt->Set(String::New("gain"), Number::New(event.active.gain));
 		evt->Set(String::New("state"), Number::New(event.active.state));
 		break;
 	case SDL_KEYDOWN:

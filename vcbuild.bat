@@ -20,9 +20,9 @@ if "%1"=="" goto args-done
 if "%1"=="--clean" goto clean
 if %next_is_path% == 1 (
 	if "%1"=="." (
-		set %set_next_path%=%cd%
+		setx %set_next_path%=%cd%
 	) else (
-		set %set_next_path%=%1
+		setx %set_next_path%=%1
 	)
 	echo "setting %set_next_path%"
 	set next_is_path=0
@@ -37,6 +37,28 @@ if /i "%1"=="--nodejs" (
 	set set_next_path=NODE_ROOT
 	goto arg-ok
 )
+
+if /i "%1"=="--android" (
+
+	if not exist "%ANDROID_NDK_ROOT%"  (
+		echo set android ndk: "%RADAMN_ROOT%\deps\android-ndk-r7"
+		setx ANDROID_NDK_ROOT "%RADAMN_ROOT%\deps\android-ndk-r7"
+	)
+	
+	if not exist "%ANDROID_NDK_ROOT%" goto android-ndk-not-found
+
+	if not exist "%ANT_HOME%" (
+		echo set ant dir: "%RADAMN_ROOT%\deps\apache-ant-1.8.2"
+		setx ANT_HOME "%RADAMN_ROOT%\deps\apache-ant-1.8.2"
+	)
+	
+	if not exist "%ANT_HOME%" goto ant-not-found
+
+	goto arg-ok
+)
+
+
+
 
 @rem arguments loops
 :arg-ok
@@ -69,7 +91,6 @@ goto exit
 :args-done
 echo using radamn path: %RADAMN_ROOT%
 echo using nodejs path: %NODE_ROOT%
-
 
 @rem Skip project generation if requested.
 if defined nobuild goto msi
@@ -132,7 +153,17 @@ echo "move DLL to lib"
 copy build\Release\radamn.node lib\radamn.node
 goto exit
 
+:ant-not-found
+echo ANT cannot be found, please set the enviroment variable yourself: setx ANT_HOME <path>
+goto exit
 
+:android-ndk-not-found
+echo Android NDK cannot be found, please set the enviroment variable yourself: setx ANDROID_NDK_ROOT <path>
+goto exit
+
+:android-ndk-not-found
+echo Android NDK cannot be found, please edit this file and set your version!
+goto exit
 
 :msbuild-not-found
 echo Visual studio tools were not found! Please check the VS100COMNTOOLS path variable
