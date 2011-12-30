@@ -35,6 +35,20 @@
         VERBOSEC << x << "," << y_plus_h << "]" << ENDL;                                                                                   \
                                                                                                                                            \
     }                                                                                                                                      \
+	
+	inline void opengl_draw_colored_poly(glColor color, SDL_Rect rect) {
+		GLfloat y_plus_h = rect.y + rect.h,
+				x_plus_w = rect.x + rect.w;
+        VERBOSE << "quad [";                                                                                         
+        glColor4f(color.r, color.g, color.b, color.a); glVertex3f(rect.x, rect.y, 0);                 
+        VERBOSEC << rect.x << "," << rect.y << "] [";                                                                
+        glColor4f(color.r, color.g, color.b, color.a); glVertex3f(x_plus_w, rect.y, 0);               
+        VERBOSEC << x_plus_w << "," << rect.y << "] [";                                                              
+        glColor4f(color.r, color.g, color.b, color.a); glVertex3f(x_plus_w, y_plus_h, 0);             
+        VERBOSEC << x_plus_w << "," << y_plus_h << "] [";                                                            
+        glColor4f(color.r, color.g, color.b, color.a); glVertex3f(rect.x, y_plus_h, 0);               
+        VERBOSEC << rect.x << "," << y_plus_h << "]" << ENDL;                                                        
+	}
 
      /// from cairo
     typedef enum opengl_operators {

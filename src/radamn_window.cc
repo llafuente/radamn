@@ -95,7 +95,10 @@ static v8::Handle<v8::Value> Radamn::Window::flip(const v8::Arguments& args) {
 static v8::Handle<v8::Value> Radamn::Window::setBackgroundColor(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
-	V8_ARG_TO_UNIT32(0, Radamn::Window::mBackgroundColor);
+	V8_ARG_TO_SDL_NEWCOLOR(0, color_src);
+	glColor color = glColor_from(color_src);
+	
+	glClearColor(color.r, color.g, color.b, color.a);
 
 	return v8::True();
 }
@@ -182,6 +185,12 @@ static v8::Handle<v8::Value> Radamn::Window::stroke(const v8::Arguments& args) {
 	//glDisable(GL_LIGHTING);
 
 	glLineWidth (width);
+	
+	if(color.a != 1) {
+		glEnable(GL_BLEND); //enable the blending
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	
 	glEnable (GL_LINE_SMOOTH);
 	
 	GLfloat before[4];
@@ -203,6 +212,9 @@ static v8::Handle<v8::Value> Radamn::Window::stroke(const v8::Arguments& args) {
 	glEnd ();
 	
 	glDisable(GL_LINE_SMOOTH);
+	if(color.a != 1) {
+		glDisable(GL_BLEND);
+	}
 	
 	glColor4f(before[0], before[1], before[2], before[3]);
 
@@ -326,6 +338,11 @@ static v8::Handle<v8::Value> Radamn::Window::fill(const v8::Arguments& args) {
 	GLfloat before[4];
 	glGetFloatv(GL_CURRENT_COLOR, before);
 
+	if(color.a != 1) {
+		glEnable(GL_BLEND); //enable the blending
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	
 	glBegin (GL_POLYGON);
 	glColor4f(color.r, color.g, color.b, color.a);
 	
@@ -342,6 +359,10 @@ static v8::Handle<v8::Value> Radamn::Window::fill(const v8::Arguments& args) {
 	glEnd ();
 	
 	glColor4f(before[0], before[1], before[2], before[3]);
+	
+	if(color.a != 1) {
+		glDisable(GL_BLEND);
+	}
 
 	return v8::True();
 	

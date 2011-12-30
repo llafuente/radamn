@@ -49,6 +49,7 @@ win.onRequestFrame = function(delta) {
         canvas.lineWidth = 2;
 
 		canvas.beginPath();
+		canvas.moveTo(150,150);
 		//arcTo(0, 0, 10, 10, 5);
 		canvas.arc(150, 150, 100, 0, 180, false);
 		canvas.closePath();
