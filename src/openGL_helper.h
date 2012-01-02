@@ -74,6 +74,10 @@
 
 	// remeber this is only OPENGL, OPENGLES2 it's different
 	inline void opengl_draw_textured_SDL_Rect(SDL_Surface* surface, SDL_Rect* from, SDL_Rect* to, opengl_operators_t composite);
+	
+	inline void opengl_stroke_point(GLfloat* points, int cpoints, int width, glColor color, opengl_operators_t composite = OPERATOR_OVER);
+	
+	inline void opengl_fill_poly(GLfloat* points, int cpoints, glColor color, opengl_operators_t composite = OPERATOR_OVER);
 
 #define OGL_BUFFER_OFFSET(i) ((char *)NULL + (i))
 

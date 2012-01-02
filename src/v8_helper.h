@@ -93,6 +93,12 @@ v8::Local<v8::Array> OUTPUT_NAME = v8::Local<v8::Array>::Cast( args[ ARG_NUMBER 
     Y_OUTPUT_NAME = (float) aux->Get(1)->NumberValue();                                                                \
 }                                                                                                                      \
 
+inline void v8_get_vec2_from_array_idx(v8::Local<v8::Array> arr, int idx, float &x, float &y) {
+    v8::Local<v8::Array> aux = v8::Local<v8::Array>::Cast( arr->Get(idx) );                               
+    x = (float) aux->Get(0)->NumberValue();                                                               
+    y = (float) aux->Get(1)->NumberValue();                                                               
+}
+
 #define V8_EXTRACT_FROM_ARRAY(ARRAY, IDX, TYPE, OUTPUT_NAME, COUNT)                                                    \
 TYPE OUTPUT_NAME[COUNT];                                                                                               \
 {                                                                                                                      \

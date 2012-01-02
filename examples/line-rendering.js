@@ -46,6 +46,7 @@ win.onRequestFrame = function(delta) {
     // line test
     canvas.save();
         canvas.strokeStyle = "rgb(255,0,0)";
+		canvas.fillStyle = "rgb(0,255,255)";
         canvas.lineWidth = 2;
 
 		canvas.beginPath();
@@ -54,6 +55,7 @@ win.onRequestFrame = function(delta) {
 		canvas.arc(150, 150, 100, 0, 180, false);
 		canvas.closePath();
 		canvas.stroke();
+		canvas.fill();
 		
         canvas.translate( 128, 128);
         canvas.beginPath();

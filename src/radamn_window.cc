@@ -170,6 +170,7 @@ static v8::Handle<v8::Value> Radamn::Window::restore(const v8::Arguments& args) 
 // ----------------------------------------------------------------------------------------------------
 //
 
+/// TODO composite!
 static v8::Handle<v8::Value> Radamn::Window::stroke(const v8::Arguments& args) {
 
 	V8_ARG_TO_NEWARRAY(0, coords);
@@ -182,41 +183,18 @@ static v8::Handle<v8::Value> Radamn::Window::stroke(const v8::Arguments& args) {
 	"color rgb(" << (int)color.r << "," << (int)color.g << "," << (int)color.b << ")"
 	<< std::endl;
 
-	//glDisable(GL_LIGHTING);
+	unsigned int i = 0,
+		max = coords->Length(),
+		pos = 0;
 
-	glLineWidth (width);
+	GLfloat positions[max*3];
 	
-	if(color.a != 1) {
-		glEnable(GL_BLEND); //enable the blending
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
-	
-	glEnable (GL_LINE_SMOOTH);
-	
-	GLfloat before[4];
-	glGetFloatv(GL_CURRENT_COLOR, before);
-
-	glBegin (GL_LINE_STRIP);
-	glColor4f(color.r, color.g, color.b, color.a);
-	
-	unsigned int i = 0;
-	unsigned int max = coords->Length();
-	VERBOSE << "ncoords: "<< max << std::endl;
-	float x,y;
 	for(;i<max;++i) {
-		// TODO why is i*2, i dont fucking understant it!
-		V8_EXTRACT_COORDS_FROM_ARRAY(coords, i, x, y)
-		VERBOSE << i<< "( "<< x << "," << y << ")" << std::endl;
-		glVertex3f (x, y, 0);
+		v8_get_vec2_from_array_idx(coords, i, positions[pos], positions[pos+1]);
+		positions[pos+2] = 0;
+		pos+=3;
 	}
-	glEnd ();
-	
-	glDisable(GL_LINE_SMOOTH);
-	if(color.a != 1) {
-		glDisable(GL_BLEND);
-	}
-	
-	glColor4f(before[0], before[1], before[2], before[3]);
+	opengl_stroke_point(positions, max, width, color);
 
 	return v8::True();
 }
@@ -324,6 +302,7 @@ static v8::Handle<v8::Value> Radamn::Window::setTransform(const v8::Arguments& a
 // ----------------------------------------------------------------------------------------------------
 //
 
+/// TODO composite!
 static v8::Handle<v8::Value> Radamn::Window::fill(const v8::Arguments& args) {
 	VERBOSE << "fill" << std::endl;
 
@@ -333,37 +312,20 @@ static v8::Handle<v8::Value> Radamn::Window::fill(const v8::Arguments& args) {
 
 	VERBOSE << "filling with color rgb(" << (int)color.r << "," << (int)color.g << "," << (int)color.b << ")" << std::endl;
 
-	//glDisable(GL_LIGHTING);
-	
-	GLfloat before[4];
-	glGetFloatv(GL_CURRENT_COLOR, before);
+	unsigned int i = 0,
+		max = coords->Length(),
+		pos = 0;
 
-	if(color.a != 1) {
-		glEnable(GL_BLEND); //enable the blending
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
+	GLfloat positions[max*3];
 	
-	glBegin (GL_POLYGON);
-	glColor4f(color.r, color.g, color.b, color.a);
-	
-	unsigned int i = 0;
-	unsigned int max = coords->Length();
-	VERBOSE << "ncoords: "<< max << std::endl;
-	float x,y;
 	for(;i<max;++i) {
-		// TODO why is i*2, i dont fucking understant it!
-		V8_EXTRACT_COORDS_FROM_ARRAY(coords, i, x, y)
-		VERBOSE << i<< "( "<< x << "," << y << ")" << std::endl;
-		glVertex3f (x, y, 0);
+		v8_get_vec2_from_array_idx(coords, i, positions[pos], positions[pos+1]);
+		positions[pos+2] = 0;
+		pos+=3;
 	}
-	glEnd ();
+	opengl_fill_poly(positions, max, color);
 	
-	glColor4f(before[0], before[1], before[2], before[3]);
 	
-	if(color.a != 1) {
-		glDisable(GL_BLEND);
-	}
-
 	return v8::True();
 	
 	

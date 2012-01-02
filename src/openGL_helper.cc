@@ -252,3 +252,88 @@ inline void opengl_clear_operator() {
 //
 // ----------------------------------------------------------------------------------------------------
 //
+
+inline void opengl_stroke_point(GLfloat* points, int cpoints, int width, glColor color, opengl_operators_t composite) {
+	glLineWidth (width);
+	
+	if(color.a != 1) {
+		glEnable(GL_BLEND); //enable the blending
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	glEnable (GL_LINE_SMOOTH);
+	
+	GLfloat before[4];
+	glGetFloatv(GL_CURRENT_COLOR, before);
+
+	glColor4f(color.r, color.g, color.b, color.a);
+
+#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
+
+	glBegin (GL_LINE_STRIP);
+	int i = 0, pos = 0;
+	for(;i<cpoints;++i) {
+		VERBOSE << i << "( "<< points[pos] << "," << points[pos+1] << ")" << std::endl;
+		glVertex3f (points[pos], points[pos+1], points[pos+2]);
+		pos+=3;
+	}
+	glEnd ();
+
+#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
+#endif	
+
+
+	
+	glDisable(GL_LINE_SMOOTH);
+	if(color.a != 1) {
+		glDisable(GL_BLEND);
+	}
+	
+	glColor4f(before[0], before[1], before[2], before[3]);
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+inline void opengl_fill_poly(GLfloat* points, int cpoints, glColor color, opengl_operators_t composite) {
+
+	if(color.a != 1) {
+		glEnable(GL_BLEND); //enable the blending
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	glEnable (GL_LINE_SMOOTH);
+	
+	GLfloat before[4];
+	glGetFloatv(GL_CURRENT_COLOR, before);
+
+	glColor4f(color.r, color.g, color.b, color.a);
+
+#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
+
+	glBegin (GL_POLYGON);
+	int i = 0, pos = 0;
+	for(;i<cpoints;++i) {
+		VERBOSE << i << "( "<< points[pos] << "," << points[pos+1] << ")" << std::endl;
+		glVertex3f (points[pos], points[pos+1], points[pos+2]);
+		pos+=3;
+	}
+	glEnd ();
+
+#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
+#endif	
+
+
+	
+	glDisable(GL_LINE_SMOOTH);
+	if(color.a != 1) {
+		glDisable(GL_BLEND);
+	}
+	
+	glColor4f(before[0], before[1], before[2], before[3]);
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
