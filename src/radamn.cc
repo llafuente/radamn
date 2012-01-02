@@ -65,11 +65,11 @@ extern "C" {
 	/*
     // set the constructor function
     v8::Local<v8::FunctionTemplate> t = v8::FunctionTemplate::New(Radamn::Creator::New);
-		
+
     Radamn::Creator::s_ct = v8::Persistent<v8::FunctionTemplate>::New(t);
     Radamn::Creator::s_ct->InstanceTemplate()->SetInternalFieldCount(1);
     Radamn::Creator::s_ct->SetClassName(v8::String::NewSymbol("adauthftw"));
-		
+
 	v8::Local<v8::Object> target = v8::Object::New();
 	*/
 	NODE_SET_METHOD(target, "init", Radamn::init);
@@ -78,6 +78,7 @@ extern "C" {
 	NODE_SET_METHOD(target, "createWindow", Radamn::createWindow);
 	NODE_SET_METHOD(target, "getJoysticks", Radamn::getJoysticks);
 	NODE_SET_METHOD(target, "pollEvent", Radamn::pollEvent);
+	NODE_SET_METHOD(target, "getVideoModes", Radamn::getVideoModes);
 
 	v8::Local<v8::Object> Window = v8::Object::New();
 	target->Set(v8::String::New("Window"), Window);
@@ -109,10 +110,10 @@ extern "C" {
 	NODE_SET_METHOD(Font, "load", Radamn::Font::load);
 	NODE_SET_METHOD(Font, "getImage", Radamn::Font::getImage);
 	NODE_SET_METHOD(Font, "destroy", Radamn::Font::destroy);
-	
+
 	//Radamn::Creator::s_ct->Set("init", target);
-	
-	
+
+
     }
     NODE_MODULE(Creator, init);
 }
@@ -159,6 +160,8 @@ static v8::Handle<v8::Value> Radamn::getVersion(const v8::Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
+// for multiple display support check: http://wiki.libsdl.org/moin.cgi/SDL_CreateRenderer
+
 static v8::Handle<v8::Value> Radamn::createWindow(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
@@ -170,7 +173,7 @@ static v8::Handle<v8::Value> Radamn::createWindow(const v8::Arguments& args) {
 	int height = (args[1]->Int32Value());
 
 	SDL_Surface* screen = 0;
-	
+
 #if RADAMN_RENDERER == RADAMN_RENDERER_SOFTWARE
 	screen = SDL_SetVideoMode(width, height, 16, SDL_SWSURFACE);
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
@@ -226,10 +229,45 @@ static v8::Handle<v8::Value> Radamn::createWindow(const v8::Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
+//true any
+//throw if error
+//array with the list
+
 static v8::Handle<v8::Value> Radamn::getVideoModes(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
-	return v8::String::New("screen");
+	SDL_Rect** modes;
+
+	/* Get available fullscreen/hardware modes */
+	modes = SDL_ListModes(NULL, SDL_FULLSCREEN|SDL_HWSURFACE);
+
+	/* Check if there are any modes available */
+	if (modes == (SDL_Rect**)0) {
+		//throw!
+		ThrowException(v8::Exception::TypeError(v8::String::New("No modes available!")));
+	}
+
+	/* Check if our resolution is restricted */
+	if (modes == (SDL_Rect**)-1) {
+		return v8::True();
+	}
+
+	v8::Local<v8::Object> output = v8::Object::New();
+	VERBOSE << "Available Modes";
+
+	int i;
+	for (i=0; modes[i]; ++i) {
+		VERBOSE << modes[i]->w << "x"<< modes[i]->h;
+
+		v8::Local<v8::Object> target = v8::Object::New();
+
+		target->Set(v8::String::New("x"), v8::Number::New(modes[i]->w));
+		target->Set(v8::String::New("h"), v8::Number::New(modes[i]->h));
+
+		output->Set(v8::Number::New(i), target);
+	}
+
+	return output;
 }
 
 //

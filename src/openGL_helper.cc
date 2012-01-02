@@ -52,23 +52,64 @@ inline void opengl_draw_textured_quad(OGL_Texture* texture, GLfloat* uvs, SDL_Re
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture( GL_TEXTURE_2D, texture->textureID );
-	glBegin(GL_QUADS);
-	VERBOSE << "texture: ID:" << texture->textureID << ENDL;
+	
 	GLfloat
 	width =  (float)dst->x + dst->w,
 	height = (float)dst->y + dst->h;
 
-	VERBOSE << "quad [";                                                                                                               \
-	glTexCoord2f(uvs[0], uvs[1]); glVertex3f((float)dst->x, (float)dst->y, 0);                                                                         \
-	VERBOSEC << dst->x << "(" << uvs[0] << ")," << dst->y << "(" << uvs[1]<< ")] [";                                                     \
-	glTexCoord2f(uvs[2], uvs[1]); glVertex3f((float)width,  (float)dst->y, 0);                                                                 \
-	VERBOSEC << width << "(" << uvs[2] << ")," << dst->y << "("<< uvs[1]<< "] [";                                               \
-	glTexCoord2f(uvs[2], uvs[3]); glVertex3f((float)width,  (float)height, 0);                                                         \
-	VERBOSEC << width << "(" << uvs[2] << ")," << height << "(" << uvs[3] << ")] [";                                    \
-	glTexCoord2f(uvs[0], uvs[3]); glVertex3f((float)dst->x, (float)height, 0);                                                                 \
+	VERBOSE << "texture: ID:" << texture->textureID << ENDL;
+	VERBOSE << "quad [";
+	VERBOSEC << dst->x << "(" << uvs[0] << ")," << dst->y << "(" << uvs[1]<< ")] [";
+	VERBOSEC << width << "(" << uvs[2] << ")," << dst->y << "("<< uvs[1]<< "] [";
+	VERBOSEC << width << "(" << uvs[2] << ")," << height << "(" << uvs[3] << ")] [";
 	VERBOSEC << dst->x << "(" << uvs[0] <<")," << height << "(" << uvs[3] <<")]" << ENDL;
 
+
+	
+#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
+	glBegin(GL_QUADS);
+	glTexCoord2f(uvs[0], uvs[1]); glVertex3f((float)dst->x, (float)dst->y, 0);
+	glTexCoord2f(uvs[2], uvs[1]); glVertex3f((float)width,  (float)dst->y, 0);
+	glTexCoord2f(uvs[2], uvs[3]); glVertex3f((float)width,  (float)height, 0);
+	glTexCoord2f(uvs[0], uvs[3]); glVertex3f((float)dst->x, (float)height, 0);
 	glEnd();
+#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
+	GLfloat vertices[] = {
+		dst->x, dst->y, 0,
+		width,  dst->y, 0,
+		width,  height, 0,
+		dst->x, height, 0,
+	};
+	/* GL_TRIANGLE ?
+	GLubyte indices[] = {
+		0,1,2,
+		0,2,3
+	};
+	*/
+	
+	glEnableClientState(GL_VERTEX_ARRAY);
+	
+	glVertexPointer(3, GL_FLOAT, 0, vertices);
+	glTexCoordPointer(2, GL_FLOAT, 0, uvs);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	// draw a cube
+	// better GL_TRIANGLE_STRIP ?
+	glDrawArrays(GL_QUADS, 0, 4);
+	//glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, indices);
+	
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	// deactivate vertex arrays after drawing
+	glDisableClientState(GL_VERTEX_ARRAY);
+#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES2
+
+#endif
+
+
+	
 	glDisable(GL_TEXTURE_2D);
 
 	opengl_clear_operator();
