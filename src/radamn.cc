@@ -4,10 +4,14 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <png.h> // libpng!
+#include <node.h>
+#include <v8.h>
 
-using namespace v8;
+//
+// ----------------------------------------------------------------------------------------------------
+//
 
-Handle<Value> Radamn::init(const Arguments& args) {
+v8::Handle<v8::Value> Radamn::init(const v8::Arguments& args) {
 	// init verbose log
 	Radamn::verbose.open("radamn.log");
 
@@ -18,24 +22,56 @@ Handle<Value> Radamn::init(const Arguments& args) {
 	if(TTF_Init() == -1) {
 		char * xx;
 		sprintf(xx, "TTF_Init: %s\n", TTF_GetError());
-		return ThrowException(Exception::TypeError(String::New( xx )));
+		return ThrowException(v8::Exception::TypeError(v8::String::New( xx )));
 	}
 	VERBOSE << "TTF inited" << ENDL;
 
-
-	static v8::HandleScope scope;
-	Radamn::globalScope = &scope;
-
-	return Undefined();
+	return v8::Undefined();
 }
 
 //
 // ----------------------------------------------------------------------------------------------------
 //
 
-extern "C" void
-init(Handle<Object> target)
+//Persistent<FunctionTemplate> Radamn::Creator::s_ct;
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+#ifdef _WIN32
+	void node::NODE_EXTERN Radamn::Creator::Init(v8::Handle<v8::Object> target)
+#else
+	void Radamn::Creator::Init(v8::Handle<v8::Object> target)
+#endif
 {
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+extern "C" {
+#ifdef _WIN32
+    void NODE_EXTERN init (v8::Handle<v8::Object> target)
+#else
+	void init (v8::Handle<v8::Object> target)
+#endif
+	{
+	/*
+    // set the constructor function
+    v8::Local<v8::FunctionTemplate> t = v8::FunctionTemplate::New(Radamn::Creator::New);
+		
+    Radamn::Creator::s_ct = v8::Persistent<v8::FunctionTemplate>::New(t);
+    Radamn::Creator::s_ct->InstanceTemplate()->SetInternalFieldCount(1);
+    Radamn::Creator::s_ct->SetClassName(v8::String::NewSymbol("adauthftw"));
+		
+	v8::Local<v8::Object> target = v8::Object::New();
+	*/
 	NODE_SET_METHOD(target, "init", Radamn::init);
 	NODE_SET_METHOD(target, "quit", Radamn::quit);
 	NODE_SET_METHOD(target, "getVersion", Radamn::getVersion);
@@ -43,10 +79,8 @@ init(Handle<Object> target)
 	NODE_SET_METHOD(target, "getJoysticks", Radamn::getJoysticks);
 	NODE_SET_METHOD(target, "pollEvent", Radamn::pollEvent);
 
-
-
-	Local<Object> Window = Object::New();
-	target->Set(String::New("Window"), Window);
+	v8::Local<v8::Object> Window = v8::Object::New();
+	target->Set(v8::String::New("Window"), Window);
 	NODE_SET_METHOD(Window, "setCaption",           Radamn::Window::setCaption);
 	NODE_SET_METHOD(Window, "setIcon",              Radamn::Window::setIcon);
 	NODE_SET_METHOD(Window, "clear",                Radamn::Window::clear);
@@ -63,29 +97,37 @@ init(Handle<Object> target)
 	NODE_SET_METHOD(Window, "setTransform",         Radamn::Window::setTransform);
 	NODE_SET_METHOD(Window, "fill",                 Radamn::Window::fill);
 
-	Local<Object> Image = Object::New();
-	target->Set(String::New("Image"), Image);
+	v8::Local<v8::Object> Image = v8::Object::New();
+	target->Set(v8::String::New("Image"), Image);
 	NODE_SET_METHOD(Image, "load", Radamn::Image::load);
 	NODE_SET_METHOD(Image, "destroy", Radamn::Image::destroy);
 	NODE_SET_METHOD(Image, "draw", Radamn::Image::draw);
-	//NODE_SET_METHOD(Image, "drawImageQuads", Radamn::Image::drawImageQuads);
+	//NODE_SET_PROTOTYPE_METHOD(Image, "drawImageQuads", Radamn::Image::drawImageQuads);
 
-	Local<Object> Font = Object::New();
-	target->Set(String::New("Font"), Font);
+	v8::Local<v8::Object> Font = v8::Object::New();
+	target->Set(v8::String::New("Font"), Font);
 	NODE_SET_METHOD(Font, "load", Radamn::Font::load);
 	NODE_SET_METHOD(Font, "getImage", Radamn::Font::getImage);
 	NODE_SET_METHOD(Font, "destroy", Radamn::Font::destroy);
+	
+	//Radamn::Creator::s_ct->Set("init", target);
+	
+	
+    }
+    NODE_MODULE(Creator, init);
 }
+
+
 
 //
 // ----------------------------------------------------------------------------------------------------
 //
 
-static Handle<Value> Radamn::quit(const Arguments& args) {
+static v8::Handle<v8::Value> Radamn::quit(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
 	if (!(args.Length() == 0)) {
-		return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Quit()")));
+		return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected Quit()")));
 	}
 
 	TTF_Quit();
@@ -95,7 +137,7 @@ static Handle<Value> Radamn::quit(const Arguments& args) {
 
 	Radamn::verbose.close();
 
-	return Undefined();
+	return v8::Undefined();
 }
 
 //
@@ -103,37 +145,38 @@ static Handle<Value> Radamn::quit(const Arguments& args) {
 //
 
 // XXX opengl version / openglES
-static Handle<Value> Radamn::getVersion(const Arguments& args) {
+static v8::Handle<v8::Value> Radamn::getVersion(const v8::Arguments& args) {
 	char buffer[256];
 	sprintf(buffer, "SDL %d.%d.%d\nSDL_Image %d.%d.%d\n%s\n GL\n GLU\n",
-	SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL,
-	SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL,
-	PNG_HEADER_VERSION_STRING
+		SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL,
+		SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL,
+		PNG_HEADER_VERSION_STRING
 	);
-	return String::New( buffer );
+	return v8::String::New( buffer );
 }
 
 //
 // ----------------------------------------------------------------------------------------------------
 //
 
-static Handle<Value> Radamn::createWindow(const Arguments& args) {
+static v8::Handle<v8::Value> Radamn::createWindow(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
 	if (!(args.Length() == 2 && args[0]->IsNumber() && args[1]->IsNumber())) {
-		return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected SetVideoMode(Number, Number, Number, Number)")));
+		return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected SetVideoMode(Number, Number, Number, Number)")));
 	}
 
 	int width = (args[0]->Int32Value());
 	int height = (args[1]->Int32Value());
 
-	++Radamn::mScreenCount;
+	SDL_Surface* screen = 0;
+	
 #if RADAMN_RENDERER == RADAMN_RENDERER_SOFTWARE
-	Radamn::mCurrentScreen = SDL_SetVideoMode(width, height, 16, SDL_SWSURFACE);
+	screen = SDL_SetVideoMode(width, height, 16, SDL_SWSURFACE);
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
-	Radamn::mCurrentScreen = SDL_SetVideoMode(width, height, 16, SDL_OPENGL);
+	screen = SDL_SetVideoMode(width, height, 16, SDL_OPENGL);
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
-	return ThrowException(Exception::TypeError(String::New("OPENGLES is not supported atm")));
+	return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));
 #endif
 	//if (screen == NULL) return ThrowSDLException(__func__);
 
@@ -173,20 +216,20 @@ static Handle<Value> Radamn::createWindow(const Arguments& args) {
 
 #endif
 
-	debug_SDL_Surface(Radamn::mCurrentScreen);
+	debug_SDL_Surface(screen);
 
 
-	V8_RETURN_WRAPED_POINTER(scope, SDL_Surface, Radamn::mCurrentScreen)
+	V8_RETURN_WRAPED_POINTER(scope, SDL_Surface, screen)
 }
 
 //
 // ----------------------------------------------------------------------------------------------------
 //
 
-static Handle<Value> Radamn::getVideoModes(const Arguments& args) {
+static v8::Handle<v8::Value> Radamn::getVideoModes(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
-	return String::New("screen");
+	return v8::String::New("screen");
 }
 
 //
@@ -194,8 +237,8 @@ static Handle<Value> Radamn::getVideoModes(const Arguments& args) {
 //
 
 // XXX TODO!
-static Handle<Value> Radamn::getWindow(const Arguments& args) {
-	return Undefined();
+static v8::Handle<v8::Value> Radamn::getWindow(const v8::Arguments& args) {
+	return v8::Undefined();
 }
 
 //
@@ -203,10 +246,10 @@ static Handle<Value> Radamn::getWindow(const Arguments& args) {
 //
 
 // return a proper structure with all data needed!
-Handle<Value> Radamn::getJoysticks(const Arguments& args) {
+v8::Handle<v8::Value> Radamn::getJoysticks(const v8::Arguments& args) {
 	v8::HandleScope scope;
 	if (!(args.Length() == 0)) {
-		return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected getJoystricks()")));
+		return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected getJoystricks()")));
 	}
 	int i,max;
 	max = SDL_NumJoysticks();
@@ -217,7 +260,7 @@ Handle<Value> Radamn::getJoysticks(const Arguments& args) {
 		joystick = SDL_JoystickOpen(0);
 	}
 
-	return False(); //atm!
+	return v8::False(); //atm!
 }
 
 //
@@ -228,45 +271,45 @@ Handle<Value> Radamn::getJoysticks(const Arguments& args) {
 // https://developer.mozilla.org/en/DOM/KeyboardEvent
 // http://www.w3.org/TR/DOM-Level-3-Events/#events-KeyboardEvent
 // touch events: https://dvcs.w3.org/hg/webevents/raw-file/tip/touchevents.html
-Handle<Value> Radamn::pollEvent(const Arguments& args) {
+v8::Handle<v8::Value> Radamn::pollEvent(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
 	if (!(args.Length() == 0)) {
-		return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected pollEvent()")));
+		return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected pollEvent()")));
 	}
 
 	SDL_Event event;
 	if (!SDL_PollEvent(&event)) {
-		return False();
+		return v8::False();
 	}
 
-	Local<Object> evt = Object::New();
+	v8::Local<v8::Object> evt = v8::Object::New();
 
 	// in common!
 
 	// modifiers
 	// TODO: what to di with [Numlock, Capslock]
 	// windows - command key ?!
-	evt->Set(String::New("metaKey"),  Boolean::New( false ));
-	evt->Set(String::New("altKey"),   Boolean::New( KMOD_ALT == (KMOD_ALT & event.key.keysym.mod) ));
-	evt->Set(String::New("ctrlKey"),  Boolean::New( KMOD_CTRL == (KMOD_CTRL & event.key.keysym.mod) ));
-	evt->Set(String::New("shiftKey"), Boolean::New( KMOD_SHIFT == (KMOD_SHIFT & event.key.keysym.mod) ));
+	evt->Set(v8::String::New("metaKey"),  v8::Boolean::New( false ));
+	evt->Set(v8::String::New("altKey"),   v8::Boolean::New( KMOD_ALT == (KMOD_ALT & event.key.keysym.mod) ));
+	evt->Set(v8::String::New("ctrlKey"),  v8::Boolean::New( KMOD_CTRL == (KMOD_CTRL & event.key.keysym.mod) ));
+	evt->Set(v8::String::New("shiftKey"), v8::Boolean::New( KMOD_SHIFT == (KMOD_SHIFT & event.key.keysym.mod) ));
 
 	switch (event.type) {
 	case SDL_ACTIVEEVENT:
-		evt->Set(String::New("type"), String::New("ACTIVEEVENT"));
-		evt->Set(String::New("gain"), Number::New(event.active.gain));
-		evt->Set(String::New("state"), Number::New(event.active.state));
+		evt->Set(v8::String::New("type"),  v8::String::New("ACTIVEEVENT"));
+		evt->Set(v8::String::New("gain"),  v8::Number::New(event.active.gain));
+		evt->Set(v8::String::New("state"), v8::Number::New(event.active.state));
 		break;
 	case SDL_KEYDOWN:
 	case SDL_KEYUP:
 		// TODO: support keypress ?
-		evt->Set(String::New("type"), String::New(event.type == SDL_KEYDOWN ? "keydown" : "keyup"));
+		evt->Set(v8::String::New("type"), v8::String::New(event.type == SDL_KEYDOWN ? "keydown" : "keyup"));
 
 		// do ui have to mach every key from-sdl-to-w3c... :***
-		evt->Set(String::New("key"), Number::New(event.key.keysym.sym));
-		evt->Set(String::New("char"), v8::String::New(SDL_GetKeyName(event.key.keysym.sym)));
-		evt->Set(String::New("keyCode"), Number::New(event.key.keysym.sym));
+		evt->Set(v8::String::New("key"),     v8::Number::New(event.key.keysym.sym));
+		evt->Set(v8::String::New("char"),    v8::String::New(SDL_GetKeyName(event.key.keysym.sym)));
+		evt->Set(v8::String::New("keyCode"), v8::Number::New(event.key.keysym.sym));
 
 		// has anyone use this ever ?!
 		//evt->Set(String::New("locale"), null);
@@ -278,41 +321,41 @@ Handle<Value> Radamn::pollEvent(const Arguments& args) {
 	case SDL_MOUSEBUTTONDOWN:
 	case SDL_MOUSEBUTTONUP:
 		//evt->Set(String::New("which"), Number::New(event.motion.which));
-		evt->Set(String::New("state"), Number::New(event.motion.state));
+		evt->Set(v8::String::New("state"),   v8::Number::New(event.motion.state));
 
-		evt->Set(String::New("x"), Number::New(event.motion.x));
-		evt->Set(String::New("y"), Number::New(event.motion.y));
+		evt->Set(v8::String::New("x"),       v8::Number::New(event.motion.x));
+		evt->Set(v8::String::New("y"),       v8::Number::New(event.motion.y));
 
-		evt->Set(String::New("clientX"), Number::New(event.motion.x));
-		evt->Set(String::New("clientY"), Number::New(event.motion.y));
+		evt->Set(v8::String::New("clientX"), v8::Number::New(event.motion.x));
+		evt->Set(v8::String::New("clientY"), v8::Number::New(event.motion.y));
 
-		evt->Set(String::New("screenX"), Number::New(event.motion.xrel));
-		evt->Set(String::New("screenY"), Number::New(event.motion.yrel));
+		evt->Set(v8::String::New("screenX"), v8::Number::New(event.motion.xrel));
+		evt->Set(v8::String::New("screenY"), v8::Number::New(event.motion.yrel));
 
 		switch(event.type) {
 		case SDL_MOUSEMOTION :
-			evt->Set(String::New("type"), String::New("mousemove"));
-			evt->Set(String::New("button"), Number::New(event.button.button));
+			evt->Set(v8::String::New("type"),    v8::String::New("mousemove"));
+			evt->Set(v8::String::New("button"),  v8::Number::New(event.button.button));
 			break;
 		case SDL_MOUSEBUTTONDOWN :
 			if(event.button.button == SDL_BUTTON_WHEELDOWN) {
-				evt->Set(String::New("type"), String::New("wheel"));
-				evt->Set(String::New("deltaX"), Number::New(event.wheel.x));
-				evt->Set(String::New("deltaY"), Number::New(event.wheel.y));
+				evt->Set(v8::String::New("type"),   v8::String::New("wheel"));
+				evt->Set(v8::String::New("deltaX"), v8::Number::New(event.wheel.x));
+				evt->Set(v8::String::New("deltaY"), v8::Number::New(event.wheel.y));
 			} else {
-				evt->Set(String::New("type"), String::New("mousedown"));
-				evt->Set(String::New("button"), Number::New(event.button.button));
+				evt->Set(v8::String::New("type"),   v8::String::New("mousedown"));
+				evt->Set(v8::String::New("button"), v8::Number::New(event.button.button));
 			}
 
 			break;
 		case SDL_MOUSEBUTTONUP :
 			if(event.button.button == SDL_BUTTON_WHEELUP) {
-				evt->Set(String::New("type"), String::New("wheel"));
-				evt->Set(String::New("deltaX"), Number::New(event.wheel.x));
-				evt->Set(String::New("deltaY"), Number::New(event.wheel.y));
+				evt->Set(v8::String::New("type"),   v8::String::New("wheel"));
+				evt->Set(v8::String::New("deltaX"), v8::Number::New(event.wheel.x));
+				evt->Set(v8::String::New("deltaY"), v8::Number::New(event.wheel.y));
 			} else {
-				evt->Set(String::New("type"), String::New("mouseup"));
-				evt->Set(String::New("button"), Number::New(event.button.button));
+				evt->Set(v8::String::New("type"),   v8::String::New("mouseup"));
+				evt->Set(v8::String::New("button"), v8::Number::New(event.button.button));
 			}
 
 			break;
@@ -325,37 +368,37 @@ Handle<Value> Radamn::pollEvent(const Arguments& args) {
 
 		// my own DOMJoystickEvent based on mozilla: MozJoyAxisMove, MozJoyButtonUp, MozJoyButtonDown
 	case SDL_JOYAXISMOTION:
-		evt->Set(String::New("type"), String::New("joyaxismove"));
+		evt->Set(v8::String::New("type"),  v8::String::New("joyaxismove"));
 
-		evt->Set(String::New("which"), Number::New(event.jaxis.which));
-		evt->Set(String::New("axis"), Number::New(event.jaxis.axis));
-		evt->Set(String::New("value"), Number::New(event.jaxis.value));
+		evt->Set(v8::String::New("which"), v8::Number::New(event.jaxis.which));
+		evt->Set(v8::String::New("axis"),  v8::Number::New(event.jaxis.axis));
+		evt->Set(v8::String::New("value"), v8::Number::New(event.jaxis.value));
 		break;
 	case SDL_JOYBALLMOTION:
-		evt->Set(String::New("type"), String::New("joyballmove"));
-		evt->Set(String::New("button"), Number::New(event.jball.which));
-		evt->Set(String::New("ball"), Number::New(event.jball.ball));
-		evt->Set(String::New("deltaX"), Number::New(event.jball.xrel));
-		evt->Set(String::New("deltaY"), Number::New(event.jball.yrel));
+		evt->Set(v8::String::New("type"),   v8::String::New("joyballmove"));
+		evt->Set(v8::String::New("button"), v8::Number::New(event.jball.which));
+		evt->Set(v8::String::New("ball"),   v8::Number::New(event.jball.ball));
+		evt->Set(v8::String::New("deltaX"), v8::Number::New(event.jball.xrel));
+		evt->Set(v8::String::New("deltaY"), v8::Number::New(event.jball.yrel));
 		break;
 	case SDL_JOYHATMOTION:
-		evt->Set(String::New("type"), String::New("joyhatmove"));
-		evt->Set(String::New("button"), Number::New(event.jhat.which));
-		evt->Set(String::New("hat"), Number::New(event.jhat.hat));
-		evt->Set(String::New("value"), Number::New(event.jhat.value));
+		evt->Set(v8::String::New("type"),   v8::String::New("joyhatmove"));
+		evt->Set(v8::String::New("button"), v8::Number::New(event.jhat.which));
+		evt->Set(v8::String::New("hat"),    v8::Number::New(event.jhat.hat));
+		evt->Set(v8::String::New("value"),  v8::Number::New(event.jhat.value));
 		break;
 	case SDL_JOYBUTTONDOWN:
 	case SDL_JOYBUTTONUP:
-		evt->Set(String::New("type"), String::New(event.type == SDL_JOYBUTTONDOWN ? "joybuttondown" : "joybuttonup"));
+		evt->Set(v8::String::New("type"),   v8::String::New(event.type == SDL_JOYBUTTONDOWN ? "joybuttondown" : "joybuttonup"));
 		//evt->Set(String::New("which"), Number::New(event.jbutton.which));
-		evt->Set(String::New("button"), Number::New(event.jbutton.button));
+		evt->Set(v8::String::New("button"), v8::Number::New(event.jbutton.button));
 		break;
 	case SDL_QUIT:
-		evt->Set(String::New("type"), String::New("quit"));
+		evt->Set(v8::String::New("type"),      v8::String::New("quit"));
 		break;
 	default:
-		evt->Set(String::New("type"), String::New("not-supported"));
-		evt->Set(String::New("typeCode"), Number::New(event.type));
+		evt->Set(v8::String::New("type"),      v8::String::New("not-supported"));
+		evt->Set(v8::String::New("typeCode"),  v8::Number::New(event.type));
 		break;
 	}
 

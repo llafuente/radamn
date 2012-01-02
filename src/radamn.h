@@ -1,6 +1,8 @@
 #ifndef RADAMN_H_
 #define RADAMN_H_
 
+#pragma comment(lib, "node")
+
 /*
    Copyright (C) 2011 by Luis Lafuente <llafuente@noboxout.com>
    Part of the Radamn Project
@@ -33,17 +35,31 @@ opengl 2s vs opengl 1.5: http://doc.trolltech.com/4.4/opengl-hellogl-es.html#por
 
 #include <iostream>
 #include <map>
+#include <node.h>
+#include <v8.h>
+
 
 namespace Radamn {
-    v8::HandleScope* globalScope;
 
-    static SDL_Surface* mCurrentScreen = 0;
-    static int mScreenCount = 0;
+	class Creator : node::ObjectWrap {
+	public:
+		static v8::Persistent<v8::FunctionTemplate> s_ct;
+#ifdef _WIN32
+		static void node::NODE_EXTERN Init(v8::Handle<v8::Object> target);
+#else
+	static void Init(v8::Handle<v8::Object> target);
+#endif
+		Creator() { }
+		~Creator() { }
+		static v8::Handle<v8::Value> New(const v8::Arguments& args) {
+			v8::HandleScope scope;
+			Creator* pm = new Creator();
+			pm->Wrap(args.This());
+			return args.This();
+		}
+	};
 
     static bool isOpenGL = false;
-
-    static int mImageCount = 0;
-    static int mImageMemory = 0;
 
     static v8::Handle<v8::Value> init(const v8::Arguments& args);
     static v8::Handle<v8::Value> quit(const v8::Arguments& args);
