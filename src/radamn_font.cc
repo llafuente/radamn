@@ -145,3 +145,6 @@ static v8::Handle<v8::Value> Radamn::Font::destroy(const v8::Arguments& args) {
   return v8::True();
 }
 
+//
+// ----------------------------------------------------------------------------------------------------
+//

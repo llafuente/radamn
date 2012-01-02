@@ -48,77 +48,9 @@
 }
 
 
-	inline void SDL_Color_from_RGB(const char* ccolor) {
-	}
+inline void SDL_Color_from_RGB(const char* ccolor) {}
 
-	inline SDL_Color sdl_color_from(const char* ccolor) {
-		SDL_Color OUTPUT_NAME = {0,0,0,1000};
-
-		VERBOSE << " -> " << ccolor << std::endl;
-		if(strncmp ( ccolor, "#", 1) == 0) {
-			int r,g,b;
-			sscanf(ccolor, "#%02x%02x%02x", &r,&g,&b);
-			OUTPUT_NAME.r = (int)r;
-			OUTPUT_NAME.g = (int)g;
-			OUTPUT_NAME.b = (int)b;
-		} else if(strncmp ( ccolor, "rgb", 3) == 0) {
-			  char* aux = (char *)malloc(strlen(ccolor)+1); /* strtok so +1!! */
-			  strcpy(ccolor, aux);
-			  VERBOSE << aux << std::endl;
-			  strremchar(aux, ' ', aux);
-
-			  char * ptr = strtok (aux, "(");
-
-			  ptr = strtok (NULL, ",");
-			  OUTPUT_NAME.r = (int) atoi(ptr);
-			  VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.r << std::endl;
-
-			  ptr = strtok (NULL, ",");
-			  OUTPUT_NAME.g = (int) atoi(ptr);
-			  VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.g << std::endl;
-
-			  ptr = strtok (NULL, ")");
-			  OUTPUT_NAME.b = (int) atoi(ptr);
-			  VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.b << std::endl;
-			  ptr = strtok (NULL, "?");
-
-			  free(aux); /* free the initial pointer!! */
-			  ptr = 0;
-		} else if(strncmp ( ccolor, "rgba", 4) == 0) {
-			  char* aux = (char *)malloc(strlen(ccolor)+1); /* strtok so +1!! */
-			  strcpy(ccolor, aux);
-			  VERBOSE << aux << std::endl;
-			  strremchar(aux, ' ', aux);
-
-			  char * ptr = strtok (aux, "(");
-
-			  ptr = strtok (NULL, ",");
-			  OUTPUT_NAME.r = (int) atoi(ptr);
-			  VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.r << std::endl;
-
-			  ptr = strtok (NULL, ",");
-			  OUTPUT_NAME.g = (int) atoi(ptr);
-			  VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.g << std::endl;
-
-			  ptr = strtok (NULL, ",");
-			  OUTPUT_NAME.b = (int) atoi(ptr);
-			  VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.b << std::endl;
-			  ptr = strtok (NULL, "?");
-			  
-			  ptr = strtok (NULL, ")");
-			  OUTPUT_NAME.unused = (int) (atof(ptr) * 1000);
-			  VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.b << std::endl;
-			  ptr = strtok (NULL, "?");
-
-			  free(aux); /* free the initial pointer!! */
-			  ptr = 0;
-		} else {
-			ThrowException(v8::Exception::TypeError(v8::String::New("Color not supported")));
-		}
-		VERBOSE << "parsed rgba(" << (int) OUTPUT_NAME.r << "," << (int) OUTPUT_NAME.g << "," << (int) OUTPUT_NAME.b << "," << (int) OUTPUT_NAME.unused << ")" << ENDL;
-
-		return OUTPUT_NAME;
-	}
+inline SDL_Color sdl_color_from(const char* ccolor);
 
 #define V8_ARG_TO_SDL_NEWCOLOR(ARG_NUMBER, OUTPUT_NAME)                                                                  \
     SDL_Color OUTPUT_NAME;                                                                                               \
@@ -226,4 +158,3 @@ int SDL_MapRGB( SDL_PixelFormat *format, SDL_Color clr );
 int SDL_FillRect( SDL_Surface *dest, SDL_Rect *rc, SDL_Color &clr );
 
 #endif // V8_HELPER_H_
-

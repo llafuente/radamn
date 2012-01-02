@@ -14,7 +14,7 @@ inline SDL_Rect* getFullRectSurface(SDL_Surface* surface);
 #define PLINE std::cout << __LINE__ << std::endl;
 
 
-#endif // SDL_HELPER_H_
-
-
 int nextpoweroftwo(float x);
+
+
+#endif // SDL_HELPER_H_

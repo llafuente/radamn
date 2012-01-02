@@ -29,6 +29,10 @@ Handle<Value> Radamn::init(const Arguments& args) {
 	return Undefined();
 }
 
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
 extern "C" void
 init(Handle<Object> target)
 {
@@ -357,3 +361,7 @@ Handle<Value> Radamn::pollEvent(const Arguments& args) {
 
 	return scope.Close(evt);
 }
+
+//
+// ----------------------------------------------------------------------------------------------------
+//

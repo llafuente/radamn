@@ -89,7 +89,7 @@ glColor glColor_from(SDL_Color color) {
     output.g = color.g * 0.003921568627450980392156862745098f;
     output.b = color.b * 0.003921568627450980392156862745098f;
 
-    output.a = color.unused *0.001f;
+    output.a = color.unused * 0.003921568627450980392156862745098f;
 
     return output;
 }
