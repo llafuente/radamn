@@ -1,0 +1,5 @@
+windows: download http://www.xmission.com/~nate/glut/glut-3.7.6-bin.zip and decompress here
+linux: when install X you should have GL at /usr/include/GL
+andoid: not needed is included in the oficial SDK
+mac: ??
+iphone: not needed is included in the oficial SDK

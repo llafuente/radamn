@@ -1,0 +1,1 @@
+all os: hg clone http://hg.libsdl.org/SDL
