@@ -43,6 +43,7 @@ win.onRequestFrame = function(delta) {
     ++counter;
 
     win.render(delta);
+
     // line test
     canvas.save();
         canvas.strokeStyle = "rgb(255,0,0)";
@@ -52,11 +53,11 @@ win.onRequestFrame = function(delta) {
 		canvas.beginPath();
 		canvas.moveTo(150,150);
 		//arcTo(0, 0, 10, 10, 5);
-		canvas.arc(150, 150, 100, 0, 180, false);
+		canvas.arc(150, 150, 100, 0, Math.PI2, false);
 		canvas.closePath();
-		canvas.stroke();
 		canvas.fill();
-		
+		canvas.stroke();		
+
         canvas.translate( 128, 128);
         canvas.beginPath();
         canvas.lineTo(0,50);
@@ -64,7 +65,9 @@ win.onRequestFrame = function(delta) {
         canvas.lineTo(50,0);
         canvas.lineTo(0,0);
         canvas.closePath();
+		canvas.fill();
         canvas.stroke();
+		
 
         canvas.translate( 64, 0);
         canvas.beginPath();
@@ -72,6 +75,7 @@ win.onRequestFrame = function(delta) {
         canvas.lineTo(50,50);
         canvas.lineTo(0,0);
         canvas.closePath();
+		canvas.fill();
         canvas.stroke();
 
         canvas.translate( 64, 0);
@@ -79,6 +83,7 @@ win.onRequestFrame = function(delta) {
         canvas.lineTo(0,50);
         canvas.lineTo(50,50);
         canvas.closePath();
+		canvas.fill();
         canvas.stroke();
 
         canvas.translate( 64, 0);
@@ -91,4 +96,4 @@ win.onRequestFrame = function(delta) {
 };
 
 Radamn.listenInput(50);
-Radamn.start(50);
+Radamn.start(1);

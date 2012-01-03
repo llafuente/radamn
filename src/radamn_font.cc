@@ -10,7 +10,7 @@
 static v8::Handle<v8::Value> Radamn::Font::load(const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  VERBOSE << args.Length() << " - " << args[0]->IsString() << "/" << args[1]->IsNumber() << std::endl;
+  VERBOSE << args.Length() << " - " << args[0]->IsString() << "/" << args[1]->IsNumber() << ENDL;
 
   if (!(args.Length() == 2 && args[0]->IsString() && args[1]->IsNumber())) {
     return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected TTF::OpenFont(String, Number)")));
@@ -55,8 +55,8 @@ static v8::Handle<v8::Value> Radamn::Font::getImage(const v8::Arguments& args) {
 
     /* Use SDL_TTF to render our text */
 	VERBOSE << *text << ENDL;
-    //initial = TTF_RenderText_Blended(font, *text, fg_color);
-    initial = TTF_RenderText_Solid(font, *text, fg_color);
+    initial = TTF_RenderText_Blended(font, *text, fg_color);
+    //initial = TTF_RenderText_Solid(font, *text, fg_color);
 	//initial = TTF_RenderUTF8_Blended(font, *text, fg_color);
 
 
@@ -78,11 +78,13 @@ initial =
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
     //upload to opengl and return this is not efficiency so i maybe need to think another method...
 
+	const SDL_VideoInfo *vi = SDL_GetVideoInfo ();
+
     /* Convert the rendered text to a known format */
     w = nextpoweroftwo((float) initial->w);
     h = nextpoweroftwo((float) initial->h);
 	VERBOSE << "Expand texture to: [" << w << "," << h << "]" << ENDL;
-    image = SDL_CreateRGBSurface(0, w, h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+    image = SDL_CreateRGBSurface(0, w, h, vi->vfmt->BitsPerPixel, vi->vfmt->Rmask, vi->vfmt->Gmask, vi->vfmt->Bmask, vi->vfmt->Amask);
     SDL_BlitSurface(initial, 0, image, 0);
 	VERBOSE << "Expanded" << ENDL;
 

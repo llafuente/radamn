@@ -19,6 +19,8 @@ module.exports = new Class({
     },
     draw: function(ctx, delta) {
         var fps = Math.round(1000 / delta,1)+"";
+		ctx.globalCompositeOperation = Radamn.$.BLENDING.COPY;
         this.font.write(ctx, fps, this.options.color, this.options.x, this.options.y);
+		ctx.globalCompositeOperation = Radamn.$.BLENDING.SOURCE_OVER;
     }
 });
