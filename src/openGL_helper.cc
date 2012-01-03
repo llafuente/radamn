@@ -63,8 +63,6 @@ inline void opengl_draw_textured_quad(OGL_Texture* texture, GLfloat* uvs, SDL_Re
 	VERBOSEC << width << "(" << uvs[2] << ")," << dst->y << "("<< uvs[1]<< "] [";
 	VERBOSEC << width << "(" << uvs[2] << ")," << height << "(" << uvs[3] << ")] [";
 	VERBOSEC << dst->x << "(" << uvs[0] <<")," << height << "(" << uvs[3] <<")]" << ENDL;
-
-
 	
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 	glBegin(GL_QUADS);
@@ -107,12 +105,11 @@ inline void opengl_draw_textured_quad(OGL_Texture* texture, GLfloat* uvs, SDL_Re
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES2
 
 #endif
-
-
 	
 	glDisable(GL_TEXTURE_2D);
 
 	opengl_clear_operator();
+	VERBOSE << "done" << ENDL;
 }
 
 //
@@ -132,8 +129,6 @@ inline GLfloat* opengl_uv_from(SDL_Surface* surface, SDL_Rect* rect) {
 
 	using std::setprecision;
 	using std::numeric_limits;
-
-	VERBOSE << VERBOSEF("text-coords [%d,%d,%d,%d]", uvs[0], uvs[1], uvs[2], uvs[3]);
 
 	VERBOSE
 	<< "text-coords ["
@@ -273,16 +268,14 @@ inline void opengl_stroke_point(GLfloat* points, int cpoints, int width, glColor
 	glBegin (GL_LINE_STRIP);
 	int i = 0, pos = 0;
 	for(;i<cpoints;++i) {
-		VERBOSE << i << "( "<< points[pos] << "," << points[pos+1] << ")" << std::endl;
-		glVertex3f (points[pos], points[pos+1], points[pos+2]);
+		VERBOSE << i << "/"<< cpoints << "( "<< points[pos] << "," << points[pos+1] << ")" << ENDL;
+		glVertex3f(points[pos], points[pos+1], points[pos+2]);
 		pos+=3;
 	}
-	glEnd ();
+	glEnd();
 
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
 #endif	
-
-
 	
 	glDisable(GL_LINE_SMOOTH);
 	if(color.a != 1) {

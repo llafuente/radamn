@@ -40,7 +40,6 @@ static v8::Handle<v8::Value> Radamn::Font::getImage(const v8::Arguments& args) {
     if (!(args.Length() == 3 && args[0]->IsObject() && args[1]->IsString())) {
         return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected TTF::RenderTextBlended(Font, String, Number)")));
     }
-
     TTF_Font* font = 0;
     V8_UNWRAP_POINTER_ARG(0, TTF_Font, font)
 
@@ -55,10 +54,11 @@ static v8::Handle<v8::Value> Radamn::Font::getImage(const v8::Arguments& args) {
     GLuint texture;
 
     /* Use SDL_TTF to render our text */
-    //initial = TTF_RenderText_Blended(font, *text, fg_color);
-    initial = TTF_RenderText_Solid(font, *text, fg_color);
+	VERBOSE << *text << ENDL;
+    initial = TTF_RenderText_Blended(font, *text, fg_color);
+    //initial = TTF_RenderText_Solid(font, *text, fg_color);
 	//initial = TTF_RenderUTF8_Blended(font, *text, fg_color);
-	
+
 
 /*
 initial =
@@ -81,9 +81,10 @@ initial =
     /* Convert the rendered text to a known format */
     w = nextpoweroftwo((float) initial->w);
     h = nextpoweroftwo((float) initial->h);
-	VERBOSE << "Expand texture to: ["<< w << "," << h << "]";
+	VERBOSE << "Expand texture to: [" << w << "," << h << "]" << ENDL;
     image = SDL_CreateRGBSurface(0, w, h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
     SDL_BlitSurface(initial, 0, image, 0);
+	VERBOSE << "Expanded" << ENDL;
 
     /* Tell GL about our new texture */
     glGenTextures(1, &texture);
@@ -98,7 +99,7 @@ initial =
         texture_format = image->format->Rmask ==0x000000ff ? GL_RGB : GL_BGR;
     }
 
-    VERBOSE << "bpp" << bpp << std::endl;
+    VERBOSE << "bpp" << bpp << ENDL;
 
     glTexImage2D(GL_TEXTURE_2D, 0, bpp, image->w, image->h, 0, texture_format, GL_UNSIGNED_BYTE, image->pixels);
 
@@ -112,8 +113,9 @@ initial =
     SDL_FreeSurface(initial);
 
     SDL_free(image->pixels); //pixels are not needed so free!
-
-    image->userdata = (OGL_Texture*) new OGL_Texture;
+	image->pixels = 0;
+	VERBOSE << "allocate OGL_Texture" << ENDL;
+    image->userdata = (OGL_Texture*) SDL_malloc(sizeof(OGL_Texture));
     ((OGL_Texture*) image->userdata)->textureID = texture;
 #elif
     image = initial;
@@ -124,6 +126,7 @@ initial =
             v8::String::New("TTF::??"), v8::String::New(TTF_GetError())
         )));
     }
+	VERBOSE << "got" << ENDL;
 
     RETURN_WRAP_IMAGE(image)
 }

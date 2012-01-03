@@ -117,13 +117,12 @@ if(args[ POS ]->Is ## ARG_TYPE()) {            \
 }                                              \
 
 
-
-#define SDL_RECT_P(POINTER, X,Y,W,H)            \
-POINTER = new SDL_Rect();                       \
-POINTER->x = X;                                 \
-POINTER->y = Y;                                 \
-POINTER->w = W;                                 \
-POINTER->h = H;                                 \
+#define SDL_RECT_P(POINTER, X,Y,W,H)                \
+POINTER = (SDL_Rect*) SDL_malloc(sizeof(SDL_Rect)); \
+POINTER->x = X;                                     \
+POINTER->y = Y;                                     \
+POINTER->w = W;                                     \
+POINTER->h = H;                                     \
 
 #define RETURN_WRAP_IMAGE(POINTER)                                                                 \
     if (SDL_Surface_template_.IsEmpty()) {                                                      \

@@ -117,7 +117,10 @@ copy %RADAMN_ROOT%\deps\SDL_ttf\lib\SDL_ttf.dll lib\SDL_ttf.dll
 copy %RADAMN_ROOT%\deps\SDL_ttf\lib\zlib1.dll lib\zlib1.dll
 copy %RADAMN_ROOT%\deps\SDL_ttf\lib\libfreetype-6.dll lib\libfreetype-6.dll
 copy %RADAMN_ROOT%\deps\GL\glut32.dll lib\glut32.dll
-if not defined NODE_ROOT goto nodebuild-not-found
+if not defined NODE_ROOT (
+	setx "NODE_ROOT" "%RADAMN_ROOT%/deps/node"
+)
+if not exist %NODE_ROOT% goto nodebuild-not-found
 
 
 

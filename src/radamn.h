@@ -45,7 +45,7 @@ namespace Radamn {
 	public:
 		static v8::Persistent<v8::FunctionTemplate> s_ct;
 #ifdef _WIN32
-		static void node::NODE_EXTERN Init(v8::Handle<v8::Object> target);
+		static void NODE_EXTERN Init(v8::Handle<v8::Object> target);
 #else
 	static void Init(v8::Handle<v8::Object> target);
 #endif

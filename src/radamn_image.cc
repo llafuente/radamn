@@ -79,8 +79,9 @@ static v8::Handle<v8::Value> Radamn::Image::load(const v8::Arguments& args) {
 
     VERBOSE << "free image pixels memory" << ENDL;
     SDL_free(image->pixels); //pixels are not needed so free!
+	image->pixels = 0;
 
-    image->userdata = (OGL_Texture*) new OGL_Texture;
+    image->userdata = (OGL_Texture*) SDL_malloc(sizeof(OGL_Texture));
     ((OGL_Texture*) image->userdata)->textureID = texture;
     VERBOSE << "loaded" << ENDL;
 
@@ -94,7 +95,7 @@ static v8::Handle<v8::Value> Radamn::Image::load(const v8::Arguments& args) {
 
 static v8::Handle<v8::Value> Radamn::Image::destroy(const v8::Arguments& args) {
     v8::HandleScope scope;
-
+	VERBOSE << "destroy" << ENDL;
     if (!(args.Length() == 1 && args[0]->IsObject())) {
       return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected Radamn::Image::destroy(PointerToSurface)")));
     }
@@ -105,11 +106,26 @@ static v8::Handle<v8::Value> Radamn::Image::destroy(const v8::Arguments& args) {
 
     if(target != 0)
         SDL_FreeSurface(target);
-#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
-    GLuint texture;
-    UNWRAP_IMAGE(0, texture);
-    glDeleteTextures(1, &texture);
+#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES || RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
+    SDL_Surface* image;
+    V8_UNWRAP_POINTER_ARG(0, SDL_Surface, image)
+	
+	if(!image) return v8::False();
+
+	VERBOSE << "surface get!" << ENDL;
+	/*
+	if(image->userdata) {
+		glDeleteTextures(1, &((OGL_Texture*) image->userdata)->textureID);
+		SDL_free(image->userdata);
+		image->userdata = 0;
+	}*/
+	
+	VERBOSE << "freesurface ?" << ENDL;
+
+	SDL_FreeSurface(image);
 #endif
+
+	VERBOSE << "destroyed" << ENDL;
 
     return v8::True();
 }
@@ -159,8 +175,7 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
 	SDL_Rect* srcrect = 0;
 
 	if(args.Length() == 4) {
-		VERBOSE << "WTF!" << args[2]->Int32Value();
-		dstrect = new SDL_Rect();
+		dstrect = (SDL_Rect*) SDL_malloc(sizeof(SDL_Rect));
 		dstrect->x = args[2]->Int32Value();
 		dstrect->y = args[3]->Int32Value();
 		dstrect->w = src->w;
@@ -170,7 +185,7 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
 	}
 
 	if(args.Length() == 6) {
-		dstrect = new SDL_Rect();
+		dstrect = (SDL_Rect*) SDL_malloc(sizeof(SDL_Rect));
 		dstrect->x = args[2]->Int32Value();
 		dstrect->y = args[3]->Int32Value();
 		dstrect->w = args[4]->Int32Value();
@@ -197,8 +212,15 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
 	return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));
 #endif
 
-	SDL_free(srcrect);
-	SDL_free(dstrect);
+	VERBOSE << "free: srcrect"  << ENDL;
+	if(srcrect) {
+		SDL_free(srcrect);
+	}
+	VERBOSE << "free: dstrect"  << ENDL;
+	if(dstrect)
+		SDL_free(dstrect);
+
+	VERBOSE << "drawed" << ENDL;
 
 	return v8::True();
 }

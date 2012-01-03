@@ -16,6 +16,32 @@ inline SDL_Color sdl_color_from(const char* ccolor) {
 		OUTPUT_NAME.r = (int)r;
 		OUTPUT_NAME.g = (int)g;
 		OUTPUT_NAME.b = (int)b;
+	} else if(strncmp ( ccolor, "rgba", 4) == 0) {
+		  char* aux = (char *)malloc(strlen(ccolor)+1); /* strtok so +1!! */
+		  strcpy(ccolor, aux);
+		  VERBOSE << aux << std::endl;
+		  strremchar(aux, ' ', aux);
+
+		  char * ptr = strtok (aux, "(");
+
+		  ptr = strtok (NULL, ",)");
+		  OUTPUT_NAME.r = (int) atoi(ptr);
+		  VERBOSE << ptr << " R " << (int) OUTPUT_NAME.r << std::endl;
+
+		  ptr = strtok (NULL, ",)");
+		  OUTPUT_NAME.g = (int) atoi(ptr);
+		  VERBOSE << ptr << " G " << (int) OUTPUT_NAME.g << std::endl;
+
+		  ptr = strtok (NULL, ",)");
+		  OUTPUT_NAME.b = (int) atoi(ptr);
+		  VERBOSE << ptr << " B " << (int) OUTPUT_NAME.b << std::endl;
+		  
+		  ptr = strtok (NULL, ",)");
+		  OUTPUT_NAME.unused = (int) (atof(ptr) * 255.0f);
+		  VERBOSE << ptr << " A " << (int) OUTPUT_NAME.unused << std::endl;
+
+		  free(aux); /* free the initial pointer!! */
+		  ptr = 0;
 	} else if(strncmp ( ccolor, "rgb", 3) == 0) {
 		  char* aux = (char *)malloc(strlen(ccolor)+1); /* strtok so +1!! */
 		  strcpy(ccolor, aux);
@@ -26,43 +52,15 @@ inline SDL_Color sdl_color_from(const char* ccolor) {
 
 		  ptr = strtok (NULL, ",");
 		  OUTPUT_NAME.r = (int) atoi(ptr);
-		  VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.r << std::endl;
+		  VERBOSE << ptr << " R " << (int) OUTPUT_NAME.r << std::endl;
 
 		  ptr = strtok (NULL, ",");
 		  OUTPUT_NAME.g = (int) atoi(ptr);
-		  VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.g << std::endl;
+		  VERBOSE << ptr << " G " << (int) OUTPUT_NAME.g << std::endl;
 
 		  ptr = strtok (NULL, ")");
 		  OUTPUT_NAME.b = (int) atoi(ptr);
-		  VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.b << std::endl;
-		  ptr = strtok (NULL, "?");
-
-		  free(aux); /* free the initial pointer!! */
-		  ptr = 0;
-	} else if(strncmp ( ccolor, "rgba", 4) == 0) {
-		  char* aux = (char *)malloc(strlen(ccolor)+1); /* strtok so +1!! */
-		  strcpy(ccolor, aux);
-		  VERBOSE << aux << std::endl;
-		  strremchar(aux, ' ', aux);
-
-		  char * ptr = strtok (aux, "(");
-
-		  ptr = strtok (NULL, ",");
-		  OUTPUT_NAME.r = (int) atoi(ptr);
-		  VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.r << std::endl;
-
-		  ptr = strtok (NULL, ",");
-		  OUTPUT_NAME.g = (int) atoi(ptr);
-		  VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.g << std::endl;
-
-		  ptr = strtok (NULL, ",");
-		  OUTPUT_NAME.b = (int) atoi(ptr);
-		  VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.b << std::endl;
-		  ptr = strtok (NULL, "?");
-		  
-		  ptr = strtok (NULL, ")");
-		  OUTPUT_NAME.unused = (int) (atof(ptr) * 255);
-		  VERBOSE << ptr << " vs " << (int) OUTPUT_NAME.b << std::endl;
+		  VERBOSE << ptr << " B " << (int) OUTPUT_NAME.b << std::endl;
 		  ptr = strtok (NULL, "?");
 
 		  free(aux); /* free the initial pointer!! */

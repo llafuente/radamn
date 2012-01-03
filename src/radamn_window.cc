@@ -28,6 +28,7 @@ static v8::Handle<v8::Value> Radamn::Window::setCaption(const v8::Arguments& arg
 
 static v8::Handle<v8::Value> Radamn::Window::clear(const v8::Arguments& args) {
 	v8::HandleScope scope;
+	VERBOSE << "clear" << ENDL;
 #if RADAMN_RENDERER == RADAMN_RENDERER_SOFTWARE
 	SDL_Surface* screen = Radamn::mCurrentScreen;
 	SDL_Rect* srcrect = getFullRectSurface(screen);
@@ -181,20 +182,26 @@ static v8::Handle<v8::Value> Radamn::Window::stroke(const v8::Arguments& args) {
 	VERBOSE << "stroking"  <<
 	" w:" << width <<
 	"color rgb(" << (int)color.r << "," << (int)color.g << "," << (int)color.b << ")"
-	<< std::endl;
+	<< "COORDS" << coords->Length() << std::endl;
 
 	unsigned int i = 0,
 		max = coords->Length(),
 		pos = 0;
 
-	GLfloat positions[max*3];
+	GLfloat* positions = (GLfloat*) SDL_malloc(sizeof(GLfloat) * (max + 1) *3);
 	
 	for(;i<max;++i) {
 		v8_get_vec2_from_array_idx(coords, i, positions[pos], positions[pos+1]);
 		positions[pos+2] = 0;
 		pos+=3;
 	}
-	opengl_stroke_point(positions, max, width, color);
+	//close the path
+	positions[pos] = positions[0];
+	positions[pos+1] = positions[1];
+	positions[pos+2] = 0;
+	opengl_stroke_point(positions, max+1, width, color);
+
+	SDL_free(positions);
 
 	return v8::True();
 }
@@ -316,15 +323,22 @@ static v8::Handle<v8::Value> Radamn::Window::fill(const v8::Arguments& args) {
 		max = coords->Length(),
 		pos = 0;
 
-	GLfloat positions[max*3];
+	GLfloat* positions = (GLfloat*) SDL_malloc(sizeof(GLfloat) * (max+1) * 3);
 	
 	for(;i<max;++i) {
 		v8_get_vec2_from_array_idx(coords, i, positions[pos], positions[pos+1]);
 		positions[pos+2] = 0;
 		pos+=3;
 	}
-	opengl_fill_poly(positions, max, color);
+
+	//close the path
+	positions[pos] = positions[0];
+	positions[pos+1] = positions[1];
+	positions[pos+2] = 0;
+
+	opengl_fill_poly(positions, max+1, color);
 	
+	SDL_free(positions);
 	
 	return v8::True();
 	

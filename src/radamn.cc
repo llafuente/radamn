@@ -20,10 +20,12 @@ v8::Handle<v8::Value> Radamn::init(const v8::Arguments& args) {
 	SDL_Init( SDL_INIT_EVERYTHING );
 
 	if(TTF_Init() == -1) {
-		char * xx;
-		sprintf(xx, "TTF_Init: %s\n", TTF_GetError());
-		return ThrowException(v8::Exception::TypeError(v8::String::New( xx )));
+		return ThrowException(v8::Exception::Error(v8::String::Concat(
+			v8::String::New("TTF_Init:: "),
+			v8::String::New(TTF_GetError())
+		)));
 	}
+
 	VERBOSE << "TTF inited" << ENDL;
 
 	return v8::Undefined();
@@ -33,8 +35,6 @@ v8::Handle<v8::Value> Radamn::init(const v8::Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-//Persistent<FunctionTemplate> Radamn::Creator::s_ct;
-
 //
 // ----------------------------------------------------------------------------------------------------
 //
@@ -44,16 +44,19 @@ v8::Handle<v8::Value> Radamn::init(const v8::Arguments& args) {
 //
 
 #ifdef _WIN32
-	void node::NODE_EXTERN Radamn::Creator::Init(v8::Handle<v8::Object> target)
+	void NODE_EXTERN Radamn::Creator::Init(v8::Handle<v8::Object> target)
 #else
 	void Radamn::Creator::Init(v8::Handle<v8::Object> target)
 #endif
 {
+	VERBOSE << "create" << ENDL;
 }
 
 //
 // ----------------------------------------------------------------------------------------------------
 //
+
+v8::Persistent<v8::FunctionTemplate> Radamn::Creator::s_ct;
 
 extern "C" {
 #ifdef _WIN32
@@ -62,6 +65,7 @@ extern "C" {
 	void init (v8::Handle<v8::Object> target)
 #endif
 	{
+	v8::HandleScope scope;
 	/*
     // set the constructor function
     v8::Local<v8::FunctionTemplate> t = v8::FunctionTemplate::New(Radamn::Creator::New);
@@ -72,8 +76,11 @@ extern "C" {
 
 	v8::Local<v8::Object> target = v8::Object::New();
 	*/
+		
 	NODE_SET_METHOD(target, "init", Radamn::init);
+
 	NODE_SET_METHOD(target, "quit", Radamn::quit);
+	
 	NODE_SET_METHOD(target, "getVersion", Radamn::getVersion);
 	NODE_SET_METHOD(target, "createWindow", Radamn::createWindow);
 	NODE_SET_METHOD(target, "getJoysticks", Radamn::getJoysticks);
@@ -112,7 +119,6 @@ extern "C" {
 	NODE_SET_METHOD(Font, "destroy", Radamn::Font::destroy);
 
 	//Radamn::Creator::s_ct->Set("init", target);
-
 
     }
     NODE_MODULE(Creator, init);
@@ -181,7 +187,8 @@ static v8::Handle<v8::Value> Radamn::createWindow(const v8::Arguments& args) {
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
 	return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));
 #endif
-	//if (screen == NULL) return ThrowSDLException(__func__);
+	if (!screen)
+		return ThrowException(v8::Exception::TypeError(v8::String::New("Cannot create the window!")));
 
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,        8);
