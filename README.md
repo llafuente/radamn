@@ -85,27 +85,25 @@ The proyect is not mature enough t start documenting.
 Priority
 
 * Sprites
-* Animation (done based on a single image)
-* memoryleak.log (like the old Ogre3d has)
-* Paralax mapping (http://en.wikipedia.org/wiki/Parallax_scrolling)
-* canvas blending modes
+* memoryleak.log (like the old Ogre3d has 1.2?)
 * drag&drop ¿using mootools?
 
 Done
 
+* canvas blending modes (a bit buggy)
+* Paralax mapping (http://en.wikipedia.org/wiki/Parallax_scrolling) basic support.
+* Animation (done based on a single image)
 * Compatible events beetween radamn and a browser (almost done: Keyboard, Mouse and Joystick ready)
 * Nodes, with z-index sorting functions (Node ready z-index sorting not done)
 * manage quit the APP, destroy everything. No memory is left behind soldier! (event ready but no memory free)
+* Physic layer BOX2DWEB outside Radamn for now...
+* platforms: Linux, Windows
 
 Someday/sometime
 
-* Physic layer (with chipmunk, mostly for collision rays/point query)
-* compile V8/node.js on IOS
-* Compile V8/node.js on Android
-* Search a proper audio library. SDL_mixer is not enough. OpenAl could be good.
-* Multiple window suppor (I must deal with some problems like where OPENGL will paint...)
-* Multiple process/threads. (really needed ?)
-* Port to a browser. This is almost done. Radamn.js should work in a browser with minor modifications.
+* platforms: IOS, Android, MACOS, Browser
+* Search a proper audio library. SDL_mixer is not enough. OpenAl could be good IOS/Android support ?
+* Multiple window support (I must deal with some problems like where OPENGL will paint...)
 
 
 ## 3. About
