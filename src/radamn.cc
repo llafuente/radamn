@@ -154,10 +154,13 @@ static v8::Handle<v8::Value> Radamn::quit(const v8::Arguments& args) {
 // XXX opengl version / openglES
 static v8::Handle<v8::Value> Radamn::getVersion(const v8::Arguments& args) {
 	char buffer[256];
-	sprintf(buffer, "SDL %d.%d.%d\nSDL_Image %d.%d.%d\n%s\n GL\n GLU\n",
+	sprintf(buffer, "SDL %d.%d.%d\nSDL_Image %d.%d.%d\n%s\n GL %s, %s, %s\n GLU\n",
 		SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL,
 		SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL,
-		PNG_HEADER_VERSION_STRING
+		PNG_HEADER_VERSION_STRING,
+		glGetString(GL_VENDOR),
+		glGetString(GL_RENDERER),
+		glGetString(GL_VERSION)
 	);
 	return v8::String::New( buffer );
 }
@@ -179,18 +182,19 @@ static v8::Handle<v8::Value> Radamn::createWindow(const v8::Arguments& args) {
 	int height = (args[1]->Int32Value());
 
 	SDL_Surface* screen = 0;
-
 #if RADAMN_RENDERER == RADAMN_RENDERER_SOFTWARE
 	screen = SDL_SetVideoMode(width, height, 16, SDL_SWSURFACE);
-#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
-	screen = SDL_SetVideoMode(width, height, 16, SDL_OPENGL);
-#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
-	return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));
-#endif
-	if (!screen)
+	if (!screen) {
 		return ThrowException(v8::Exception::TypeError(v8::String::New("Cannot create the window!")));
-
-#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
+	}
+#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
+	screen = SDL_SetVideoMode(width, height, 16, SDL_OPENGL | SDL_HWSURFACE );
+	if (!screen) {
+		return ThrowException(v8::Exception::TypeError(v8::String::New("Cannot create the window!")));
+	}
+	
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,    1);
+	
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,        8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,      8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,       8);
@@ -206,6 +210,9 @@ static v8::Handle<v8::Value> Radamn::createWindow(const v8::Arguments& args) {
 
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,  1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,  2);
+	
+	
+
 
 	glClearColor(0, 0, 0, 0);
 	glClearDepth(1.0f);
@@ -224,10 +231,11 @@ static v8::Handle<v8::Value> Radamn::createWindow(const v8::Arguments& args) {
 
 	glDisable(GL_DEPTH_TEST);
 
+#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
+	return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));
 #endif
 
 	debug_SDL_Surface(screen);
-
 
 	V8_RETURN_WRAPED_POINTER(scope, SDL_Surface, screen)
 }

@@ -55,8 +55,8 @@ static v8::Handle<v8::Value> Radamn::Font::getImage(const v8::Arguments& args) {
 
     /* Use SDL_TTF to render our text */
 	VERBOSE << *text << ENDL;
-    initial = TTF_RenderText_Blended(font, *text, fg_color);
-    //initial = TTF_RenderText_Solid(font, *text, fg_color);
+    //initial = TTF_RenderText_Blended(font, *text, fg_color);
+    initial = TTF_RenderText_Solid(font, *text, fg_color);
 	//initial = TTF_RenderUTF8_Blended(font, *text, fg_color);
 
 

@@ -117,17 +117,13 @@ copy %RADAMN_ROOT%\deps\SDL_ttf\lib\SDL_ttf.dll lib\SDL_ttf.dll
 copy %RADAMN_ROOT%\deps\SDL_ttf\lib\zlib1.dll lib\zlib1.dll
 copy %RADAMN_ROOT%\deps\SDL_ttf\lib\libfreetype-6.dll lib\libfreetype-6.dll
 copy %RADAMN_ROOT%\deps\GL\glut32.dll lib\glut32.dll
+
+@rem Check for nodejs build location variable
 if not defined NODE_ROOT (
 	setx "NODE_ROOT" "%RADAMN_ROOT%/deps/node"
 )
 if not exist %NODE_ROOT% goto nodebuild-not-found
 
-
-
-
-@rem Check for nodejs build location variable
-
-if not defined NODE_ROOT goto nodebuild-not-found
 if not exist "%NODE_ROOT%\src\node.h" goto nodebuild-not-found
 if not exist "%NODE_ROOT%\deps\v8\include\v8.h" goto nodebuild-not-found
 if not exist "%NODE_ROOT%\deps\uv\include\uv.h" goto nodebuild-not-found
@@ -194,3 +190,4 @@ echo RADAMN_ROOT not found, if you want to use this as
 @rem clear local variables
 set node_lib_folder=
 set gypfile=
+

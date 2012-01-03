@@ -11,6 +11,9 @@ iphone: not needed is included in the oficial SDK</pre>
 ## SDL
 <pre>    any os: hg clone http://hg.libsdl.org/SDL SDL</pre>
 
+## libpng 
+<pre>    http://prdownloads.sourceforge.net/libpng/libpng-1.5.5.tar.gz?download</pre>
+
 ## SDL_image
 <pre>    any os: hg clone http://hg.libsdl.org/SDL_image</pre>
 
