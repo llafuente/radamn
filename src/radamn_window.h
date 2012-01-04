@@ -9,7 +9,7 @@
 
 namespace Radamn {
 	namespace Window {
-		Uint32 mBackgroundColor = 0;
+		static Uint32 mBackgroundColor = 0;
 
 		v8::Handle<v8::Value> setCaption(const v8::Arguments& args);
 		v8::Handle<v8::Value> setIcon(const v8::Arguments& args);

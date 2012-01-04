@@ -1,4 +1,4 @@
-#include <radamn_image.h>
+#include "radamn_image.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,6 +7,7 @@
 #include <v8.h>
 #include "v8_helper.h"
 #include "opengl_helper.h"
+#include "prerequisites.h"
 
 
 using namespace radamn;
@@ -152,7 +153,7 @@ image* image_new(char* filename) {
 	return 0;
 }
 
-static v8::Handle<v8::Value> radamn::v8_image_load(const v8::Arguments& args) {
+v8::Handle<v8::Value> radamn::v8_image_load(const v8::Arguments& args) {
     v8::HandleScope scope;
 
     if (!(args.Length() == 1 && args[0]->IsString())) {
@@ -168,7 +169,7 @@ static v8::Handle<v8::Value> radamn::v8_image_load(const v8::Arguments& args) {
 	
 	return image::wrap(img);
 }
-static v8::Handle<v8::Value> radamn::v8_image_draw(const v8::Arguments& args) {
+v8::Handle<v8::Value> radamn::v8_image_draw(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
 	VERBOSE << "draw[" << args.Length() << "] expected[1111] recieved["
@@ -256,10 +257,12 @@ static v8::Handle<v8::Value> radamn::v8_image_draw(const v8::Arguments& args) {
 	return v8::True();
 }
 
-static v8::Handle<v8::Value> radamn::v8_image_batch_draw(const v8::Arguments& args) {
+v8::Handle<v8::Value> radamn::v8_image_batch_draw(const v8::Arguments& args) {
 	THROW("not supported atm!");
+	return v8::Undefined();
 }
-static v8::Handle<v8::Value> radamn::v8_image_destroy(const v8::Arguments& args) {
+
+v8::Handle<v8::Value> radamn::v8_image_destroy(const v8::Arguments& args) {
     v8::HandleScope scope;
 	VERBOSE << "destroy" << ENDL;
     if (!(args.Length() == 1 && args[0]->IsObject())) {

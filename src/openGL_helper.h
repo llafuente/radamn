@@ -21,7 +21,7 @@
 using namespace radamn;
 
 	//not used... need refactoring
-	inline void opengl_draw_colored_poly(glColor color, SDL_Rect rect);
+	void opengl_draw_colored_poly(glColor color, SDL_Rect rect);
 
      /// from cairo
     typedef enum opengl_operators {
@@ -64,22 +64,22 @@ using namespace radamn;
 
     /// from cairo
     /// build a unit test: http://forums.inside3d.com/viewtopic.php?t=1419
-    inline void opengl_set_operator(opengl_operators_t op);
+    void opengl_set_operator(opengl_operators_t op);
 
-    inline void opengl_clear_operator();
+    void opengl_clear_operator();
 
 	void opengl_draw_textured_quad(OGL_Texture* texture, GLfloat* uvs, SDL_Rect* dst, opengl_operators_t composite = OPERATOR_OVER);
 	
 	void opengl_draw_textured_SDL_Rect(image* img, SDL_Rect* from, SDL_Rect* to, opengl_operators_t composite);
 
-	inline GLfloat* opengl_uv_from(SDL_Surface* surface, SDL_Rect* rect);
+	GLfloat* opengl_uv_from(SDL_Surface* surface, SDL_Rect* rect);
 
 	// remeber this is only OPENGL, OPENGLES2 it's different
-	inline void opengl_draw_textured_SDL_Rect(SDL_Surface* surface, SDL_Rect* from, SDL_Rect* to, opengl_operators_t composite);
+	void opengl_draw_textured_SDL_Rect(SDL_Surface* surface, SDL_Rect* from, SDL_Rect* to, opengl_operators_t composite);
 	
-	inline void opengl_stroke_point(GLfloat* points, int cpoints, int width, glColor color, opengl_operators_t composite = OPERATOR_OVER);
+	void opengl_stroke_point(GLfloat* points, int cpoints, int width, glColor color, opengl_operators_t composite = OPERATOR_OVER);
 	
-	inline void opengl_fill_poly(GLfloat* points, int cpoints, glColor color, opengl_operators_t composite = OPERATOR_OVER);
+	void opengl_fill_poly(GLfloat* points, int cpoints, glColor color, opengl_operators_t composite = OPERATOR_OVER);
 
 #define OGL_BUFFER_OFFSET(i) ((char *)NULL + (i))
 

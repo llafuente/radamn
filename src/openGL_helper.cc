@@ -31,7 +31,7 @@ opengl_operators_t opengl_operator_from_string(char* str) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-inline void opengl_draw_colored_poly(glColor color, SDL_Rect rect) {
+void opengl_draw_colored_poly(glColor color, SDL_Rect rect) {
 	GLfloat y_plus_h = (GLfloat) rect.y + rect.h,
 	x_plus_w = (GLfloat) rect.x + rect.w;
 	VERBOSE << "quad [";
@@ -49,7 +49,7 @@ inline void opengl_draw_colored_poly(glColor color, SDL_Rect rect) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-inline void opengl_draw_textured_quad(GLuint texture_id, GLfloat* uvs, SDL_Rect* dst, opengl_operators_t composite) {
+void opengl_draw_textured_quad(GLuint texture_id, GLfloat* uvs, SDL_Rect* dst, opengl_operators_t composite) {
 	opengl_set_operator(composite);
 
 	glEnable(GL_TEXTURE_2D);
@@ -118,7 +118,7 @@ inline void opengl_draw_textured_quad(GLuint texture_id, GLfloat* uvs, SDL_Rect*
 // ----------------------------------------------------------------------------------------------------
 //
 
-inline GLfloat* opengl_uv_from(SDL_Surface* surface, SDL_Rect* rect) {
+GLfloat* opengl_uv_from(SDL_Surface* surface, SDL_Rect* rect) {
 	GLfloat* uvs = (GLfloat*) malloc(4*sizeof(GLfloat));
 
 	debug_SDL_Surface(surface, "surface from");
@@ -162,7 +162,7 @@ void opengl_draw_textured_SDL_Rect(image* img, SDL_Rect* from, SDL_Rect* to, ope
 // ----------------------------------------------------------------------------------------------------
 //
 
-inline void opengl_set_operator(opengl_operators_t op) {
+void opengl_set_operator(opengl_operators_t op) {
 	struct {
 		GLenum src;
 		GLenum dst;
@@ -247,7 +247,7 @@ ctx->current_operator = op;
 // ----------------------------------------------------------------------------------------------------
 //
 
-inline void opengl_clear_operator() {
+void opengl_clear_operator() {
     glDisable(GL_BLEND);
     //glDisable( GL_DEPTH_TEST );
 }
@@ -256,7 +256,7 @@ inline void opengl_clear_operator() {
 // ----------------------------------------------------------------------------------------------------
 //
 
-inline void opengl_stroke_point(GLfloat* points, int cpoints, int width, glColor color, opengl_operators_t composite) {
+void opengl_stroke_point(GLfloat* points, int cpoints, int width, glColor color, opengl_operators_t composite) {
 	glLineWidth (width);
 	
 	if(color.a != 1) {
@@ -297,7 +297,7 @@ inline void opengl_stroke_point(GLfloat* points, int cpoints, int width, glColor
 // ----------------------------------------------------------------------------------------------------
 //
 
-inline void opengl_fill_poly(GLfloat* points, int cpoints, glColor color, opengl_operators_t composite) {
+void opengl_fill_poly(GLfloat* points, int cpoints, glColor color, opengl_operators_t composite) {
 
 	if(color.a != 1) {
 		glEnable(GL_BLEND); //enable the blending
