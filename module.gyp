@@ -79,9 +79,8 @@
 			 '-l <(RADAMN_ROOT)/deps/GL/glut32.lib',
 			 '-l <(NODE_ROOT)/<(node_lib_folder)/node.lib' ,
 			 '-l <(RADAMN_ROOT)/deps/SDL/VisualC/SDL/Win32/Release/SDL.lib',
-			 #'-l <(RADAMN_ROOT)\deps/SDL/VisualC/SDLmain/Win32/Release/SDLmain.lib',
-			 '-l <(RADAMN_ROOT)/deps/libpng/libpng.lib',
-			 '-l <(RADAMN_ROOT)/deps/SDL_ttf/lib/SDL_ttf.lib',
+			 '-l <(RADAMN_ROOT)/deps/libpng/projects/vstudio/Debug/libpng15.lib',
+			 '-l <(RADAMN_ROOT)/deps/SDL_ttf/lib/SDL_ttf.lib',			 
 		  ],
 		  'msvs_configuration_attributes': {
               'OutputDirectory': 'build\\Release',

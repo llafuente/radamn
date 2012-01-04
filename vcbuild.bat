@@ -112,11 +112,12 @@ goto exit
 @rem copy all DLLs here!
 mkdir build\Release
 copy %RADAMN_ROOT%\deps\SDL\VisualC\SDL\Win32\Release\SDL.dll lib\SDL.dll
-copy %RADAMN_ROOT%\deps\SDL_image\VisualC\Release\SDL_image.dll lib\SDL_image.dll
 copy %RADAMN_ROOT%\deps\SDL_ttf\lib\SDL_ttf.dll lib\SDL_ttf.dll
 copy %RADAMN_ROOT%\deps\SDL_ttf\lib\zlib1.dll lib\zlib1.dll
 copy %RADAMN_ROOT%\deps\SDL_ttf\lib\libfreetype-6.dll lib\libfreetype-6.dll
 copy %RADAMN_ROOT%\deps\GL\glut32.dll lib\glut32.dll
+copy %RADAMN_ROOT%\deps\libpng\projects\vstudio\Debug\libpng15.dll lib\libpng15.dll
+
 
 @rem Check for nodejs build location variable
 if not defined NODE_ROOT (
