@@ -76,8 +76,8 @@ namespace radamn {
 		}
 
 		bool load_from_file(char* name, bool bind=true);
-
-		void load_from_memory();
+		
+		bool load_from_surface(SDL_Surface* surface, bool bind=true);
 
 		static v8::Handle<v8::Value> wrap(image* img);
 		static image* unwrap(const v8::Arguments& args, int position);

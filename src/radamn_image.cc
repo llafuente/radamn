@@ -64,11 +64,36 @@ GLfloat* image::uv_from(SDL_Rect* rect) {
 	return uvs;
 }
 
+bool image::load_from_surface(SDL_Surface* surface, bool bind) {
+	bool hasAlpha = true;
+
+	if(surface->format->BytesPerPixel == 4) {
+		this->flags = (this->flags | image::ALPHA);
+	}
+
+	this->pixels = (GLubyte*) surface->pixels;
+
+	surface->pixels = 0;
+
+	glGenTextures(1, &this->texture_id);
+
+	this->flags = (this->flags | image::LOADED);
+
+	if(bind)
+		this->bind();
+
+	return true;
+}
+
 bool image::load_from_file(char* name, bool bind) {
 	bool hasAlpha = true;
 	if(!image_load_from_png(name, this->width, this->height, hasAlpha,  &this->pixels)) {
 		return false;
 	}
+
+	//for(int i=0;i<this->width*this->height*4;++i) {
+	//	std::cout << (int) this->pixels[i] << " ";
+	//}
 
 	// Check that the image's width is a power of 2
 	if ( (this->width & (this->width - 1)) != 0 ) {
@@ -90,10 +115,6 @@ bool image::load_from_file(char* name, bool bind) {
 	return true;
 }
 
-void image::load_from_memory() {
-	THROW("not supported atm");
-}
-
 bool image::unbind() {
 	if(!this->is(image::OPENGL)) {
 		return false;
@@ -104,7 +125,7 @@ bool image::unbind() {
 }
 
 bool image::bind() {
-	if(!this->is(image::OPENGL)) {
+	if(this->is(image::OPENGL)) {
 		glBindTexture( GL_TEXTURE_2D, this->texture_id );
 		return false;
 	}
@@ -143,14 +164,17 @@ SDL_Rect* image::getRect() {
 
 
 
-void image_free(image* img) {
+void radamn::image_free(image* img) {
 	--image_count;
+	delete img;
 }
 
-image* image_new(char* filename) {
+image* radamn::image_new(char* filename) {
 	++image_count;
-	
-	return 0;
+
+	image* img = new radamn::image();
+	img->load_from_file(filename);
+	return img;
 }
 
 v8::Handle<v8::Value> radamn::v8_image_load(const v8::Arguments& args) {
@@ -274,7 +298,7 @@ v8::Handle<v8::Value> radamn::v8_image_destroy(const v8::Arguments& args) {
 	
 	if(!img) return v8::False();
 	
-	delete img;
+	image_free(img);
 #endif
 
 	VERBOSE << "destroyed" << ENDL;
@@ -394,7 +418,8 @@ inline bool radamn::image_load_from_png(char *name, int &outWidth, int &outHeigh
 		// note that png is ordered top to
 		// bottom, but OpenGL expect it bottom to top
 		// so the order or swapped
-		memcpy(*outData+(row_bytes * (outHeight-1-i)), row_pointers[i], row_bytes);
+		//memcpy(*outData+(row_bytes * (outHeight-1-i)), row_pointers[i], row_bytes);
+		memcpy(*outData+(row_bytes * i), row_pointers[i], row_bytes);
 	}
 
 	/* Clean up after the read,

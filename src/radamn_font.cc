@@ -2,9 +2,10 @@
 
 #include <SDL.h>
 #include <SDL_ttf.h>
-#include <prerequisites.h>
-#include <v8_helper.h>
-#include <SDL_helper.h>
+#include "prerequisites.h"
+#include "radamn_image.h"
+#include "v8_helper.h"
+#include "SDL_helper.h"
 
 using namespace radamn;
 
@@ -15,7 +16,9 @@ using namespace radamn;
 v8::Handle<v8::Value> Radamn::Font::load(const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  VERBOSE << args.Length() << " - " << args[0]->IsString() << "/" << args[1]->IsNumber() << ENDL;
+  std::cout << "load font" << ENDL;
+
+  std::cout << args.Length() << " - " << args[0]->IsString() << "/" << args[1]->IsNumber() << ENDL;
 
   if (!(args.Length() == 2 && args[0]->IsString() && args[1]->IsNumber())) {
     return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected TTF::OpenFont(String, Number)")));
@@ -42,6 +45,8 @@ v8::Handle<v8::Value> Radamn::Font::load(const v8::Arguments& args) {
 v8::Handle<v8::Value> Radamn::Font::getImage(const v8::Arguments& args) {
     v8::HandleScope scope;
 
+	std::cout << "get font image" << ENDL;
+
     if (!(args.Length() == 3 && args[0]->IsObject() && args[1]->IsString())) {
         return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected TTF::RenderTextBlended(Font, String, Number)")));
     }
@@ -53,13 +58,13 @@ v8::Handle<v8::Value> Radamn::Font::getImage(const v8::Arguments& args) {
     V8_ARG_TO_SDL_NEWCOLOR(2, fg_color)
 
     SDL_Surface *initial;
-    SDL_Surface *image;
+    SDL_Surface *scaled;
 
     int w,h;
     GLuint texture;
 
     /* Use SDL_TTF to render our text */
-	VERBOSE << *text << ENDL;
+	std::cout << *text << ENDL;
     initial = TTF_RenderText_Blended(font, *text, fg_color);
     //initial = TTF_RenderText_Solid(font, *text, fg_color);
 	//initial = TTF_RenderUTF8_Blended(font, *text, fg_color);
@@ -88,54 +93,30 @@ initial =
     /* Convert the rendered text to a known format */
     w = nextpoweroftwo((float) initial->w);
     h = nextpoweroftwo((float) initial->h);
-	VERBOSE << "Expand texture to: [" << w << "," << h << "]" << ENDL;
-    image = SDL_CreateRGBSurface(0, w, h, vi->vfmt->BitsPerPixel, vi->vfmt->Rmask, vi->vfmt->Gmask, vi->vfmt->Bmask, vi->vfmt->Amask);
-    SDL_BlitSurface(initial, 0, image, 0);
-	VERBOSE << "Expanded" << ENDL;
+	std::cout << "Expand texture to: [" << w << "," << h << "]" << ENDL;
+    scaled = SDL_CreateRGBSurface(0, w, h, vi->vfmt->BitsPerPixel, vi->vfmt->Rmask, vi->vfmt->Gmask, vi->vfmt->Bmask, vi->vfmt->Amask);
+    SDL_BlitSurface(initial, 0, scaled, 0);
+	std::cout << "Expanded" << ENDL;
 
-    /* Tell GL about our new texture */
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    GLint bpp = image->format->BytesPerPixel;
-    GLenum texture_format=0;
-
-    if(bpp == 4 ) {
-        texture_format = image->format->Rmask ==0x000000ff ? GL_RGBA : GL_BGRA;
-    } else {
-        texture_format = image->format->Rmask ==0x000000ff ? GL_RGB : GL_BGR;
-    }
-
-    VERBOSE << "bpp" << bpp << ENDL;
-
-    glTexImage2D(GL_TEXTURE_2D, 0, bpp, image->w, image->h, 0, texture_format, GL_UNSIGNED_BYTE, image->pixels);
-
-
-    /* GL_NEAREST looks horrible, if scaled... */
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-
+	image* img = new image();
+	img->load_from_surface(scaled);
+	
     /* Clean up */
     SDL_FreeSurface(initial);
+	SDL_FreeSurface(scaled);
 
-    SDL_free(image->pixels); //pixels are not needed so free!
-	image->pixels = 0;
-	VERBOSE << "allocate OGL_Texture" << ENDL;
-    image->userdata = (OGL_Texture*) SDL_malloc(sizeof(OGL_Texture));
-    ((OGL_Texture*) image->userdata)->textureID = texture;
 #elif
     image = initial;
 #endif
 
-    if (!image) {
+    if (!img) {
         return ThrowException(v8::Exception::Error(v8::String::Concat(
             v8::String::New("TTF::??"), v8::String::New(TTF_GetError())
         )));
     }
-	VERBOSE << "got" << ENDL;
+	std::cout << "got" << ENDL;
 
-    RETURN_WRAP_IMAGE(image)
+    return image::wrap(img);
 }
 
 //
@@ -158,3 +139,4 @@ v8::Handle<v8::Value> Radamn::Font::destroy(const v8::Arguments& args) {
 //
 // ----------------------------------------------------------------------------------------------------
 //
+

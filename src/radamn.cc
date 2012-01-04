@@ -235,7 +235,7 @@ static v8::Handle<v8::Value> Radamn::createWindow(const v8::Arguments& args) {
 		return ThrowException(v8::Exception::TypeError(v8::String::New("Cannot create the window!")));
 	}
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
-	screen = SDL_SetVideoMode(width, height, 16, SDL_OPENGL | SDL_HWSURFACE );
+	screen = SDL_SetVideoMode(width, height, 16, SDL_OPENGL | SDL_HWSURFACE);
 	
 	if (!screen) {
 		return ThrowException(v8::Exception::TypeError(v8::String::New("Cannot create the window!")));
@@ -249,19 +249,16 @@ static v8::Handle<v8::Value> Radamn::createWindow(const v8::Arguments& args) {
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,      8);
 
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,      16);
-	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,        32);
+	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,     32);
 
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,    8);
-	SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE,    8);
-	SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE,    8);
-	SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,    8);
+	SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE,  8);
+	SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE,   8);
+	SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,  8);
 
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,  1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,  2);
 	
-	
-
-
 	glClearColor(0, 0, 0, 0);
 	glClearDepth(1.0f);
 	glViewport(0, 0, width, height);
@@ -286,7 +283,7 @@ static v8::Handle<v8::Value> Radamn::createWindow(const v8::Arguments& args) {
 	
 	VERBOSE << "window created" << ENDL;
 	
-	V8_RETURN_WRAPED_POINTER(scope, SDL_Surface, screen)
+	return v8::True();
 }
 
 //

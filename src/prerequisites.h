@@ -33,9 +33,9 @@ namespace Radamn {
 }
 
 namespace radamn {
-	inline void THROW(char* CHAR_STRING);
-	inline void THROW(char* CHAR_STRING, char* CHAR_STRING2);
-	inline void THROW(char* CHAR_STRING, char* CHAR_STRING2, char* CHAR_STRING3);
+	void THROW(char* CHAR_STRING);
+	void THROW(char* CHAR_STRING, char* CHAR_STRING2);
+	void THROW(char* CHAR_STRING, char* CHAR_STRING2, char* CHAR_STRING3);
 }
 
 
@@ -65,11 +65,6 @@ inline char* VERBOSEF(const char *fmt, ...);
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
 // include the proper libs
 #endif
-
-
-typedef struct OGL_Texture {
-    GLuint textureID;
-}OGL_Texture;
 
 typedef struct OGL_DrawBufferTextured {
     GLsizeiptr positionSize;

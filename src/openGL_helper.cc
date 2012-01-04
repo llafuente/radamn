@@ -59,7 +59,7 @@ void opengl_draw_textured_quad(GLuint texture_id, GLfloat* uvs, SDL_Rect* dst, o
 	width =  (float)dst->x + dst->w,
 	height = (float)dst->y + dst->h;
 
-	VERBOSE << "texture: ID:" << texture_id << ENDL;
+	std::cout << "texture: ID:" << texture_id << ENDL;
 	VERBOSE << "quad [";
 	VERBOSEC << dst->x << "(" << uvs[0] << ")," << dst->y << "(" << uvs[1]<< ")] [";
 	VERBOSEC << width << "(" << uvs[2] << ")," << dst->y << "("<< uvs[1]<< "] [";
@@ -145,12 +145,6 @@ GLfloat* opengl_uv_from(SDL_Surface* surface, SDL_Rect* rect) {
 //
 // ----------------------------------------------------------------------------------------------------
 //
-
-void opengl_draw_textured_SDL_Rect(SDL_Surface* surface, SDL_Rect* from, SDL_Rect* to, opengl_operators_t composite) {
-	GLfloat* uvs = opengl_uv_from(surface, from);
-	opengl_draw_textured_quad( ((OGL_Texture*)surface->userdata)->textureID, uvs, to, composite);
-	free(uvs);
-}
 
 void opengl_draw_textured_SDL_Rect(image* img, SDL_Rect* from, SDL_Rect* to, opengl_operators_t composite) {
 	GLfloat* uvs = img->uv_from(from);

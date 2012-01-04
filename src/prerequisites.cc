@@ -14,10 +14,10 @@ using namespace radamn;
 
 // declare here all needed pointers!
 
-inline void THROW(char* CHAR_STRING) {
+void radamn::THROW(char* CHAR_STRING) {
 	ThrowException(v8::Exception::Error(v8::String::New(CHAR_STRING)));
 }
-inline void THROW(char* CHAR_STRING, char* CHAR_STRING2) {
+void radamn::THROW(char* CHAR_STRING, char* CHAR_STRING2) {
 	ThrowException(v8::Exception::Error(
 		v8::String::Concat(
 			v8::String::New(CHAR_STRING),
@@ -25,7 +25,7 @@ inline void THROW(char* CHAR_STRING, char* CHAR_STRING2) {
 		)
 	));
 }
-inline void THROW(char* CHAR_STRING, char* CHAR_STRING2, char* CHAR_STRING3) {
+void radamn::THROW(char* CHAR_STRING, char* CHAR_STRING2, char* CHAR_STRING3) {
 	ThrowException(v8::Exception::Error(
 		v8::String::Concat(
 			v8::String::Concat(

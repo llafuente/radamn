@@ -68,8 +68,6 @@ using namespace radamn;
 
     void opengl_clear_operator();
 
-	void opengl_draw_textured_quad(OGL_Texture* texture, GLfloat* uvs, SDL_Rect* dst, opengl_operators_t composite = OPERATOR_OVER);
-	
 	void opengl_draw_textured_SDL_Rect(image* img, SDL_Rect* from, SDL_Rect* to, opengl_operators_t composite);
 
 	GLfloat* opengl_uv_from(SDL_Surface* surface, SDL_Rect* rect);
