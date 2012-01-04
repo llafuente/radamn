@@ -1,10 +1,25 @@
 #ifndef RADAMN_PREREQUISITES_H_
 #define RADAMN_PREREQUISITES_H_
 
+#ifdef _WIN32
+	#include <scripts\pnglibconf.h.prebuilt>  
+#endif
 
 #include <v8.h>
 #include <node.h>
 #include <SDL.h>
+
+// declare namespaces!
+namespace Radamn {}
+namespace radamn {
+	class image;
+	static v8::Persistent<v8::ObjectTemplate> SDL_Font_template_;
+	static v8::Persistent<v8::ObjectTemplate> SDL_Surface_template_;
+	static v8::Persistent<v8::ObjectTemplate> OGL_DrawBufferTextured_template_;
+}
+using namespace radamn;
+
+
 
 #include <iostream>
 #include <fstream>
@@ -13,28 +28,22 @@
 #include <stdarg.h>
 
 namespace Radamn {
-    char __bigcharbuffer[1024];
-    std::ofstream verbose;
-
+    static char __bigcharbuffer[1024];
+    static std::ofstream verbose;
 }
+
+namespace radamn {
+	inline void THROW(char* CHAR_STRING);
+	inline void THROW(char* CHAR_STRING, char* CHAR_STRING2);
+	inline void THROW(char* CHAR_STRING, char* CHAR_STRING2, char* CHAR_STRING3);
+}
+
 
 
 #define VERBOSE Radamn::verbose << __FILE__ << "@" << __LINE__ << ":" << __FUNCTION__ << " "
 #define VERBOSEC Radamn::verbose
 
-inline char* VERBOSEF(const char *fmt, ...) {
-    va_list ap;
-    int r;
-    #ifdef __OPTIMIZE__
-      if (inside_main)
-        abort();
-    #endif
-    va_start (ap, fmt);
-    //r = vprintf (string, ap);
-    r = vsprintf(Radamn::__bigcharbuffer, fmt, ap);
-    va_end (ap);
-    return Radamn::__bigcharbuffer;
-}
+inline char* VERBOSEF(const char *fmt, ...);
 
 #define ENDL std::endl
 
@@ -83,27 +92,6 @@ typedef struct glColor {
 /**
  * @see sdl_color_from
  */
-glColor glColor_from(SDL_Color color) {
-    glColor output;
-    output.r = color.r * 0.003921568627450980392156862745098f;
-    output.g = color.g * 0.003921568627450980392156862745098f;
-    output.b = color.b * 0.003921568627450980392156862745098f;
-
-    output.a = color.unused * 0.003921568627450980392156862745098f;
-
-    return output;
-}
-
-
-#include "c_helper.cc"
-#include "openGL_helper.cc"
-#include "SDL_helper.cc"
-#include "v8_helper.cc"
-
-// declare here all needed pointers!
-V8_POINTER_DECLARE(SDL_Font)
-V8_POINTER_DECLARE(SDL_Surface)
-V8_POINTER_DECLARE(OGL_DrawBufferTextured)
-
+glColor glColor_from(SDL_Color color);
 
 #endif // RADAMN_PREREQUISITES_H_

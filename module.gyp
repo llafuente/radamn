@@ -9,7 +9,28 @@
   'targets': [
     {
       'sources': [
-        'src/radamn.cc',
+		"src/prerequisites.h",
+		"src/prerequisites.cc",
+		
+		"src/radamn.cc",
+		"src/radamn.h",
+
+		"src/c_helper.cc",
+		"src/c_helper.h",
+        
+		"src/openGL_helper.cc",
+		"src/openGL_helper.h",
+		
+		"src/radamn_font.cc",
+		"src/radamn_font.h",
+		"src/radamn_image.cc",
+		"src/radamn_image.h",
+		"src/radamn_window.cc",
+		"src/radamn_window.h",
+		"src/SDL_helper.cc",
+		"src/SDL_helper.h",
+		"src/v8_helper.cc",
+		"src/v8_helper.h",
       ],
 
 	  'target_name': '<(module_name)',
@@ -27,7 +48,8 @@
 		'_FILE_OFFSET_BITS=64'
       ],
 	  
-      'include_dirs': [ '<(RADAMN_ROOT)/deps/node/src',
+      'include_dirs': [
+	    '<(RADAMN_ROOT)/deps/node/src',
 		'<(RADAMN_ROOT)/deps/node/deps/v8/include',
 		'<(RADAMN_ROOT)/deps/node/deps/uv/include',
 		'<(RADAMN_ROOT)/deps/SDL/include',
@@ -37,7 +59,7 @@
 		'<(RADAMN_ROOT)/deps/SDL_ttf/include',
 		'<(RADAMN_ROOT)/deps/SDL_image',
 		'$(IncludePath)',
-		
+		'<(RADAMN_ROOT)/src/',
       ],
 
       'conditions': [
@@ -51,14 +73,14 @@
 			 '-l opengl32.lib' ,
 			 '-l glu32.lib',
 			 # static linking SDL ? winmm.lib, Version.lib, Imm32.lib
-			 '-l winmm.lib',
-			 '-l Version.lib',
-			 '-l Imm32.lib',
+			 #'-l winmm.lib',
+			 #'-l Version.lib',
+			 #'-l Imm32.lib',
 			 '-l <(RADAMN_ROOT)/deps/GL/glut32.lib',
 			 '-l <(NODE_ROOT)/<(node_lib_folder)/node.lib' ,
 			 '-l <(RADAMN_ROOT)/deps/SDL/VisualC/SDL/Win32/Release/SDL.lib',
 			 #'-l <(RADAMN_ROOT)\deps/SDL/VisualC/SDLmain/Win32/Release/SDLmain.lib',
-			 '-l <(RADAMN_ROOT)/deps/SDL_image/VisualC/Release/SDL_image.lib',
+			 '-l <(RADAMN_ROOT)/deps/libpng/libpng.lib',
 			 '-l <(RADAMN_ROOT)/deps/SDL_ttf/lib/SDL_ttf.lib',
 		  ],
 		  'msvs_configuration_attributes': {

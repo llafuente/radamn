@@ -1,13 +1,20 @@
 #include "radamn_window.h"
 
+#include "prerequisites.h"
+#include "v8_helper.h"
+#include "opengl_helper.h"
+#include <node.h>
+#include <v8.h>
+#include <SDL.h>
 #include <SDL_stdinc.h>
 #include <math.h>
+
 
 //
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Window::setCaption(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Window::setCaption(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
 	if (!(args.Length() == 2 && args[0]->IsString() && args[1]->IsString())) {
@@ -26,7 +33,7 @@ static v8::Handle<v8::Value> Radamn::Window::setCaption(const v8::Arguments& arg
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Window::clear(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Window::clear(const v8::Arguments& args) {
 	v8::HandleScope scope;
 	VERBOSE << "clear" << ENDL;
 #if RADAMN_RENDERER == RADAMN_RENDERER_SOFTWARE
@@ -47,7 +54,7 @@ static v8::Handle<v8::Value> Radamn::Window::clear(const v8::Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Window::setIcon(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Window::setIcon(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
 	if (!(args.Length() == 1 && args[0]->IsString())) {
@@ -76,7 +83,7 @@ static v8::Handle<v8::Value> Radamn::Window::setIcon(const v8::Arguments& args) 
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Window::flip(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Window::flip(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
 #if RADAMN_RENDERER == RADAMN_RENDERER_SOFTWARE
@@ -93,7 +100,7 @@ static v8::Handle<v8::Value> Radamn::Window::flip(const v8::Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Window::setBackgroundColor(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Window::setBackgroundColor(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
 	V8_ARG_TO_SDL_NEWCOLOR(0, color_src);
@@ -108,7 +115,7 @@ static v8::Handle<v8::Value> Radamn::Window::setBackgroundColor(const v8::Argume
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Window::translate(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Window::translate(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
 	V8_ARG_TO_NEWFLOAT(0, x)
@@ -124,7 +131,7 @@ static v8::Handle<v8::Value> Radamn::Window::translate(const v8::Arguments& args
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Window::rotate(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Window::rotate(const v8::Arguments& args) {
 	V8_ARG_TO_NEWFLOAT(0, angle);
 
 	glRotatef(angle, 0.0f, 0.0f, 1.0f);
@@ -136,7 +143,7 @@ static v8::Handle<v8::Value> Radamn::Window::rotate(const v8::Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Window::scale(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Window::scale(const v8::Arguments& args) {
 	V8_ARG_TO_NEWFLOAT(0, x);
 	V8_ARG_TO_NEWFLOAT(1, y);
 
@@ -149,7 +156,7 @@ static v8::Handle<v8::Value> Radamn::Window::scale(const v8::Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Window::save(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Window::save(const v8::Arguments& args) {
 	//VERBOSE << "save" << std::endl;
 	glPushMatrix();
 	//VERBOSE << "saved" << std::endl;
@@ -160,7 +167,7 @@ static v8::Handle<v8::Value> Radamn::Window::save(const v8::Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Window::restore(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Window::restore(const v8::Arguments& args) {
 	//VERBOSE << "restore" << std::endl;
 	glPopMatrix();
 	//VERBOSE << "restored" << std::endl;
@@ -172,7 +179,7 @@ static v8::Handle<v8::Value> Radamn::Window::restore(const v8::Arguments& args) 
 //
 
 /// TODO composite!
-static v8::Handle<v8::Value> Radamn::Window::stroke(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Window::stroke(const v8::Arguments& args) {
 
 	V8_ARG_TO_NEWARRAY(0, coords);
 	V8_ARG_TO_NEWFLOAT(1, width);
@@ -212,7 +219,7 @@ static v8::Handle<v8::Value> Radamn::Window::stroke(const v8::Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Window::screenshot(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Window::screenshot(const v8::Arguments& args) {
 	int width = args[0]->ToObject()->Get( v8::String::New("width"))->Int32Value();
 	int height = args[0]->ToObject()->Get( v8::String::New("height"))->Int32Value();
 
@@ -233,7 +240,7 @@ static v8::Handle<v8::Value> Radamn::Window::screenshot(const v8::Arguments& arg
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Window::transform(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Window::transform(const v8::Arguments& args) {
 	GLfloat m[16] = {
 		1,0,0,0,
 		0,1,0,0,
@@ -272,7 +279,7 @@ static v8::Handle<v8::Value> Radamn::Window::transform(const v8::Arguments& args
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Window::setTransform(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Window::setTransform(const v8::Arguments& args) {
 	GLfloat m[16] = {
 		1,0,0,0,
 		0,1,0,0,
@@ -310,7 +317,7 @@ static v8::Handle<v8::Value> Radamn::Window::setTransform(const v8::Arguments& a
 //
 
 /// TODO composite!
-static v8::Handle<v8::Value> Radamn::Window::fill(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Window::fill(const v8::Arguments& args) {
 	VERBOSE << "fill" << std::endl;
 
 	V8_ARG_TO_NEWARRAY(0, coords);

@@ -12,7 +12,7 @@ this is an old repository of very nice functions check it :)
 
 char *strremchar(char *str, int c, char *target);
 
-char *strcpy(const char *str);
+void strcpy(const char *from, char* to);
 
 #define MAX(A,B) ((A)>(B) ? (A) : (B))
 

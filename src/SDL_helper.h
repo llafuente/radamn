@@ -16,5 +16,4 @@ inline SDL_Rect* getFullRectSurface(SDL_Surface* surface);
 
 int nextpoweroftwo(float x);
 
-
 #endif // SDL_HELPER_H_

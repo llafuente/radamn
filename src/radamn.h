@@ -26,19 +26,19 @@ opengl 2s vs opengl 1.5: http://doc.trolltech.com/4.4/opengl-hellogl-es.html#por
 */
 
 // workaround to png.h problems
-#ifdef _WIN32
-  #include <scripts\pnglibconf.h.prebuilt>
-#endif
-
-
 #include "prerequisites.h"
+
+#include "radamn_window.h"
+#include "radamn_image.h"
+#include "radamn_font.h"
 
 #include <iostream>
 #include <map>
 #include <node.h>
 #include <v8.h>
 
-
+namespace radamn {
+}
 namespace Radamn {
 
 	class Creator : node::ObjectWrap {
@@ -74,9 +74,5 @@ namespace Radamn {
     static v8::Handle<v8::Value> pollEvent(const v8::Arguments& args);
     static v8::Handle<v8::Value> getJoysticks(const v8::Arguments& args);
 }
-
-#include "radamn_window.cc"
-#include "radamn_image.cc"
-#include "radamn_font.cc"
 
 #endif

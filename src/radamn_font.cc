@@ -1,13 +1,18 @@
 #include "radamn_font.h"
 
+#include <SDL.h>
 #include <SDL_ttf.h>
+#include <prerequisites.h>
+#include <v8_helper.h>
+#include <SDL_helper.h>
 
+using namespace radamn;
 
 //
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Font::load(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Font::load(const v8::Arguments& args) {
   v8::HandleScope scope;
 
   VERBOSE << args.Length() << " - " << args[0]->IsString() << "/" << args[1]->IsNumber() << ENDL;
@@ -34,7 +39,7 @@ static v8::Handle<v8::Value> Radamn::Font::load(const v8::Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Font::getImage(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Font::getImage(const v8::Arguments& args) {
     v8::HandleScope scope;
 
     if (!(args.Length() == 3 && args[0]->IsObject() && args[1]->IsString())) {
@@ -137,7 +142,7 @@ initial =
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> Radamn::Font::destroy(const v8::Arguments& args) {
+v8::Handle<v8::Value> Radamn::Font::destroy(const v8::Arguments& args) {
   v8::HandleScope scope;
 
   TTF_Font* font = 0;

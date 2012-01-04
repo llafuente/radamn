@@ -4,6 +4,8 @@
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
 #endif
 
+#include <SDL.h>
+
 //
 // ----------------------------------------------------------------------------------------------------
 //
@@ -47,17 +49,17 @@ inline void opengl_draw_colored_poly(glColor color, SDL_Rect rect) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-inline void opengl_draw_textured_quad(OGL_Texture* texture, GLfloat* uvs, SDL_Rect* dst, opengl_operators_t composite) {
+inline void opengl_draw_textured_quad(GLuint texture_id, GLfloat* uvs, SDL_Rect* dst, opengl_operators_t composite) {
 	opengl_set_operator(composite);
 
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture( GL_TEXTURE_2D, texture->textureID );
+	glBindTexture( GL_TEXTURE_2D, texture_id );
 	
 	GLfloat
 	width =  (float)dst->x + dst->w,
 	height = (float)dst->y + dst->h;
 
-	VERBOSE << "texture: ID:" << texture->textureID << ENDL;
+	VERBOSE << "texture: ID:" << texture_id << ENDL;
 	VERBOSE << "quad [";
 	VERBOSEC << dst->x << "(" << uvs[0] << ")," << dst->y << "(" << uvs[1]<< ")] [";
 	VERBOSEC << width << "(" << uvs[2] << ")," << dst->y << "("<< uvs[1]<< "] [";
@@ -144,9 +146,15 @@ inline GLfloat* opengl_uv_from(SDL_Surface* surface, SDL_Rect* rect) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-inline void opengl_draw_textured_SDL_Rect(SDL_Surface* surface, SDL_Rect* from, SDL_Rect* to, opengl_operators_t composite) {
+void opengl_draw_textured_SDL_Rect(SDL_Surface* surface, SDL_Rect* from, SDL_Rect* to, opengl_operators_t composite) {
 	GLfloat* uvs = opengl_uv_from(surface, from);
-	opengl_draw_textured_quad( ((OGL_Texture*)surface->userdata), uvs, to, composite);
+	opengl_draw_textured_quad( ((OGL_Texture*)surface->userdata)->textureID, uvs, to, composite);
+	free(uvs);
+}
+
+void opengl_draw_textured_SDL_Rect(image* img, SDL_Rect* from, SDL_Rect* to, opengl_operators_t composite) {
+	GLfloat* uvs = img->uv_from(from);
+	opengl_draw_textured_quad(img->texture_id, uvs, to, composite);
 	free(uvs);
 }
 

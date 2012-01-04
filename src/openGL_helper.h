@@ -5,20 +5,20 @@
 #include <iostream>
 #include <iomanip>
 #include <limits>
+
 //include proper headers
 
-#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
-// on centos: yum install mesa-libGL mesa-libGL-devel mesa-libGLU mesa-libGLU-devel
-// and "X", in my case gnome
+#include "prerequisites.h"
+#include "radamn_image.h"
+
+#include <SDL.h>
 #include <SDL_opengl.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-//#include <GL/glaux.h>
 
-#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
 // include the proper libs
 
-#endif
+using namespace radamn;
 
 	//not used... need refactoring
 	inline void opengl_draw_colored_poly(glColor color, SDL_Rect rect);
@@ -68,7 +68,9 @@
 
     inline void opengl_clear_operator();
 
-	inline void opengl_draw_textured_quad(OGL_Texture* texture, GLfloat* uvs, SDL_Rect* dst, opengl_operators_t composite = OPERATOR_OVER);
+	void opengl_draw_textured_quad(OGL_Texture* texture, GLfloat* uvs, SDL_Rect* dst, opengl_operators_t composite = OPERATOR_OVER);
+	
+	void opengl_draw_textured_SDL_Rect(image* img, SDL_Rect* from, SDL_Rect* to, opengl_operators_t composite);
 
 	inline GLfloat* opengl_uv_from(SDL_Surface* surface, SDL_Rect* rect);
 

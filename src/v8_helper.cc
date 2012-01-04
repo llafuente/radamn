@@ -1,12 +1,19 @@
 #include "v8_helper.h"
 
+#include <SDL.h>
+#include <v8.h>
 #include "prerequisites.h"
+#include "c_helper.h"
+#include "opengl_helper.h"
+#include <SDL_opengl.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 //
 // ----------------------------------------------------------------------------------------------------
 //
 
-inline SDL_Color sdl_color_from(const char* ccolor) {
+SDL_Color sdl_color_from(const char* ccolor) {
 	SDL_Color OUTPUT_NAME = {0,0,0,255};
 
 	VERBOSE << " -> " << ccolor << std::endl;

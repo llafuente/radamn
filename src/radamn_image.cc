@@ -1,140 +1,174 @@
-#include "radamn_image.h"
+#include <radamn_image.h>
 
-#include "SDL_image.h"
-#include "SDL_helper.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <png.h>
+#include <iostream>
+#include <v8.h>
+#include "v8_helper.h"
+#include "opengl_helper.h"
 
-//
-// ----------------------------------------------------------------------------------------------------
-//
 
-static v8::Handle<v8::Value> Radamn::Image::load(const v8::Arguments& args) {
+using namespace radamn;
+
+
+
+v8::Handle<v8::Value> image::wrap(image* img) {
+	if (image_template_.IsEmpty()) {
+		v8::HandleScope handle_scope2;
+		v8::Handle<v8::ObjectTemplate> result = v8::ObjectTemplate::New();
+		result->SetInternalFieldCount(1);
+		v8::Handle<v8::ObjectTemplate> raw_template = handle_scope2.Close(result);
+		image_template_ = v8::Persistent<v8::ObjectTemplate>::New(raw_template);
+	}
+
+	v8::Handle<v8::ObjectTemplate> templ = image_template_;
+	v8::Handle<v8::Object> result = templ->NewInstance();
+	v8::Handle<v8::External> request_ptr = v8::External::New(img);
+	result->SetInternalField(0, request_ptr);
+	result->Set(v8::String::New("width"), v8::Number::New(img->width));
+	result->Set(v8::String::New("height"), v8::Number::New(img->height));
+	result->Set(v8::String::New("alpha"), v8::Boolean::New( img->is(image::ALPHA) ));
+	return result;
+}
+
+image* image::unwrap(const v8::Arguments& args, int position) {
+	return image::unwrap(args[position]);
+}
+
+image* image::unwrap(v8::Local<v8::Value> handle) {
+	v8::Handle<v8::External> v8_aux_field = v8::Handle<v8::External>::Cast((handle->ToObject())->GetInternalField(0));
+	void* v8_aux_ptr = v8_aux_field->Value();
+	return static_cast<image*>(v8_aux_ptr);
+}
+
+GLfloat* image::uv_from(SDL_Rect* rect) {
+	GLfloat* uvs = (GLfloat*) malloc(4*sizeof(GLfloat));
+
+	uvs[0] = ((GLfloat)rect->x) / this->width;
+	uvs[1] = ((GLfloat)rect->y) / this->height;
+	uvs[2] = ((GLfloat)(rect->x + rect->w)) / this->width;
+	uvs[3] = ((GLfloat)(rect->y + rect->h)) / this->height;
+
+	using std::setprecision;
+	using std::numeric_limits;
+
+	VERBOSE
+	<< "text-coords ["
+	<< setprecision(6) << uvs[0] << ","
+	<< setprecision(6) << uvs[1] << ","
+	<< setprecision(6) << uvs[2] << ","
+	<< setprecision(6) << uvs[3] << "]"<< ENDL;
+
+	return uvs;
+}
+
+bool image::load_from_file(char* name, bool bind) {
+	bool hasAlpha = true;
+	if(!image_load_from_png(name, this->width, this->height, hasAlpha,  &this->pixels)) {
+		return false;
+	}
+
+	// Check that the image's width is a power of 2
+	if ( (this->width & (this->width - 1)) != 0 ) {
+		THROW("warning: ", name, " width is not a power of 2");
+	}
+
+	if(hasAlpha) {
+		this->flags = (this->flags | image::ALPHA);
+	}
+
+
+	glGenTextures(1, &this->texture_id);
+
+	this->flags = (this->flags | image::LOADED);
+
+	if(bind)
+		this->bind();
+
+	return true;
+}
+
+void image::load_from_memory() {
+	THROW("not supported atm");
+}
+
+bool image::unbind() {
+	if(!this->is(image::OPENGL)) {
+		return false;
+	}
+
+	this->flags = (this->flags | ~image::OPENGL);
+	return true;
+}
+
+bool image::bind() {
+	if(!this->is(image::OPENGL)) {
+		glBindTexture( GL_TEXTURE_2D, this->texture_id );
+		return false;
+	}
+
+	glBindTexture(GL_TEXTURE_2D, this->texture_id);
+	glTexImage2D(GL_TEXTURE_2D,
+		0,
+		this->is(image::ALPHA) ? GL_RGBA : GL_RGB,
+		this->width,
+		this->height,
+		0,
+		this->is(image::ALPHA) ? GL_RGBA : GL_RGB,
+		GL_UNSIGNED_BYTE,
+		this->pixels
+	);
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	this->flags = (this->flags | image::OPENGL);
+	return true;
+}
+
+SDL_Rect* image::getRect() {
+	SDL_Rect* output = (SDL_Rect *) SDL_malloc(sizeof(SDL_Rect));
+
+	output->x = 0;
+	output->y = 0;
+	output->w = this->width;
+	output->h = this->height;
+
+	return output;
+}
+
+
+
+void image_free(image* img) {
+	--image_count;
+}
+
+image* image_new(char* filename) {
+	++image_count;
+	
+	return 0;
+}
+
+static v8::Handle<v8::Value> radamn::v8_image_load(const v8::Arguments& args) {
     v8::HandleScope scope;
 
     if (!(args.Length() == 1 && args[0]->IsString())) {
-      return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected Radamn::Image::Load(String, String)")));
+      THROW("Invalid arguments: v8_image_load(String)");
     }
-    v8::String::Utf8Value id(args[0]);
+	
     v8::String::Utf8Value file(args[0]);
 
-    SDL_Surface *image = IMG_Load(*file);
-    if(!image) {
-      return ThrowException(v8::Exception::Error(v8::String::Concat(
-        v8::String::New("IMG::Load: "),
-        v8::String::New(IMG_GetError())
-      )));
+    image* img = image_new(*file);
+    if(!img) {
+      THROW("v8_image_load cannot load the given image");
     }
-
-    // needed for pngs ?
-    //SDL_Surface* optimizedImage = SDL_DisplayFormatAlpha( image );
-
-#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
-
-    VERBOSE << "load image(opengl)" << *file << ENDL;
-
-    SDL_SetAlpha(image, 0 ,0);
-
-    GLuint texture;
-    /* Standard OpenGL texture creation code */
-    glPixelStorei(GL_UNPACK_ALIGNMENT,4);
-
-    glGenTextures(1,&texture);
-    glBindTexture(GL_TEXTURE_2D,texture);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); GL_REPEAT, GL_CLAMP
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    // Check that the image's width is a power of 2
-    if ( (image->w & (image->w - 1)) != 0 ) {
-        return ThrowException(v8::Exception::Error(
-        v8::String::Concat(
-            v8::String::Concat(
-                v8::String::New("warning: "),
-                v8::String::New(*file)
-            ),
-            v8::String::New("width is not a power of 2")
-        )
-        ));
-    }
-
-    GLint bpp = image->format->BytesPerPixel;
-    GLenum texture_format=0;
-
-    if(bpp == 4) {
-        texture_format = image->format->Rmask ==0x000000ff ? GL_RGBA : GL_BGRA;
-    } else {
-        texture_format = image->format->Rmask ==0x000000ff ? GL_RGB : GL_BGR;
-    }
-
-    VERBOSE << "size(" << image->w << "," << image->h << ")" << ENDL;
-    VERBOSE << "bpp(" << bpp << ")" << ENDL;
-
-    glTexImage2D(GL_TEXTURE_2D, 0, bpp, image->w, image->h, 0, texture_format, GL_UNSIGNED_BYTE, image->pixels);
-
-
-    VERBOSE << "free image pixels memory" << ENDL;
-    SDL_free(image->pixels); //pixels are not needed so free!
-	image->pixels = 0;
-
-    image->userdata = (OGL_Texture*) SDL_malloc(sizeof(OGL_Texture));
-    ((OGL_Texture*) image->userdata)->textureID = texture;
-    VERBOSE << "loaded" << ENDL;
-
-#endif
-    RETURN_WRAP_IMAGE(image)
-}
-
-//
-// ----------------------------------------------------------------------------------------------------
-//
-
-static v8::Handle<v8::Value> Radamn::Image::destroy(const v8::Arguments& args) {
-    v8::HandleScope scope;
-	VERBOSE << "destroy" << ENDL;
-    if (!(args.Length() == 1 && args[0]->IsObject())) {
-      return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected Radamn::Image::destroy(PointerToSurface)")));
-    }
-
-#if RADAMN_RENDERER == RADAMN_RENDERER_SOFTWARE
-    SDL_Surface* target=0;
-    UNWRAP_IMAGE(0, target);
-
-    if(target != 0)
-        SDL_FreeSurface(target);
-#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES || RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
-    SDL_Surface* image;
-    V8_UNWRAP_POINTER_ARG(0, SDL_Surface, image)
 	
-	if(!image) return v8::False();
-
-	VERBOSE << "surface get!" << ENDL;
-	/*
-	if(image->userdata) {
-		glDeleteTextures(1, &((OGL_Texture*) image->userdata)->textureID);
-		SDL_free(image->userdata);
-		image->userdata = 0;
-	}*/
-	
-	VERBOSE << "freesurface ?" << ENDL;
-
-	SDL_FreeSurface(image);
-#endif
-
-	VERBOSE << "destroyed" << ENDL;
-
-    return v8::True();
+	return image::wrap(img);
 }
-
-//
-// ----------------------------------------------------------------------------------------------------
-//
-
-static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
+static v8::Handle<v8::Value> radamn::v8_image_draw(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
 	VERBOSE << "draw[" << args.Length() << "] expected[1111] recieved["
@@ -159,13 +193,11 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
 		|| args.Length() == 6
 		|| args.Length() == 10
 		)) {
-		return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid argument count [4,6,10]")));
+		THROW("Invalid argument count [4,6,10]");
 	}
 
 
-	SDL_Surface* src = 0;
-
-	V8_UNWRAP_POINTER_ARG(0, SDL_Surface, src)
+	image* img = image::unwrap(args, 0);
 
 	v8::String::Utf8Value mode(args[1]);
 
@@ -178,10 +210,10 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
 		dstrect = (SDL_Rect*) SDL_malloc(sizeof(SDL_Rect));
 		dstrect->x = args[2]->Int32Value();
 		dstrect->y = args[3]->Int32Value();
-		dstrect->w = src->w;
-		dstrect->h = src->h;
+		dstrect->w = img->width;
+		dstrect->h = img->height;
 
-		srcrect = getFullRectSurface(src);
+		srcrect = img->getRect();
 	}
 
 	if(args.Length() == 6) {
@@ -202,14 +234,13 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
 
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 
-	debug_SDL_Surface(src);
 	debug_SDL_Rect(srcrect);
 	debug_SDL_Rect(dstrect);
 
-	opengl_draw_textured_SDL_Rect(src, srcrect, dstrect, emode);
+	opengl_draw_textured_SDL_Rect(img, srcrect, dstrect, emode);
 
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
-	return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));
+	THROW("OPENGLES is not supported atm");
 #endif
 
 	VERBOSE << "free: srcrect"  << ENDL;
@@ -225,115 +256,151 @@ static v8::Handle<v8::Value> Radamn::Image::draw(const v8::Arguments& args) {
 	return v8::True();
 }
 
-
-/*
-//
-// ----------------------------------------------------------------------------------------------------
-//
-// study! http://www.songho.ca/opengl/gl_vertexarray.html
-static v8::Handle<v8::Value> Radamn::Image::genBufferDraws(const v8::Arguments& args) {
-
- dont have VBO in my virtual machine... This is so unfortunate
-    OGL_DrawBufferTextured* buffer = new OGL_DrawBufferTextured;
-
-    SDL_Surface* image = 0;
-
-    V8_UNWRAP_POINTER_ARG(0, SDL_Surface, image)
-
-    buffer->textureID = ((OGL_Texture*)image->userdata)->textureID;
-
-    V8_ARG_TO_NEWARRAY(1, quads)
-    std::cout << "rendering["<< quads->Length() <<"] quads!!" << ENDL;
-
-    unsigned int pi = sizeof(GLfloat) * 8;
-    unsigned int ci = sizeof(GLfloat) * 4;
-
-    buffer->positionSize = pi * quads->Length();
-    buffer->coordsSize = ci * quads->Length();
-
-    //malloc ?
-    buffer->positions = new GLfloat[quads->Length() * 8];
-    buffer->coords = new GLfloat[quads->Length() * 4];
-
-    for(int i=0,max=MAX(5, quads->Length()); i<max; ++i) {
-
-        V8_EXTRACT_FROM_ARRAY(quads, i, GLfloat, quad, 8);
-        std::cout
-            << quad[0] << ","
-            << quad[1] << ","
-            << quad[2] << ","
-            << quad[3] << ","
-            << quad[4] << ","
-            << quad[5] << ","
-            << quad[6] << ","
-            << quad[7] << ENDL;
-
-        GL_UV_FROM_SDL(image, buffer->positions[0], buffer->positions[1], buffer->positions[2], buffer->positions[3], UV)
-        std::cout
-            << UV[0] << ","
-            << UV[1] << ","
-            << UV[2] << ","
-            << UV[3] << ","
-            << ENDL;
-
-         GL_DRAW_QUAD(
-             UV[0], UV[1], UV[2], UV[3],
-             quad[4], quad[5], quad[6], quad[7]
-         )
-
-         buffer->positions[0] = quad[4]; //x
-         buffer->positions[1] = quad[5]; //y
-         buffer->positions[2] = quad[4] + quad[6]; //w
-         buffer->positions[3] = quad[5] + quad[7]; //h
-
-         buffer->positions += pi;
-         buffer->coords += ci;
+static v8::Handle<v8::Value> radamn::v8_image_batch_draw(const v8::Arguments& args) {
+	THROW("not supported atm!");
+}
+static v8::Handle<v8::Value> radamn::v8_image_destroy(const v8::Arguments& args) {
+    v8::HandleScope scope;
+	VERBOSE << "destroy" << ENDL;
+    if (!(args.Length() == 1 && args[0]->IsObject())) {
+		THROW("Invalid arguments: v8_image_destroy(image*)");
     }
 
-    //position
-    glGenBuffers(1, &buffer->positionBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer->positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, buffer->positionSize, buffer->positions, GL_STATIC_DRAW);
+#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES || RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
+	image* img = image::unwrap(args, 0);
+	
+	if(!img) return v8::False();
+	
+	delete img;
+#endif
 
+	VERBOSE << "destroyed" << ENDL;
 
-    //coords
-    glGenBuffers(1, &buffer->coordsBuffer);
-    glBindBuffer(GL_TEXTURE_COORD_ARRAY, buffer->coordsBuffer);
-    glBufferData(GL_TEXTURE_COORD_ARRAY, buffer->coordsSize, buffer->coords, GL_STREAM_DRAW);
-
-    //free positions and coords ?
-
+    return v8::True();
 }
-//
-// ----------------------------------------------------------------------------------------------------
-//
-// study! http://www.songho.ca/opengl/gl_vertexarray.html
-static v8::Handle<v8::Value> Radamn::Image::drawBuffer(const v8::Arguments& args) {
-
-    OGL_DrawBufferTextured* buffer = new OGL_DrawBufferTextured;
-
-    V8_UNWRAP_POINTER_ARG(0, OGL_DrawBufferTextured, buffer)
-
-    glBindTexture(GL_TEXTURE_2D, buffer->textureID);
 
 
-    glBindBuffer(GL_ARRAY_BUFFER, buffer->positionBuffer);
-    glVertexPointer(2, GL_FLOAT, 0, 0);
+/// from: http://blog.nobel-joergensen.com/2010/11/07/loading-a-png-as-texture-in-opengl-using-libpng/
+inline bool radamn::image_load_from_png(char *name, int &outWidth, int &outHeight, bool &outHasAlpha, GLubyte **outData) {
+	png_structp png_ptr;
+	png_infop info_ptr;
+	unsigned int sig_read = 0;
+	int color_type, interlace_type;
+	FILE *fp;
 
-    glBindBuffer(GL_ARRAY_BUFFER, buffer->coordsBuffer);
-    glTexCoordPointer(2, GL_FLOAT, 0, 0);
+	if ((fp = fopen(name, "rb")) == NULL)
+		return false;
 
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	/* Create and initialize the png_struct
+	 * with the desired error handler
+	 * functions.  If you want to use the
+	 * default stderr and longjump method,
+	 * you can supply NULL for the last
+	 * three parameters.  We also supply the
+	 * the compiler header file version, so
+	 * that we know if the application
+	 * was compiled with a compatible version
+	 * of the library.  REQUIRED
+	 */
+	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
+			NULL, NULL, NULL);
 
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, buffer->positionBuffer);
+	if (png_ptr == NULL) {
+		fclose(fp);
+		return false;
+	}
 
+	/* Allocate/initialize the memory
+	 * for image information.  REQUIRED. */
+	info_ptr = png_create_info_struct(png_ptr);
+	if (info_ptr == NULL) {
+		fclose(fp);
+		png_destroy_read_struct(&png_ptr, &info_ptr, 0);
+		return false;
+	}
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_TEXTURE_COORD_ARRAY, 0);
+	/* Set error handling if you are
+	 * using the setjmp/longjmp method
+	 * (this is the normal method of
+	 * doing things with libpng).
+	 * REQUIRED unless you  set up
+	 * your own error handlers in
+	 * the png_create_read_struct()
+	 * earlier.
+	 */
+	if (setjmp(png_jmpbuf(png_ptr))) {
+		/* Free all of the memory associated
+		 * with the png_ptr and info_ptr */
+		png_destroy_read_struct(&png_ptr, &info_ptr, 0);
+		fclose(fp);
+		/* If we get here, we had a
+		 * problem reading the file */
+		return false;
+	}
 
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+	/* Set up the output control if
+	 * you are using standard C streams */
+	png_init_io(png_ptr, fp);
+
+	/* If we have already
+	 * read some of the signature */
+	png_set_sig_bytes(png_ptr, sig_read);
+
+	/*
+	 * If you have enough memory to read
+	 * in the entire image at once, and
+	 * you need to specify only
+	 * transforms that can be controlled
+	 * with one of the PNG_TRANSFORM_*
+	 * bits (this presently excludes
+	 * dithering, filling, setting
+	 * background, and doing gamma
+	 * adjustment), then you can read the
+	 * entire image (including pixels)
+	 * into the info structure with this
+	 * call
+	 *
+	 * PNG_TRANSFORM_STRIP_16 |
+	 * PNG_TRANSFORM_PACKING  forces 8 bit
+	 * PNG_TRANSFORM_EXPAND forces to
+	 *  expand a palette into RGB
+	 */
+	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND, 0);
+
+	outWidth = png_get_image_width(png_ptr, info_ptr);
+	outHeight = png_get_image_height(png_ptr, info_ptr);
+	switch (png_get_color_type(png_ptr, info_ptr)) {
+		case PNG_COLOR_TYPE_RGBA:
+			outHasAlpha = true;
+			break;
+		case PNG_COLOR_TYPE_RGB:
+			outHasAlpha = false;
+			break;
+		default:
+			VERBOSE << "Color type " << png_get_color_type(png_ptr, info_ptr) << " not supported" << std::endl;
+			png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+			fclose(fp);
+			return false;
+	}
+	unsigned int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
+	*outData = (unsigned char*) malloc(row_bytes * outHeight);
+
+	png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
+
+	for (int i = 0; i < outHeight; i++) {
+		// note that png is ordered top to
+		// bottom, but OpenGL expect it bottom to top
+		// so the order or swapped
+		memcpy(*outData+(row_bytes * (outHeight-1-i)), row_pointers[i], row_bytes);
+	}
+
+	/* Clean up after the read,
+	 * and free any memory allocated */
+	png_destroy_read_struct(&png_ptr, &info_ptr, 0);
+
+	/* Close the file */
+	fclose(fp);
+
+	/* That's it */
+	return true;
 }
-*/
-

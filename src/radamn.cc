@@ -1,11 +1,20 @@
 #include "radamn.h"
 
+#include "prerequisites.h"
+#include "SDL_helper.h"
+#include "v8_helper.h"
+
+#include "radamn_image.h"
+#include "radamn_font.h"
+#include "radamn_window.h"
+
 #include <SDL_version.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
-#include <png.h> // libpng!
 #include <node.h>
 #include <v8.h>
+
+using namespace radamn;
 
 //
 // ----------------------------------------------------------------------------------------------------
@@ -107,9 +116,9 @@ extern "C" {
 
 	v8::Local<v8::Object> Image = v8::Object::New();
 	target->Set(v8::String::New("Image"), Image);
-	NODE_SET_METHOD(Image, "load", Radamn::Image::load);
-	NODE_SET_METHOD(Image, "destroy", Radamn::Image::destroy);
-	NODE_SET_METHOD(Image, "draw", Radamn::Image::draw);
+	NODE_SET_METHOD(Image, "load", radamn::v8_image_load);
+	NODE_SET_METHOD(Image, "destroy", radamn::v8_image_destroy);
+	NODE_SET_METHOD(Image, "draw", radamn::v8_image_draw);
 	//NODE_SET_PROTOTYPE_METHOD(Image, "drawImageQuads", Radamn::Image::drawImageQuads);
 
 	v8::Local<v8::Object> Font = v8::Object::New();
@@ -154,14 +163,52 @@ static v8::Handle<v8::Value> Radamn::quit(const v8::Arguments& args) {
 // XXX opengl version / openglES
 static v8::Handle<v8::Value> Radamn::getVersion(const v8::Arguments& args) {
 	char buffer[256];
-	sprintf(buffer, "SDL %d.%d.%d\nSDL_Image %d.%d.%d\n%s\n GL %s, %s, %s\n GLU\n",
+	
+	const SDL_VideoInfo* VideoInfo = SDL_GetVideoInfo();
+	
+	sprintf(buffer, "SDL %d.%d.%d\nSDL_Image %d.%d.%d\n%s\n GL %s, %s, %s %s\n GLU \n\n",
 		SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL,
 		SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL,
 		PNG_HEADER_VERSION_STRING,
 		glGetString(GL_VENDOR),
 		glGetString(GL_RENDERER),
-		glGetString(GL_VERSION)
+		glGetString(GL_VERSION),
+		glGetString(GL_EXTENSIONS)
 	);
+/*
+	
+	VideoInfo->hw_available,
+    VideoInfo->wm_available,
+    VideoInfo->blit_hw,
+    VideoInfo->blit_hw_CC,
+    VideoInfo->blit_hw_A,
+    VideoInfo->blit_sw,
+    VideoInfo->blit_sw_CC,
+    VideoInfo->blit_sw_A,
+    VideoInfo->blit_fill,
+    VideoInfo->video_mem,
+	
+VideoInfo->vfmt->BitsPerPixel;
+VideoInfo->vfmt->BytesPerPixel;
+VideoInfo->vfmt->Rloss,
+VideoInfo->vfmt->Gloss,
+VideoInfo->vfmt->Bloss,
+VideoInfo->vfmt->Aloss;
+VideoInfo->vfmt->Rshift,
+VideoInfo->vfmt->Gshift,
+VideoInfo->vfmt->Bshift,
+VideoInfo->vfmt->Ashift;
+VideoInfo->vfmt->Rmask,
+VideoInfo->vfmt->Gmask,
+VideoInfo->vfmt->Bmask,
+VideoInfo->vfmt->Amask;
+VideoInfo->vfmt->colorkey;
+VideoInfo->vfmt->alpha;
+	
+    VideoInfo->current_w,
+    VideoInfo->current_h,
+*/
+	
 	return v8::String::New( buffer );
 }
 
@@ -189,6 +236,7 @@ static v8::Handle<v8::Value> Radamn::createWindow(const v8::Arguments& args) {
 	}
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 	screen = SDL_SetVideoMode(width, height, 16, SDL_OPENGL | SDL_HWSURFACE );
+	
 	if (!screen) {
 		return ThrowException(v8::Exception::TypeError(v8::String::New("Cannot create the window!")));
 	}
@@ -230,13 +278,14 @@ static v8::Handle<v8::Value> Radamn::createWindow(const v8::Arguments& args) {
 	glLoadIdentity ();
 
 	glDisable(GL_DEPTH_TEST);
+	glShadeModel(GL_FLAT);
 
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
 	return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));
 #endif
-
-	debug_SDL_Surface(screen);
-
+	
+	VERBOSE << "window created" << ENDL;
+	
 	V8_RETURN_WRAPED_POINTER(scope, SDL_Surface, screen)
 }
 
