@@ -16,9 +16,9 @@ using namespace radamn;
 v8::Handle<v8::Value> Radamn::Font::load(const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  std::cout << "load font" << ENDL;
+  VERBOSE << "load font" << ENDL;
 
-  std::cout << args.Length() << " - " << args[0]->IsString() << "/" << args[1]->IsNumber() << ENDL;
+  VERBOSE << args.Length() << " - " << args[0]->IsString() << "/" << args[1]->IsNumber() << ENDL;
 
   if (!(args.Length() == 2 && args[0]->IsString() && args[1]->IsNumber())) {
     return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected TTF::OpenFont(String, Number)")));
@@ -45,7 +45,7 @@ v8::Handle<v8::Value> Radamn::Font::load(const v8::Arguments& args) {
 v8::Handle<v8::Value> Radamn::Font::getImage(const v8::Arguments& args) {
     v8::HandleScope scope;
 
-	std::cout << "get font image" << ENDL;
+	VERBOSE << "get font image" << ENDL;
 
     if (!(args.Length() == 3 && args[0]->IsObject() && args[1]->IsString())) {
         return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected TTF::RenderTextBlended(Font, String, Number)")));
@@ -64,7 +64,7 @@ v8::Handle<v8::Value> Radamn::Font::getImage(const v8::Arguments& args) {
     GLuint texture;
 
     /* Use SDL_TTF to render our text */
-	std::cout << *text << ENDL;
+	VERBOSE << *text << ENDL;
     initial = TTF_RenderText_Blended(font, *text, fg_color);
     //initial = TTF_RenderText_Solid(font, *text, fg_color);
 	//initial = TTF_RenderUTF8_Blended(font, *text, fg_color);
@@ -93,13 +93,14 @@ initial =
     /* Convert the rendered text to a known format */
     w = nextpoweroftwo((float) initial->w);
     h = nextpoweroftwo((float) initial->h);
-	std::cout << "Expand texture to: [" << w << "," << h << "]" << ENDL;
+	VERBOSE << "Expand texture to: [" << w << "," << h << "]" << ENDL;
     scaled = SDL_CreateRGBSurface(0, w, h, vi->vfmt->BitsPerPixel, vi->vfmt->Rmask, vi->vfmt->Gmask, vi->vfmt->Bmask, vi->vfmt->Amask);
     SDL_BlitSurface(initial, 0, scaled, 0);
-	std::cout << "Expanded" << ENDL;
+	VERBOSE << "Expanded" << ENDL;
 
 	image* img = new image();
 	img->load_from_surface(scaled);
+	VERBOSE << "pixels" << (long int) scaled->pixels << ENDL;
 	
     /* Clean up */
     SDL_FreeSurface(initial);
@@ -114,7 +115,7 @@ initial =
             v8::String::New("TTF::??"), v8::String::New(TTF_GetError())
         )));
     }
-	std::cout << "got" << ENDL;
+	VERBOSE << "got" << ENDL;
 
     return image::wrap(img);
 }

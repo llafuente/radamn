@@ -59,7 +59,7 @@ void opengl_draw_textured_quad(GLuint texture_id, GLfloat* uvs, SDL_Rect* dst, o
 	width =  (float)dst->x + dst->w,
 	height = (float)dst->y + dst->h;
 
-	std::cout << "texture: ID:" << texture_id << ENDL;
+	VERBOSE << "texture: ID:" << texture_id << ENDL;
 	VERBOSE << "quad [";
 	VERBOSEC << dst->x << "(" << uvs[0] << ")," << dst->y << "(" << uvs[1]<< ")] [";
 	VERBOSEC << width << "(" << uvs[2] << ")," << dst->y << "("<< uvs[1]<< "] [";

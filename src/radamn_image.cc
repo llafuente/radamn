@@ -67,13 +67,25 @@ GLfloat* image::uv_from(SDL_Rect* rect) {
 bool image::load_from_surface(SDL_Surface* surface, bool bind) {
 	bool hasAlpha = true;
 
+	unsigned int memory_allocated;
+
+	this->width = surface->w;
+	this->height = surface->h;
+
 	if(surface->format->BytesPerPixel == 4) {
 		this->flags = (this->flags | image::ALPHA);
+		memory_allocated = 4 * this->width * this->height;
+		
+	} else {
+		memory_allocated = 3 * this->width * this->height;
 	}
+	this->pixels = (GLubyte*) malloc(memory_allocated);
+    // need to copy the memory another time (3x in case of ttf) because SDL_malloc cannot be free'd -> SDL_free
+	memcpy(this->pixels, surface->pixels, memory_allocated);
 
-	this->pixels = (GLubyte*) surface->pixels;
-
-	surface->pixels = 0;
+	//for(int i=0;i < memory_allocated;++i) {
+	//	VERBOSE << (int) this->pixels[i] << " ";
+	//}
 
 	glGenTextures(1, &this->texture_id);
 
@@ -92,7 +104,7 @@ bool image::load_from_file(char* name, bool bind) {
 	}
 
 	//for(int i=0;i<this->width*this->height*4;++i) {
-	//	std::cout << (int) this->pixels[i] << " ";
+	//	VERBOSE << (int) this->pixels[i] << " ";
 	//}
 
 	// Check that the image's width is a power of 2
@@ -225,7 +237,7 @@ v8::Handle<v8::Value> radamn::v8_image_draw(const v8::Arguments& args) {
 	image* img = image::unwrap(args, 0);
 
 	v8::String::Utf8Value mode(args[1]);
-
+	VERBOSE << "mode: " << *mode << ENDL;
 	opengl_operators emode = opengl_operator_from_string(*mode);
 
 	SDL_Rect* dstrect = 0;
@@ -404,7 +416,7 @@ inline bool radamn::image_load_from_png(char *name, int &outWidth, int &outHeigh
 			outHasAlpha = false;
 			break;
 		default:
-			VERBOSE << "Color type " << png_get_color_type(png_ptr, info_ptr) << " not supported" << std::endl;
+			VERBOSE << "Color type " << png_get_color_type(png_ptr, info_ptr) << " not supported" << ENDL;
 			png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
 			fclose(fp);
 			return false;
