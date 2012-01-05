@@ -27,6 +27,7 @@ v8::Handle<v8::Value> Radamn::init(const v8::Arguments& args) {
 	VERBOSE << "Radamn::init" << ENDL;
 
 	SDL_Init( SDL_INIT_EVERYTHING );
+	SDL_EnableUNICODE(1);
 
 	if(TTF_Init() == -1) {
 		return ThrowException(v8::Exception::Error(v8::String::Concat(
@@ -367,6 +368,70 @@ v8::Handle<v8::Value> Radamn::getJoysticks(const v8::Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
+	void PrintKeyInfo( SDL_KeyboardEvent *key );
+
+    /* Print modifier info */
+    void PrintModifiers( Uint16 mod ){
+        printf( "Modifers: " );
+
+        /* If there are none then say so and return */
+        if( mod == KMOD_NONE ){
+            printf( "None\n" );
+            return;
+        }
+
+        /* Check for the presence of each SDLMod value */
+        /* This looks messy, but there really isn't    */
+        /* a clearer way.                              */
+        if( mod & KMOD_NUM ) printf( "NUMLOCK " );
+        if( mod & KMOD_CAPS ) printf( "CAPSLOCK " );
+        if( mod & KMOD_LCTRL ) printf( "LCTRL " );
+        if( mod & KMOD_RCTRL ) printf( "RCTRL " );
+        if( mod & KMOD_RSHIFT ) printf( "RSHIFT " );
+        if( mod & KMOD_LSHIFT ) printf( "LSHIFT " );
+        if( mod & KMOD_RALT ) printf( "RALT " );
+        if( mod & KMOD_LALT ) printf( "LALT " );
+        if( mod & KMOD_CTRL ) printf( "CTRL " );
+        if( mod & KMOD_SHIFT ) printf( "SHIFT " );
+        if( mod & KMOD_ALT ) printf( "ALT " );
+        printf( "\n" );
+    }
+
+
+    /* Print all information about a key event */
+    void PrintKeyInfo( SDL_KeyboardEvent *key ){
+        /* Is it a release or a press? */
+        if( key->type == SDL_KEYUP )
+            printf( "Release:- " );
+        else
+            printf( "Press:- " );
+
+        /* Print the hardware scancode first */
+        printf( "Scancode: 0x%02X", key->keysym.scancode );
+        /* Print the name of the key */
+        printf( ", Name: %s", SDL_GetKeyName( key->keysym.sym ) );
+        /* We want to print the unicode info, but we need to make */
+        /* sure its a press event first (remember, release events */
+        /* don't have unicode info                                */
+        if( key->type == SDL_KEYDOWN ){
+            /* If the Unicode value is less than 0x80 then the    */
+            /* unicode value can be used to get a printable       */
+            /* representation of the key, using (char)unicode.    */
+            printf(", Unicode: " );
+            if( key->keysym.unicode < 0x80 && key->keysym.unicode > 0 ){
+                printf( "%c (0x%04X)", (char)key->keysym.unicode,
+                        key->keysym.unicode );
+            }
+            else{
+                printf( "? (0x%04X)", key->keysym.unicode );
+            }
+        }
+        printf( "\n" );
+        /* Print modifier info */
+        PrintModifiers( key->keysym.mod );
+    }
+	
+
 // i will follow mozilla docs
 // https://developer.mozilla.org/en/DOM/KeyboardEvent
 // http://www.w3.org/TR/DOM-Level-3-Events/#events-KeyboardEvent
@@ -403,13 +468,22 @@ v8::Handle<v8::Value> Radamn::pollEvent(const v8::Arguments& args) {
 		break;
 	case SDL_KEYDOWN:
 	case SDL_KEYUP:
+		PrintKeyInfo(&event.key);
 		// TODO: support keypress ?
 		evt->Set(v8::String::New("type"), v8::String::New(event.type == SDL_KEYDOWN ? "keydown" : "keyup"));
 
+		std::cout << (int) event.key.keysym.sym << ENDL;
 		// do ui have to mach every key from-sdl-to-w3c... :***
 		evt->Set(v8::String::New("key"),     v8::Number::New(event.key.keysym.sym));
-		evt->Set(v8::String::New("char"),    v8::String::New(SDL_GetKeyName(event.key.keysym.sym)));
-		evt->Set(v8::String::New("keyCode"), v8::Number::New(event.key.keysym.sym));
+#ifdef _WIN32
+	//evt->Set(v8::String::New("char"),    v8::String::New((uint16_t*)event.key.keysym.unicode));
+	evt->Set(v8::String::New("char"),    v8::String::New(SDL_GetKeyName(event.key.keysym.sym)));
+#else
+	evt->Set(v8::String::New("char"),    v8::String::New(SDL_GetKeyName(event.key.keysym.sym)));
+#endif
+		
+		
+		evt->Set(v8::String::New("keyCode"), v8::Number::New((int)event.key.keysym.sym));
 
 		// has anyone use this ever ?!
 		//evt->Set(String::New("locale"), null);

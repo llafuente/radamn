@@ -161,8 +161,7 @@ bool font::has_glyph(char* glyph) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-bool font::get_text_size(char* text) {
-	return true;
+void font::get_text_size(char* text) {
 }
 
 //
