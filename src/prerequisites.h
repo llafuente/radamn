@@ -33,9 +33,9 @@ namespace Radamn {
 }
 
 namespace radamn {
-	void THROW(char* CHAR_STRING);
-	void THROW(char* CHAR_STRING, char* CHAR_STRING2);
-	void THROW(char* CHAR_STRING, char* CHAR_STRING2, char* CHAR_STRING3);
+	void THROW(const char* CHAR_STRING);
+	void THROW(const char* CHAR_STRING, const char* CHAR_STRING2);
+	void THROW(const char* CHAR_STRING, const char* CHAR_STRING2, const char* CHAR_STRING3);
 }
 
 

@@ -123,9 +123,10 @@ extern "C" {
 
 	v8::Local<v8::Object> Font = v8::Object::New();
 	target->Set(v8::String::New("Font"), Font);
-	NODE_SET_METHOD(Font, "load", Radamn::Font::load);
-	NODE_SET_METHOD(Font, "getImage", Radamn::Font::getImage);
-	NODE_SET_METHOD(Font, "destroy", Radamn::Font::destroy);
+	NODE_SET_METHOD(Font, "load", radamn::v8_font_load);
+	NODE_SET_METHOD(Font, "getImage", radamn::v8_font_text_to_image);
+	NODE_SET_METHOD(Font, "destroy", radamn::v8_font_destroy);
+	NODE_SET_METHOD(Font, "measureText", radamn::v8_font_text_size);
 
 	//Radamn::Creator::s_ct->Set("init", target);
 
