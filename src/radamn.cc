@@ -475,13 +475,9 @@ v8::Handle<v8::Value> Radamn::pollEvent(const v8::Arguments& args) {
 		std::cout << (int) event.key.keysym.sym << ENDL;
 		// do ui have to mach every key from-sdl-to-w3c... :***
 		evt->Set(v8::String::New("key"),     v8::Number::New(event.key.keysym.sym));
-#ifdef _WIN32
-	//evt->Set(v8::String::New("char"),    v8::String::New((uint16_t*)event.key.keysym.unicode));
-	evt->Set(v8::String::New("char"),    v8::String::New(SDL_GetKeyName(event.key.keysym.sym)));
-#else
-	evt->Set(v8::String::New("char"),    v8::String::New(SDL_GetKeyName(event.key.keysym.sym)));
-#endif
-		
+
+		// it works at home, dont work at work... nice dilema
+		evt->Set(v8::String::New("char"),    v8::String::New(SDL_GetKeyName(event.key.keysym.sym)));		
 		
 		evt->Set(v8::String::New("keyCode"), v8::Number::New((int)event.key.keysym.sym));
 

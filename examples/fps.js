@@ -19,6 +19,12 @@ module.exports = new Class({
     },
     draw: function(ctx, delta) {
         var fps = Math.round(1000 / delta,1)+"";
-        this.font.write(ctx, fps, this.options.color, this.options.x, this.options.y);
+		
+		var old = ctx.fillStyle;
+		ctx.font = this.options.size+"px "+"Jura";
+		ctx.fillStyle = this.options.color;
+		ctx.fillText(fps, this.options.x, this.options.y);
+		
+		ctx.fillStyle = old;
     }
 });

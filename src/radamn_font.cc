@@ -100,14 +100,16 @@ v8::Handle<v8::Value> radamn::v8_font_text_to_image(const v8::Arguments& args) {
 	font* fnt = font::unwrap(args, 0);
 
 	v8::String::Utf8Value text(args[1]);
-	
-	
+
+	//int x;
+	//uint16_t* uni = (uint16_t*) malloc(sizeof(uint16_t) * text.length);
+	//UTF8_to_UNICODE(uni, *text, strlen(*text));
 
 	V8_ARG_TO_SDL_NEWCOLOR(2, fg_color)
 	
 	image* img = fnt->get_text_image(*text, fg_color);
-
-
+	//free(uni);
+		
 	return image::wrap(img);
 }
 
@@ -172,12 +174,66 @@ image* font::get_text_image(const char* text, SDL_Color fg_color) {
 	SDL_Surface *initial;
 	SDL_Surface *scaled;
 
+	std::cout << text << ENDL;
+
 	int w,h;
 	GLuint texture;
 
 	/* Use SDL_TTF to render our text */
 	VERBOSE << *text << ENDL;
 	initial = TTF_RenderUTF8_Blended(this->mfont, text, fg_color);
+	//TODO SDL_DisplayFormatAlpha ?? instead of hack GL_ONE,GL_ONE
+	//initial = TTF_RenderText_Solid(font, *text, fg_color);
+
+#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
+	//upload to opengl and return this is not efficiency so i maybe need to think another method...
+
+	const SDL_VideoInfo *vi = SDL_GetVideoInfo ();
+
+	/* Convert the rendered text to a known format */
+	w = nextpoweroftwo((float) initial->w);
+	h = nextpoweroftwo((float) initial->h);
+	VERBOSE << "Expand texture to: [" << w << "," << h << "]" << ENDL;
+	scaled = SDL_CreateRGBSurface(0, w, h, vi->vfmt->BitsPerPixel, vi->vfmt->Rmask, vi->vfmt->Gmask, vi->vfmt->Bmask, vi->vfmt->Amask);
+	SDL_BlitSurface(initial, 0, scaled, 0);
+	VERBOSE << "Expanded" << ENDL;
+
+	image* img = new image();
+	img->load_from_surface(scaled);
+	VERBOSE << "pixels" << (long int) scaled->pixels << ENDL;
+
+	/* Clean up */
+	SDL_FreeSurface(initial);
+	SDL_FreeSurface(scaled);
+
+#elif
+	image = initial;
+#endif
+
+	if (!img) {
+		THROW("TTF error: ", TTF_GetError());
+	}
+	VERBOSE << "got" << ENDL;
+	return img;
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+image* font::get_text_image(uint16_t* text, SDL_Color fg_color) {
+	SDL_Surface *initial;
+	SDL_Surface *scaled;
+
+	std::cout << text << ENDL;
+
+	int w,h;
+	GLuint texture;
+
+	/* Use SDL_TTF to render our text */
+	VERBOSE << *text << ENDL;
+	initial = TTF_RenderUNICODE_Blended(this->mfont, text, fg_color);
+	//TODO SDL_DisplayFormatAlpha ?? instead of hack GL_ONE,GL_ONE
 	//initial = TTF_RenderText_Solid(font, *text, fg_color);
 
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL

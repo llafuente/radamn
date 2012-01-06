@@ -26,6 +26,7 @@ namespace radamn {
 		void get_text_size(char* text);
 		// TODO multi-line support
 		image* get_text_image(const char* text, SDL_Color);
+		image* get_text_image(uint16_t* text, SDL_Color);
 
 		static v8::Handle<v8::Value> wrap(font* img);
 		static font* unwrap(const v8::Arguments& args, int position);
@@ -42,7 +43,6 @@ namespace radamn {
     v8::Handle<v8::Value> v8_font_text_to_image(const v8::Arguments& args);
     v8::Handle<v8::Value> v8_font_destroy(const v8::Arguments& args);
 	v8::Handle<v8::Value> v8_font_text_size(const v8::Arguments& args);
-	
 }
 
 #endif // RADAMN_FONT_H_
