@@ -40,7 +40,12 @@ function draw(ctx) {
 		txt = v + "pt;" + fillText;
 		ctx.font = v + "pt Jura";
 		console.log(txt);
-		ctx.fillText(txt, 10, i * 25 + 10);
+		var size = ctx.measureText(txt);
+		console.log(size);
+		console.log(size);
+		console.log(size);
+		console.log(size);
+		ctx.fillText(size.width+"x"+size.height+"/"+txt, 10, i * 25 + 10);
 	  });
 }
 function grid(ctx, w, h, size, unit, color, color2) {

@@ -23,7 +23,7 @@ namespace radamn {
 		//char* because is UTF-8
 		bool has_glyph(char* glyph);
 		// TODO multi-line support
-		void get_text_size(char* text);
+		SDL_Rect get_text_size(char* text);
 		// TODO multi-line support
 		image* get_text_image(const char* text, SDL_Color);
 		image* get_text_image(uint16_t* text, SDL_Color);

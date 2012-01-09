@@ -136,18 +136,21 @@ v8::Handle<v8::Value> radamn::v8_font_destroy(const v8::Arguments& args) {
 
 v8::Handle<v8::Value> radamn::v8_font_text_size(const v8::Arguments& args) {
 	v8::HandleScope scope;
-
-	TTF_Font* font = 0;
-	V8_UNWRAP_POINTER_ARG(0, TTF_Font, font)
 	
+	font* fnt = font::unwrap(args, 0);
 	v8::String::Utf8Value text(args[1]);
 	
-	int w;
-	int h;
+	SDL_Rect rect = fnt->get_text_size(*text);
 	
-	TTF_SizeUTF8(font, *text, &w, &h);
+	std::cout << "measuring: " << *text << ENDL;
+	std::cout << "width" << rect.w << ENDL;
+	std::cout << "height" << rect.h << ENDL;
+	
+	v8::Local<v8::Object> result = v8::Object::New();
+	result->Set(v8::String::New("width"), v8::Number::New(rect.w));
+	result->Set(v8::String::New("height"), v8::Number::New(rect.h));
 
-	return v8::True();
+	return result;
 }
 
 //
@@ -163,7 +166,12 @@ bool font::has_glyph(char* glyph) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-void font::get_text_size(char* text) {
+SDL_Rect font::get_text_size(char* text) {
+	SDL_Rect rect = {0,0,0,0};
+	
+	TTF_SizeUTF8(this->mfont, text, &rect.w,&rect.h);
+	
+	return rect;
 }
 
 //
