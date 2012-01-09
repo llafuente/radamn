@@ -6,3 +6,5 @@ Wont be implemented
 
 Radamn changes
 - onRequestFrame takes one parameter, delta, ms from the last frame.
+- will not be implemented: maxwidth @fillText, strokeText (both are fill right now)
+- fillText, strokeText are multiline

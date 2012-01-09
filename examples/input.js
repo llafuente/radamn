@@ -1,14 +1,11 @@
 require('./../lib/radamn');
 
+require('./plugins/demo.js');
+
 /**
 * @type Window
 */
-var win = Radamn.createWindow(640, 480, 640, 480);
-win.setCaption("input test!", "input test!");
-
-// i leave it here but dont work for me.
-win.setIcon("./resources/images/icon.bmp");
-
+var win = demoWindow(640, 480, "BOX2DWEB TMX");
 
 var canvas = win.getCanvas();
 
@@ -17,19 +14,12 @@ var canvas = win.getCanvas();
 */
 var font = Radamn.Assets.getFont("./resources/fonts/Jura-DemiBold.ttf", 32);
 
-
-Radamn.addEvent("quit", function(e) {
-    Radamn.quit();
-});
-
 var text="last key: ";
 var last_key="";
 Radamn.addEvent("keydown", function(e) {
-    if (e.char == "Escape") {
-        Radamn.quit();
-    } else {
+    if (e.char != "Escape") {
         // type
-        last_key = "keydown / " + e.char;
+        last_key = "keydown / " + e.char + "("+ e.keyCode +")";
     }
 });
 
@@ -45,16 +35,14 @@ Radamn.addEvent("mousedown", function(e) {
     last_key = "mousedown event fired \n@("+e.x+","+e.y+")";
 });
 
-win.setBackgroundColor("#000000");
-
 var counter = 0;
 win.onRequestFrame = function(delta) {
     ++counter;
 
-    font.write(canvas, text + last_key, "#00FF00", 50, 200);
+    font.write(canvas, text + last_key, "rgb(0,255,0)", 50, 200);
 
     win.render();
 };
 
 Radamn.listenInput(50);
-Radamn.start(1000/1);
+Radamn.start(50);

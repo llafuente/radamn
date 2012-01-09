@@ -21,3 +21,11 @@ _UpgradeReport_Files/
 ipch/
 *.sdf
 *.opensdf
+
+
+deps/node/*
+deps/SDL/*
+deps/SDL_image/*
+deps/libpng/*
+deps/SDL_ttf/*
+deps/GL/*

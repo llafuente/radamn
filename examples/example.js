@@ -1,20 +1,11 @@
 require('./../lib/radamn');
 
-//var screen = module.exports.createScreen(640, 480, module.exports.$.INIT.OPENGL);
-//segmentation fault on linux xD
+require('./plugins/demo.js');
+
 /**
 * @type Window
 */
-var win = Radamn.createWindow(320,240, 640, 480);
-
-//console.log(CRadamn);
-//console.log(CRadamn.getVersion());
-//console.log(module.exports);
-
-// i leave it here but dont work for me.
-win.setIcon("./resources/images/icon.bmp");
-win.setCaption("caption!!", "caption!");
-
+var win = demoWindow(640, 480, "BOX2DWEB TMX", {});
 
 var canvas = win.getCanvas();
 
@@ -33,54 +24,6 @@ for(var j = 0; j < 3; ++j) {
         animation_cfg.push([i*80,j*80, 80, 80]);
     }
 }
-/*
-var animation = Radamn.Assets.getAnimation("./resources/images/star-green.png", {
-    animation: animation_cfg,
-    loop: true,
-    fps: 12
-});
-animation.play();
-*/
-
-
-var gridResource = Radamn.createRenderable(function (canvas) {
-    var size = 32;
-    var x = Math.floor(win.width / size);
-    var y = Math.floor(win.height / size);
-
-    canvas.strokeStyle = "#FFFFFF";
-    canvas.lineWidth = 1;
-
-    for(i=0;i<x; ++i) {
-        canvas.translate( size, 0);
-        canvas.beginPath();
-        canvas.lineTo(0, win.height);
-        canvas.closePath();
-        canvas.stroke();
-    }
-    canvas.translate( -x*size, 0);
-    for(i=0;i<y; ++i) {
-        canvas.translate(0, size);
-        canvas.beginPath();
-        canvas.lineTo(win.width, 0);
-        canvas.closePath();
-        canvas.stroke();
-    }
-    canvas.translate(0, -y*size);
-});
-
-Radamn.addEvent("quit", function(e) {
-    Radamn.quit();
-});
-
-Radamn.addEvent("keydown", function(e) {
-    if (e.char == "F5") {
-        win.screenshot();
-    } else if (e.char == "Escape") {
-        Radamn.quit();
-    }
-});
-
 Radamn.addEvent("wheel", function(e) {
     console.log(e);
 });

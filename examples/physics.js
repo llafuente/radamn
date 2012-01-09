@@ -1,38 +1,11 @@
-/**
-* This is the default example of BOX2DWEB fully that's make me support more Canvas API...
-*/
-require('./../lib/Box2dWeb-2.1.a.3.js');
 require('./../lib/radamn');
 
-//var screen = module.exports.createScreen(640, 480, module.exports.$.INIT.OPENGL);
-//segmentation fault on linux xD
+require('./plugins/demo.js');
+
 /**
 * @type Window
 */
-var win = Radamn.createWindow(20,13.3333333333, 600, 400);
-
-// i leave it here but dont work for me.
-win.setIcon("./resources/images/icon.bmp");
-win.setCaption("caption!!", "caption!");
-
-// do not attach! because we are using a resized canvas...
-var fps = require('./fps');
-fps = new fps({
-    font : "./resources/fonts/Jura-DemiBold.ttf"
-    ,x: 400
-});
-
-Radamn.addEvent("quit", function(e) {
-    Radamn.quit();
-});
-
-Radamn.addEvent("keydown", function(e) {
-    if (e.char == "F5") {
-        win.screenshot();
-    } else if (e.char == "Escape") {
-        Radamn.quit();
-    }
-});
+var win = demoWindow(640, 480, "BOX2DWEB TMX");
 
 var canvas = win.getCanvas();
 
@@ -43,8 +16,6 @@ var world = null,
 function handleMouseMove(e) {
    mouseX = (e.clientX) / 30;
    mouseY = (e.clientY) / 30;
-   
-   console.log(mouseX, mouseY);
 };
 
 function getBodyAtMouse() {

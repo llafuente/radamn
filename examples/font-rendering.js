@@ -1,24 +1,12 @@
 require('./../lib/radamn');
 
-//var screen = module.exports.createScreen(640, 480, module.exports.$.INIT.OPENGL);
-//segmentation fault on linux xD
+require('./plugins/demo.js');
+
 /**
 * @type Window
 */
-var win = Radamn.createWindow(640, 480);
+var win = demoWindow(640, 480, "BOX2DWEB TMX");
 var canvas = win.getCanvas();
-
-Radamn.addEvent("quit", function(e) {
-    Radamn.quit();
-});
-
-Radamn.addEvent("keydown", function(e) {
-    if (e.char == "F5") {
-        win.screenshot();
-    } else if (e.char == "Escape") {
-        Radamn.quit();
-    }
-});
 
 // code from http://pigs.sourceforge.jp/blog/200811140144/uupaa-canvas.js/demo/8_5_canvas_fontSize_fillText.html
 // modified the fillStyle-> blue and font -> 
@@ -67,10 +55,6 @@ function grid(ctx, w, h, size, unit, color, color2) {
 	ctx.stroke();
   }
 }
-
-
-
-
 
 win.onRequestFrame = function(delta) {
     win.render(delta);

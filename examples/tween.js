@@ -1,19 +1,11 @@
 require('./../lib/radamn');
 
-//var screen = module.exports.createScreen(640, 480, module.exports.$.INIT.OPENGL);
-//segmentation fault on linux xD
+require('./plugins/demo.js');
+
 /**
 * @type Window
 */
-var win = Radamn.createWindow(640, 480);
-
-//console.log(CRadamn);
-//console.log(CRadamn.getVersion());
-//console.log(module.exports);
-
-// i leave it here but dont work for me.
-win.setIcon("./resources/images/icon.bmp");
-win.setCaption("caption!!", "caption!");
+var win = demoWindow(640, 480, "math");
 
 
 var canvas = win.getCanvas();
@@ -22,22 +14,6 @@ var canvas = win.getCanvas();
 * @type Image
 */
 var image = Radamn.Assets.getImage("./resources/images/rock.png");
-
-Radamn.addEvent("quit", function(e) {
-    Radamn.quit();
-});
-
-Radamn.addEvent("keydown", function(e) {
-    if (e.char == "F5") {
-        win.screenshot();
-    } else if (e.char == "Escape") {
-        Radamn.quit();
-    }
-});
-
-Radamn.addEvent("mousedown", function(e) {
-    // move to: e.x, e.y
-});
 
 var node = win.getRootNode();
 
@@ -59,8 +35,6 @@ var childnode1_tween = new Fx.Tween(childnode1, {
     fps: 12
 });
 
-console.log("!!!!");
-
 // chain! and morph!
 childnode1_tween.start("x", 0, 250, false);
 childnode1_tween.addEventOnce("complete", function() {
@@ -75,15 +49,6 @@ childnode1_tween.addEventOnce("complete", function() {
         });
     });
 });
-
-console.log("***");
-
-var fps = require("./fps");
-fps = new fps({
-    font : "./resources/fonts/Jura-DemiBold.ttf"
-});
-
-win.getRootNode().appendEntity(fps);
 
 var counter = 0;
 win.onRequestFrame = function(delta) {

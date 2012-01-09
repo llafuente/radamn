@@ -7,6 +7,10 @@ require('./../lib/radamn');
 */
 var win = Radamn.createWindow(640, 480);
 
+attachFPSCounter(win);
+
+attachEscapeInputs(Radamn);
+
 //console.log(CRadamn);
 //console.log(CRadamn.getVersion());
 //console.log(module.exports);
@@ -27,10 +31,6 @@ var image = Radamn.Assets.getImage("./resources/images/rock.png");
 * @type Font
 */
 var font = Radamn.Assets.getFont("./resources/fonts/Jura-DemiBold.ttf", 12);
-
-Radamn.addEvent("quit", function(e) {
-    Radamn.quit();
-});
 
 win.setBackgroundColor("#000000");
 

@@ -1,7 +1,11 @@
-﻿/*
-*	LOAD TMX isometric map
+﻿require('./../lib/radamn');
+
+require('./plugins/demo.js');
+
+/**
+* @type Window
 */
-require('./../lib/radamn');
+var win = demoWindow(640, 480, "math");
 
 /*
 test case not fully ready need assets!
@@ -103,23 +107,7 @@ var polygon = new Polygon([
 console.log(typeOf(polygon));
 console.log((polygon));
 
-
-// visual test
-var win = Radamn.createWindow(640, 480);
-win.setCaption("math", "math");
 var canvas = win.getCanvas();
-
-Radamn.addEvent("keydown", function(e) {
-    if (e.char == "F5") {
-        win.screenshot();
-    } else if (e.char == "Escape") {
-        Radamn.quit();
-    }
-});
-
-Radamn.addEvent("quit", function(e) {
-    Radamn.quit();
-});
 
 var node = null;
 var collideNodeList = [];
