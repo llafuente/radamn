@@ -1,11 +1,11 @@
 require('./../lib/radamn');
 
-require('./plugins/demo.js');
+var demo = require('./plugins/demo.js');
 
 /**
 * @type Window
 */
-var win = demoWindow(640, 480, "math");
+var win = demo.demoWindow(640, 480, "math");
 
 
 var canvas = win.getCanvas();

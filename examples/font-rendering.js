@@ -1,11 +1,11 @@
 require('./../lib/radamn');
 
-require('./plugins/demo.js');
+var demo = require('./plugins/demo.js');
 
 /**
 * @type Window
 */
-var win = demoWindow(640, 480, "BOX2DWEB TMX");
+var win = demo.demoWindow(640, 480, "Font rendering");
 var canvas = win.getCanvas();
 
 // code from http://pigs.sourceforge.jp/blog/200811140144/uupaa-canvas.js/demo/8_5_canvas_fontSize_fillText.html
@@ -14,9 +14,9 @@ var canvas = win.getCanvas();
 function draw(ctx) {
   var w = 500, h = 800;
   // this doesn't work but I dont think is my fault...
-  var fillText ="AWawあ漢字!?@";
+  //var fillText ="AWawあ漢字!?@";
   // this either :S
-  //var fillText ="AWaw\u3042\u6f22\u5b57!?@";
+  var fillText ="AWaw\u3042\u6f22\u5b57!?@";
   ctx.fillStyle     = "#0000FF";
   ctx.textBaseline  = "top";
 

@@ -3,7 +3,7 @@ var fps = require('./grid');
 
 
 
-function attachFPSCounter(window, xpos, ypos) {
+module.exports.attachFPSCounter = function(window, xpos, ypos) {
 	xpos = xpos || 0;
 	ypos = ypos || 0;
 	fps = new fps({
@@ -19,7 +19,7 @@ function attachFPSCounter(window, xpos, ypos) {
 }
 
 
-function attachGrid(window, options) {
+module.exports.attachGrid = function(window, options) {
 	var grid = require('./grid');
 	grid = new grid({});
 
@@ -29,7 +29,7 @@ function attachGrid(window, options) {
 }
 
 
-function attachEscapeInputs(window) {
+module.exports.attachEscapeInputs = function(window) {
 
 	Radamn.addEvent("quit", function(e) {
 		Radamn.quit();
@@ -45,19 +45,19 @@ function attachEscapeInputs(window) {
 
 }
 
-global.demoWindow = function(width, height, caption, grid) {
+module.exports.demoWindow = function(width, height, caption, grid) {
 	grid = grid || false;
 	// visual test
 	var win = Radamn.createWindow(640, 480);
 
-	attachFPSCounter(win, 480, 0);
+	module.exports.attachFPSCounter(win, 480, 0);
 
-	attachEscapeInputs(win);
+	module.exports.attachEscapeInputs(win);
 	
 	win.setCaption(caption, caption);
 	
 	if(grid) {
-		attachGrid(win, grid);
+		module.exports.attachGrid(win, grid);
 	}
 	
 	return win;

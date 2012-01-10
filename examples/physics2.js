@@ -1,5 +1,5 @@
 /**
-* Bandana mode on stealed from: http://blog.sethladd.com/search/label/box2d
+from: http://blog.sethladd.com/search/label/box2d
 replace:
 aqua -> rgb(0,255,255)
 black -> rgb(0,0,0)
@@ -10,45 +10,17 @@ red -> rgb(255,0,0)
 require('./../lib/Box2dWeb-2.1.a.3.js');
 require('./../lib/radamn');
 require('./physics2-btestlib.js');
-
+var demo = require('./plugins/demo.js');
 
 //var screen = module.exports.createScreen(640, 480, module.exports.$.INIT.OPENGL);
 //segmentation fault on linux xD
 /**
 * @type Window
 */
-var win = Radamn.createWindow(640,480, 640, 480);
+var win = demo.demoWindow(640,480,"BOX2DWEB demo 2");
 
-// i leave it here but dont work for me.
-win.setIcon("./resources/images/icon.bmp");
-win.setCaption("caption!!", "caption!");
-
-// do not attach! because we are using a resized canvas...
-var fps = require('./fps');
-fps = new fps({
-    font : "./resources/fonts/Jura-DemiBold.ttf"
-    ,x: 400
-});
 
 var initExample = null;
-Radamn.addEvent("quit", function(e) {
-    Radamn.quit();
-	
-	// kill the init setTimeout
-	clearTimeout(initExample);
-});
-
-Radamn.addEvent("keydown", function(e) {
-    if (e.char == "F5") {
-        win.screenshot();
-    } else if (e.char == "Escape") {
-        Radamn.quit();
-		
-		// kill the init setTimeout
-		clearTimeout(initExample);
-    }
-});
-
 var canvas = win.getCanvas();
 
 //-------------------------
@@ -301,8 +273,6 @@ var canvas = win.getCanvas();
 win.setBackgroundColor("rgb(200,200,200)");
 
 win.onRequestFrame = function(delta) {
-	fps.draw(canvas, delta);
-	
 	// update function
 	update();
 	

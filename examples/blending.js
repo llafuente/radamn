@@ -1,24 +1,11 @@
 require('./../lib/radamn');
 
-//var screen = module.exports.createScreen(640, 480, module.exports.$.INIT.OPENGL);
-//segmentation fault on linux xD
+var demo = require('./plugins/demo.js');
+
 /**
 * @type Window
 */
-var win = Radamn.createWindow(640, 480);
-
-attachFPSCounter(win);
-
-attachEscapeInputs(Radamn);
-
-//console.log(CRadamn);
-//console.log(CRadamn.getVersion());
-//console.log(module.exports);
-
-// i leave it here but dont work for me.
-win.setIcon("./resources/images/icon.bmp");
-win.setCaption("caption!!", "caption!");
-
+var win = demo.demoWindow(640, 480, "Blending Composite operations");
 
 var canvas = win.getCanvas();
 

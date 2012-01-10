@@ -1,11 +1,14 @@
+require('./../lib/Box2dWeb-2.1.a.3.js');
 require('./../lib/radamn');
-
-require('./plugins/demo.js');
+var demo = require('./plugins/demo.js');
 
 /**
 * @type Window
 */
-var win = demoWindow(640, 480, "BOX2DWEB TMX");
+
+var win = Radamn.createWindow(20,13.3333333333, 600, 400);
+
+demo.attachEscapeInputs(win);
 
 var canvas = win.getCanvas();
 
@@ -130,8 +133,6 @@ Radamn.addEvent("mouseup", function() {
 win.setBackgroundColor("rgb(80,80,80)");
 
 win.onRequestFrame = function(delta) {
-	fps.draw(canvas, delta);
-	
 	win.render(delta, function() {
 	
         if(isMouseDown && (!mouseJoint)) {

@@ -1,11 +1,11 @@
 require('./../lib/radamn');
 
-require('./plugins/demo.js');
+var demo = require('./plugins/demo.js');
 
 /**
 * @type Window
 */
-var win = demoWindow(640, 480, "BOX2DWEB TMX");
+var win = demo.demoWindow(640, 480, "BOX2DWEB TMX");
 
 
 require('./../lib/Box2dWeb-2.1.a.3.js');
