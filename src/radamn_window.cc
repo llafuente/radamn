@@ -203,10 +203,12 @@ v8::Handle<v8::Value> Radamn::Window::stroke(const v8::Arguments& args) {
 		pos+=3;
 	}
 	//close the path
+	/*
 	positions[pos] = positions[0];
 	positions[pos+1] = positions[1];
 	positions[pos+2] = 0;
-	opengl_stroke_point(positions, max+1, width, color);
+	*/
+	opengl_stroke_point(positions, max, width, color);
 
 	SDL_free(positions);
 
