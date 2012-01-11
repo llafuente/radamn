@@ -8,6 +8,7 @@
 #include "v8_helper.h"
 #include "opengl_helper.h"
 #include "prerequisites.h"
+#include "radamn_gl.h"
 
 
 using namespace radamn;
@@ -238,7 +239,7 @@ v8::Handle<v8::Value> radamn::v8_image_draw(const v8::Arguments& args) {
 
 	v8::String::Utf8Value mode(args[1]);
 	VERBOSE << "mode: " << *mode << ENDL;
-	opengl_operators emode = opengl_operator_from_string(*mode);
+	gl_operators emode = gl::operator_from_string(*mode);
 
 	SDL_Rect* dstrect = 0;
 	SDL_Rect* srcrect = 0;

@@ -11,6 +11,7 @@
 #include <SDL_version.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+#include "radamn_gl.h"
 #include <node.h>
 #include <v8.h>
 
@@ -132,6 +133,9 @@ extern "C" {
 	//Radamn::Creator::s_ct->Set("init", target);
 
     }
+	
+	gl* opengl = gl::singleton();
+	
     NODE_MODULE(Creator, init);
 }
 

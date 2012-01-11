@@ -31,6 +31,9 @@
 		"src/SDL_helper.h",
 		"src/v8_helper.cc",
 		"src/v8_helper.h",
+		
+		"src/radamn_gl.cc",
+		"src/radamn_gl.h",
       ],
 
 	  'target_name': '<(module_name)',

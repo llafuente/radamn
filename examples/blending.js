@@ -51,7 +51,7 @@ win.onRequestFrame = function(delta) {
 
 		canvas.globalCompositeOperation = Radamn.$.BLENDING.SOURCE_OVER;
 		canvas.restore();
-		font.write(canvas, Radamn.$.BLENDING[key], "#00FF00", 128 *(i%4), 128 * Math.floor(i/4));
+		font.fill(canvas, Radamn.$.BLENDING[key], "#00FF00", 128 *(i%4), 128 * Math.floor(i/4));
 		
 		++i;
 	}
@@ -61,8 +61,3 @@ win.onRequestFrame = function(delta) {
 
 Radamn.listenInput(50);
 Radamn.start(50);
-
-/** resize in real time ! wtf! it should be another window... someday :)
-var screen2 = module.exports.createScreen(480, 320, module.exports.$.INIT.OPENGL);
-screen2.setCaption("caption2!!", "caption2!");
-*/

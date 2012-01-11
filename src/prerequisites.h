@@ -13,9 +13,49 @@
 namespace Radamn {}
 namespace radamn {
 	class image;
+	class font;
+	class gl;
+
 	static v8::Persistent<v8::ObjectTemplate> SDL_Font_template_;
 	static v8::Persistent<v8::ObjectTemplate> SDL_Surface_template_;
 	static v8::Persistent<v8::ObjectTemplate> OGL_DrawBufferTextured_template_;
+	
+	// enums
+	/// from cairo
+	typedef enum gl_operators {
+			OPERATOR_CLEAR = 0,
+			OPERATOR_SOURCE,
+			OPERATOR_OVER,
+			OPERATOR_IN,
+			OPERATOR_OUT,
+			OPERATOR_ATOP,
+			OPERATOR_DEST,
+			OPERATOR_DEST_OVER,
+			OPERATOR_DEST_IN,
+			OPERATOR_DEST_OUT,
+			OPERATOR_DEST_ATOP,
+			OPERATOR_XOR,
+			OPERATOR_ADD
+	/*,
+			OPERATOR_SATURATE,
+
+			CAIRO_OPERATOR_MULTIPLY,
+			CAIRO_OPERATOR_SCREEN,
+			CAIRO_OPERATOR_OVERLAY,
+			CAIRO_OPERATOR_DARKEN,
+			CAIRO_OPERATOR_LIGHTEN,
+			CAIRO_OPERATOR_COLOR_DODGE,
+			CAIRO_OPERATOR_COLOR_BURN,
+			CAIRO_OPERATOR_HARD_LIGHT,
+			CAIRO_OPERATOR_SOFT_LIGHT,
+			CAIRO_OPERATOR_DIFFERENCE,
+			CAIRO_OPERATOR_EXCLUSION,
+			CAIRO_OPERATOR_HSL_HUE,
+			CAIRO_OPERATOR_HSL_SATURATION,
+			CAIRO_OPERATOR_HSL_COLOR,
+			CAIRO_OPERATOR_HSL_LUMINOSITY
+	*/
+	} gl_operators_t;
 }
 using namespace radamn;
 

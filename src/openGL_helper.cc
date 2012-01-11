@@ -5,27 +5,7 @@
 #endif
 
 #include <SDL.h>
-
-//
-// ----------------------------------------------------------------------------------------------------
-//
-
-opengl_operators_t opengl_operator_from_string(char* str) {
-	if(0 == strcmp(str, "clear")) return OPERATOR_CLEAR;
-	if(0 == strcmp(str, "source-atop")) return OPERATOR_ATOP;
-	if(0 == strcmp(str, "source-in")) return OPERATOR_IN;
-	if(0 == strcmp(str, "source-out")) return OPERATOR_OUT;
-	if(0 == strcmp(str, "source-over")) return OPERATOR_OVER;
-	if(0 == strcmp(str, "destination-atop")) return OPERATOR_DEST_ATOP;
-	if(0 == strcmp(str, "destination-in")) return OPERATOR_DEST_IN;
-	if(0 == strcmp(str, "destination-out")) return OPERATOR_DEST_OUT;
-	if(0 == strcmp(str, "destination-over")) return OPERATOR_DEST_OVER;
-	if(0 == strcmp(str, "xor")) return OPERATOR_XOR;
-	if(0 == strcmp(str, "copy")) return OPERATOR_ADD;
-
-	ThrowException(v8::Exception::TypeError(v8::String::New("Invalid argument opengl_operator_from_string()")));
-	return OPERATOR_CLEAR;
-}
+#include "radamn_gl.h"
 
 //
 // ----------------------------------------------------------------------------------------------------
@@ -49,8 +29,8 @@ void opengl_draw_colored_poly(glColor color, SDL_Rect rect) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-void opengl_draw_textured_quad(GLuint texture_id, GLfloat* uvs, SDL_Rect* dst, opengl_operators_t composite) {
-	opengl_set_operator(composite);
+void opengl_draw_textured_quad(GLuint texture_id, GLfloat* uvs, SDL_Rect* dst, gl_operators_t composite) {
+	gl::set_operator(composite);
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture( GL_TEXTURE_2D, texture_id );
@@ -110,7 +90,7 @@ void opengl_draw_textured_quad(GLuint texture_id, GLfloat* uvs, SDL_Rect* dst, o
 	
 	glDisable(GL_TEXTURE_2D);
 
-	opengl_clear_operator();
+	gl::clear_operator();
 	VERBOSE << "done" << ENDL;
 }
 
@@ -146,111 +126,19 @@ GLfloat* opengl_uv_from(SDL_Surface* surface, SDL_Rect* rect) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-void opengl_draw_textured_SDL_Rect(image* img, SDL_Rect* from, SDL_Rect* to, opengl_operators_t composite) {
+void opengl_draw_textured_SDL_Rect(image* img, SDL_Rect* from, SDL_Rect* to, gl_operators_t composite) {
 	GLfloat* uvs = img->uv_from(from);
 	opengl_draw_textured_quad(img->texture_id, uvs, to, composite);
 	free(uvs);
 }
 
-//
-// ----------------------------------------------------------------------------------------------------
-//
 
-void opengl_set_operator(opengl_operators_t op) {
-	struct {
-		GLenum src;
-		GLenum dst;
-	} blend_factors[] = {
-		{ GL_ZERO, GL_ZERO }, /* Clear */
-		{ GL_ONE, GL_ZERO }, /* Source */
-		{ GL_ONE, GL_ONE_MINUS_SRC_ALPHA }, /* Over */
-		{ GL_DST_ALPHA, GL_ZERO }, /* In */
-		{ GL_ONE_MINUS_DST_ALPHA, GL_ZERO }, /* Out */
-		{ GL_DST_ALPHA, GL_ONE_MINUS_SRC_ALPHA }, /* Atop */
-
-		{ GL_ZERO, GL_ONE }, /* Dest */
-		{ GL_ONE_MINUS_DST_ALPHA, GL_ONE }, /* DestOver */
-		{ GL_ZERO, GL_SRC_ALPHA }, /* DestIn */
-		{ GL_ZERO, GL_ONE_MINUS_SRC_ALPHA }, /* DestOut */
-		{ GL_ONE_MINUS_DST_ALPHA, GL_SRC_ALPHA }, /* DestAtop */
-
-		{ GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_SRC_ALPHA }, /* Xor */
-		{ GL_ONE, GL_ONE }, /* Add */
-	};
-	GLenum src_factor, dst_factor;
-
-	/* different dst and component_alpha changes cause flushes elsewhere
-if (ctx->current_operator != op)
-	_cairo_gl_composite_flush (ctx);
-ctx->current_operator = op;
-	*/
-
-	src_factor = blend_factors[op].src;
-	dst_factor = blend_factors[op].dst;
-
-	/* Even when the user requests CAIRO_CONTENT_COLOR, we use GL_RGBA
-	* due to texture filtering of GL_CLAMP_TO_BORDER.  So fix those
-	* bits in that case.
-
-	if (ctx->current_target->base.content == CAIRO_CONTENT_COLOR) {
-	if (src_factor == GL_ONE_MINUS_DST_ALPHA)
-		src_factor = GL_ZERO;
-	if (src_factor == GL_DST_ALPHA)
-		src_factor = GL_ONE;
-	}
-*/
-
-	// image has alpha and source-top
-	if(true) {
-		if(dst_factor == GL_ONE_MINUS_SRC_ALPHA && src_factor == GL_ONE) {
-			src_factor = GL_SRC_ALPHA;
-		} else if (dst_factor == GL_ONE_MINUS_SRC_ALPHA) {
-			dst_factor = GL_ONE_MINUS_SRC_COLOR;
-		} else if (dst_factor == GL_SRC_ALPHA) {
-			dst_factor = GL_SRC_COLOR;
-		}
-	}
-
-/*
-	if (component_alpha) {
-		if (dst_factor == GL_ONE_MINUS_SRC_ALPHA)
-		dst_factor = GL_ONE_MINUS_SRC_COLOR;
-		if (dst_factor == GL_SRC_ALPHA)
-		dst_factor = GL_SRC_COLOR;
-	}
-
-	//mask
-	if (ctx->current_target->base.content == CAIRO_CONTENT_ALPHA) {
-		glBlendFuncSeparate (GL_ZERO, GL_ZERO, src_factor, dst_factor);
-		//color
-	} else if (ctx->current_target->base.content == CAIRO_CONTENT_COLOR) {
-		glBlendFuncSeparate (src_factor, dst_factor, GL_ONE, GL_ONE);
-	} else {
-		// image
-		glBlendFunc (src_factor, dst_factor);
-	}
-*/
-
-	glEnable(GL_BLEND);
-	glBlendFunc (src_factor, dst_factor);
-	//glEnable( GL_DEPTH_TEST );
-	//glDepthFunc( GL_LEQUAL );
-}
 
 //
 // ----------------------------------------------------------------------------------------------------
 //
 
-void opengl_clear_operator() {
-    glDisable(GL_BLEND);
-    //glDisable( GL_DEPTH_TEST );
-}
-
-//
-// ----------------------------------------------------------------------------------------------------
-//
-
-void opengl_stroke_point(GLfloat* points, int cpoints, int width, glColor color, opengl_operators_t composite) {
+void opengl_stroke_point(GLfloat* points, int cpoints, int width, glColor color, gl_operators_t composite) {
 	glLineWidth (width);
 	
 	if(color.a != 1) {
@@ -291,7 +179,7 @@ void opengl_stroke_point(GLfloat* points, int cpoints, int width, glColor color,
 // ----------------------------------------------------------------------------------------------------
 //
 
-void opengl_fill_poly(GLfloat* points, int cpoints, glColor color, opengl_operators_t composite) {
+void opengl_fill_poly(GLfloat* points, int cpoints, glColor color, gl_operators_t composite) {
 
 	if(color.a != 1) {
 		glEnable(GL_BLEND); //enable the blending
