@@ -8,20 +8,28 @@
 #endif
 
 #include <SDL.h>
+#include "prerequisites.h"
 
 
 namespace radamn {
 	/**
 	 * basic class that will be the base of the opengl rendersytyem and opengles 1/2
 	 */
-	class gl {	
+	class gl {
+		public :
+		gl_color_t background;
 
 	
 	
 		protected:
 		static gl* instance;
 		
-		gl() { }
+		gl() {
+			background.r = 0;
+			background.g = 0;
+			background.b = 0;
+			background.a = 1;
+		}
 		
 		public:
 		~gl() { }
@@ -37,12 +45,14 @@ namespace radamn {
 		static void clear_operator();
 		
 		
-		
-		
-		
-	
+		static void clear();
 	};
+	
 
+	// v8 interfaces
+	v8::Handle<v8::Value> v8_gl_set_background_color(const v8::Arguments& args);
+
+	v8::Handle<v8::Value> v8_gl_clear(const v8::Arguments& args);
 }
 
 

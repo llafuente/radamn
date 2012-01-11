@@ -5,13 +5,17 @@
 #endif
 
 #include <SDL.h>
+#include "prerequisites.h"
 #include "radamn_gl.h"
+
+
+using namespace radamn;
 
 //
 // ----------------------------------------------------------------------------------------------------
 //
 
-void opengl_draw_colored_poly(glColor color, SDL_Rect rect) {
+void opengl_draw_colored_poly(gl_color_t color, SDL_Rect rect) {
 	GLfloat y_plus_h = (GLfloat) rect.y + rect.h,
 	x_plus_w = (GLfloat) rect.x + rect.w;
 	VERBOSE << "quad [";
@@ -138,7 +142,7 @@ void opengl_draw_textured_SDL_Rect(image* img, SDL_Rect* from, SDL_Rect* to, gl_
 // ----------------------------------------------------------------------------------------------------
 //
 
-void opengl_stroke_point(GLfloat* points, int cpoints, int width, glColor color, gl_operators_t composite) {
+void opengl_stroke_point(GLfloat* points, int cpoints, int width, gl_color_t color, gl_operators_t composite) {
 	glLineWidth (width);
 	
 	if(color.a != 1) {
@@ -179,7 +183,7 @@ void opengl_stroke_point(GLfloat* points, int cpoints, int width, glColor color,
 // ----------------------------------------------------------------------------------------------------
 //
 
-void opengl_fill_poly(GLfloat* points, int cpoints, glColor color, gl_operators_t composite) {
+void opengl_fill_poly(GLfloat* points, int cpoints, gl_color_t color, gl_operators_t composite) {
 
 	if(color.a != 1) {
 		glEnable(GL_BLEND); //enable the blending

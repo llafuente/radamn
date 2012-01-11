@@ -102,9 +102,7 @@ extern "C" {
 	target->Set(v8::String::New("Window"), Window);
 	NODE_SET_METHOD(Window, "setCaption",           Radamn::Window::setCaption);
 	NODE_SET_METHOD(Window, "setIcon",              Radamn::Window::setIcon);
-	NODE_SET_METHOD(Window, "clear",                Radamn::Window::clear);
 	NODE_SET_METHOD(Window, "flip",                 Radamn::Window::flip);
-	NODE_SET_METHOD(Window, "setBackgroundColor",   Radamn::Window::setBackgroundColor);
 	NODE_SET_METHOD(Window, "save",                 Radamn::Window::save);
 	NODE_SET_METHOD(Window, "restore",              Radamn::Window::restore);
 	NODE_SET_METHOD(Window, "translate",            Radamn::Window::translate);
@@ -115,6 +113,13 @@ extern "C" {
 	NODE_SET_METHOD(Window, "transform",            Radamn::Window::transform);
 	NODE_SET_METHOD(Window, "setTransform",         Radamn::Window::setTransform);
 	NODE_SET_METHOD(Window, "fill",                 Radamn::Window::fill);
+	
+	// new gl Object!
+	v8::Local<v8::Object> GL = v8::Object::New();
+	target->Set(v8::String::New("GL"), GL);
+	NODE_SET_METHOD(GL, "setBackgroundColor",   radamn::v8_gl_set_background_color);
+	NODE_SET_METHOD(GL, "clear",                radamn::v8_gl_clear);
+
 
 	v8::Local<v8::Object> Image = v8::Object::New();
 	target->Set(v8::String::New("Image"), Image);

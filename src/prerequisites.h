@@ -9,6 +9,27 @@
 #include <node.h>
 #include <SDL.h>
 
+#define ENDL std::endl
+
+#define RADAMN_RENDERER_SOFTWARE 1
+#define RADAMN_RENDERER_OPENGL 2
+#define RADAMN_RENDERER_OPENGLES 3
+#define RADAMN_RENDERER_OPENGLES2 4
+
+//#define RADAMN_RENDERER RADAMN_RENDERER_SOFTWARE
+#define RADAMN_RENDERER RADAMN_RENDERER_OPENGL
+
+
+#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
+// on centos: yum install mesa-libGL mesa-libGL-devel mesa-libGLU mesa-libGLU-devel
+#include <SDL_opengl.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+//#include <GL/glaux.h>
+#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
+// include the proper libs
+#endif
+
 // declare namespaces!
 namespace Radamn {}
 namespace radamn {
@@ -56,6 +77,19 @@ namespace radamn {
 			CAIRO_OPERATOR_HSL_LUMINOSITY
 	*/
 	} gl_operators_t;
+	
+	typedef struct gl_color {
+		GLfloat r;
+		GLfloat g;
+		GLfloat b;
+		GLfloat a;
+
+	} gl_color_t;
+	/**
+	 * @see sdl_color_from
+	 */
+	gl_color_t gl_color_from(SDL_Color color);
+	
 }
 using namespace radamn;
 
@@ -85,26 +119,7 @@ namespace radamn {
 
 inline char* VERBOSEF(const char *fmt, ...);
 
-#define ENDL std::endl
 
-#define RADAMN_RENDERER_SOFTWARE 1
-#define RADAMN_RENDERER_OPENGL 2
-#define RADAMN_RENDERER_OPENGLES 3
-#define RADAMN_RENDERER_OPENGLES2 4
-
-//#define RADAMN_RENDERER RADAMN_RENDERER_SOFTWARE
-#define RADAMN_RENDERER RADAMN_RENDERER_OPENGL
-
-
-#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
-// on centos: yum install mesa-libGL mesa-libGL-devel mesa-libGLU mesa-libGLU-devel
-#include <SDL_opengl.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-//#include <GL/glaux.h>
-#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
-// include the proper libs
-#endif
 
 typedef struct OGL_DrawBufferTextured {
     GLsizeiptr positionSize;
@@ -117,16 +132,6 @@ typedef struct OGL_DrawBufferTextured {
     GLuint* coordsBuffer;
 }OGL_DrawBufferTextured;
 
-typedef struct glColor {
-    GLfloat r;
-    GLfloat g;
-    GLfloat b;
-    GLfloat a;
 
-}glColor;
-/**
- * @see sdl_color_from
- */
-glColor glColor_from(SDL_Color color);
 
 #endif // RADAMN_PREREQUISITES_H_

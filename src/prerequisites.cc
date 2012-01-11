@@ -67,8 +67,8 @@ inline char* VERBOSEF(const char *fmt, ...) {
 /**
  * @see sdl_color_from
  */
-glColor glColor_from(SDL_Color color) {
-    glColor output;
+gl_color_t radamn::gl_color_from(SDL_Color color) {
+    gl_color_t output;
     output.r = color.r * 0.003921568627450980392156862745098f;
     output.g = color.g * 0.003921568627450980392156862745098f;
     output.b = color.b * 0.003921568627450980392156862745098f;

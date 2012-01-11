@@ -1,4 +1,5 @@
 #include "radamn_gl.h"
+#include "v8_helper.h"
 
 using namespace radamn;
 
@@ -139,7 +140,32 @@ void gl::clear_operator() {
 // ----------------------------------------------------------------------------------------------------
 //
 
+void gl::clear() {
+	gl_color_t* color= &(gl::singleton()->background);
+	glClearColor(color->r, color->g, color->b, color->a);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+// ---------------------------------- V8 --------------------------------------------------------------\\
+
+
+v8::Handle<v8::Value> radamn::v8_gl_set_background_color(const v8::Arguments& args) {
+	v8::HandleScope scope;
+
+	V8_ARG_TO_SDL_NEWCOLOR(0, color_src);
+	
+	gl::singleton()->background = gl_color_from(color_src);
+
+	return v8::True();
+}
 
 //
 // ----------------------------------------------------------------------------------------------------
 //
+
+v8::Handle<v8::Value> radamn::v8_gl_clear(const v8::Arguments& args) {
+	gl::clear();
+
+	return v8::True();
+}
+

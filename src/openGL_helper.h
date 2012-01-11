@@ -23,7 +23,7 @@
 using namespace radamn;
 
 	//not used... need refactoring
-	void opengl_draw_colored_poly(glColor color, SDL_Rect rect);
+	void opengl_draw_colored_poly(gl_color_t color, SDL_Rect rect);
 
 	void opengl_draw_textured_SDL_Rect(image* img, SDL_Rect* from, SDL_Rect* to, gl_operators_t composite);
 
@@ -32,9 +32,9 @@ using namespace radamn;
 	// remeber this is only OPENGL, OPENGLES2 it's different
 	void opengl_draw_textured_SDL_Rect(SDL_Surface* surface, SDL_Rect* from, SDL_Rect* to, gl_operators_t composite);
 	
-	void opengl_stroke_point(GLfloat* points, int cpoints, int width, glColor color, gl_operators_t composite = OPERATOR_OVER);
+	void opengl_stroke_point(GLfloat* points, int cpoints, int width, gl_color_t color, gl_operators_t composite = OPERATOR_OVER);
 	
-	void opengl_fill_poly(GLfloat* points, int cpoints, glColor color, gl_operators_t composite = OPERATOR_OVER);
+	void opengl_fill_poly(GLfloat* points, int cpoints, gl_color_t color, gl_operators_t composite = OPERATOR_OVER);
 
 #define OGL_BUFFER_OFFSET(i) ((char *)NULL + (i))
 

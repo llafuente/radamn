@@ -104,7 +104,7 @@ v8::Handle<v8::Value> Radamn::Window::setBackgroundColor(const v8::Arguments& ar
 	v8::HandleScope scope;
 
 	V8_ARG_TO_SDL_NEWCOLOR(0, color_src);
-	glColor color = glColor_from(color_src);
+	gl_color_t color = gl_color_from(color_src);
 	
 	glClearColor(color.r, color.g, color.b, color.a);
 
@@ -184,7 +184,7 @@ v8::Handle<v8::Value> Radamn::Window::stroke(const v8::Arguments& args) {
 	V8_ARG_TO_NEWARRAY(0, coords);
 	V8_ARG_TO_NEWFLOAT(1, width);
 	V8_ARG_TO_SDL_NEWCOLOR(2, color_src);
-	glColor color = glColor_from(color_src);
+	gl_color_t color = gl_color_from(color_src);
 
 	VERBOSE << "stroking"  <<
 	" w:" << width <<
@@ -324,7 +324,7 @@ v8::Handle<v8::Value> Radamn::Window::fill(const v8::Arguments& args) {
 
 	V8_ARG_TO_NEWARRAY(0, coords);
 	V8_ARG_TO_SDL_NEWCOLOR(1, color_src);
-	glColor color = glColor_from(color_src);
+	gl_color_t color = gl_color_from(color_src);
 
 	VERBOSE << "filling with color rgb(" << (int)color.r << "," << (int)color.g << "," << (int)color.b << ")" << std::endl;
 
