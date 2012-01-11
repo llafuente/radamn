@@ -1,66 +1,10 @@
-# RADAMN
-## Render asynchronous Damn (good!).
-
-It's a node.js module (right now is pure V8 but I plan to use some async I/O from nodejs someday) that allow you to develop graphical APPs/Grames with OpenGL.
+# RADAMN (Render asynchronous Damn, good!)
+2D Rendering (game) engine. Cross-platform, currently: linux & windows. Based on some HTML concepts like Canvas or Input management(DomEvents) with toon of sugar on top!. Powered by node.js, v8 and Mootools. Rendering: OpenGL (+2) current, OpenglES(+2) in plan.
 
 ## 0. Installation
 
 Required libraries:
-### SDL 1.3
-<pre>    hg clone http://hg.libsdl.org/SDL
-    cd SDL
-    ./autogen.sh
-    ./configure --prefix=/usr --bindir=/usr/bin/ --libdir=/usr/lib/
-    make; make install
-    cd ..</pre>
 
-### SDL_Image (png, jpg and zlib)
-<pre>    #JPEG SUPPORT
-    wget http://www.ijg.org/files/jpegsrc.v8c.tar.gz
-    tar xsfv jpegsrc.v8c.tar.gz
-    cd jpeg-8c
-    ./configure --prefix=/usr --bindir=/usr/bin/ --libdir=/usr/lib/
-    make; make install
-    cd ..
-
-
-    #PNG SUPPORT
-    yum install zlib zlib-devel
-    #outdated version check http://zlib.net/
-    wget http://prdownloads.sourceforge.net/libpng/libpng-1.5.5.tar.gz?download
-    tar xsfv libpng-1.5.5.tar.gz
-    cd libpng-1.5.5
-    ./configure  --prefix=/usr --bindir=/usr/bin/ --libdir=/usr/lib/
-    make; make install
-    cd ..
-
-
-    #TIFF SUPPORT ? http://www.remotesensing.org/libtiff/
-    # do it yourself if needed and send the problem cmd lines :)
-
-    hg clone http://hg.libsdl.org/SDL_image
-    cd SDL_image
-    ./autogen.sh
-    # vi configure & replace
-    # png_lib=`find_lib "libpng.so.[0-9]"`
-    # png_lib="libpng15.so.15"
-    # some should fix it, sry i cant find the proper 'sed'
-    ./configure --prefix=/usr --bindir=/usr/bin/ --libdir=/usr/lib/
-    make
-    make install
-    cd ..</pre>
-
-### SDL_Font (ttf)
-<pre>    hg clone http://hg.libsdl.org/SDL_ttf
-    cd SDL_ttf
-    ./autogen.sh;
-    ./configure  --prefix=/usr --bindir=/usr/bin/ --libdir=/usr/lib/
-    make; make install
-    cd ..</pre>
-
-<pre>    cd radamn
-    node-waf configure build install
-	this will not install into your system, just move radamn.node to lib, needed to run everything properly</pre>
 
 
 ### my test enviroment
