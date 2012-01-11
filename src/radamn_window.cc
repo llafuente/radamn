@@ -62,21 +62,6 @@ v8::Handle<v8::Value> Radamn::Window::setIcon(const v8::Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-v8::Handle<v8::Value> Radamn::Window::setBackgroundColor(const v8::Arguments& args) {
-	v8::HandleScope scope;
-
-	V8_ARG_TO_SDL_NEWCOLOR(0, color_src);
-	gl_color_t color = gl_color_from(color_src);
-	
-	glClearColor(color.r, color.g, color.b, color.a);
-
-	return v8::True();
-}
-
-//
-// ----------------------------------------------------------------------------------------------------
-//
-
 v8::Handle<v8::Value> Radamn::Window::translate(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
@@ -196,82 +181,6 @@ v8::Handle<v8::Value> Radamn::Window::screenshot(const v8::Arguments& args) {
 	SDL_SaveBMP(image, "pic.bmp");
 
 	SDL_FreeSurface(image);
-
-	return v8::Undefined();
-}
-
-//
-// ----------------------------------------------------------------------------------------------------
-//
-
-v8::Handle<v8::Value> Radamn::Window::transform(const v8::Arguments& args) {
-	GLfloat m[16] = {
-		1,0,0,0,
-		0,1,0,0,
-		0,0,1,0,
-		0,0,0,1
-	};
-
-	VERBOSE << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
-	VERBOSE << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
-	VERBOSE << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
-	VERBOSE << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
-
-	V8_ARG_TO_FLOAT(0, m[0]); //m11);
-	V8_ARG_TO_FLOAT(1, m[1]); //m21);
-	V8_ARG_TO_FLOAT(2, m[4]); //m22);
-	V8_ARG_TO_FLOAT(3, m[5]); //m12);
-
-	V8_ARG_TO_FLOAT(4, m[12]); //dx);
-	V8_ARG_TO_FLOAT(5, m[13]); //dy);
-
-	//if(isnan(m[0])) {
-	//	return v8::ThrowException(v8::Exception::Error(v8::String::New("NaN!")));
-	//}
-
-	VERBOSE << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
-	VERBOSE << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
-	VERBOSE << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
-	VERBOSE << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
-
-	glMultMatrixf(m);
-	
-	return v8::Undefined();
-}
-
-//
-// ----------------------------------------------------------------------------------------------------
-//
-
-v8::Handle<v8::Value> Radamn::Window::setTransform(const v8::Arguments& args) {
-	GLfloat m[16] = {
-		1,0,0,0,
-		0,1,0,0,
-		0,0,1,0,
-		0,0,0,1
-	};
-
-	VERBOSE << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
-	VERBOSE << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
-	VERBOSE << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
-	VERBOSE << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
-
-	V8_ARG_TO_FLOAT(0, m[0]); //m11);
-	V8_ARG_TO_FLOAT(1, m[1]); //m21);
-	V8_ARG_TO_FLOAT(2, m[4]); //m22);
-	V8_ARG_TO_FLOAT(3, m[5]); //m12);
-
-	V8_ARG_TO_FLOAT(4, m[12]); //dx);
-	V8_ARG_TO_FLOAT(5, m[13]); //dy);
-
-
-	VERBOSE << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
-	VERBOSE << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
-	VERBOSE << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
-	VERBOSE << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
-
-	glLoadMatrixf(m);
-	VERBOSE << "setTransformed" << std::endl;
 
 	return v8::Undefined();
 }

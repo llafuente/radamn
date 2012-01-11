@@ -146,8 +146,30 @@ void gl::clear() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+
 void gl::flip_buffers() {
 	SDL_GL_SwapBuffers();
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+
+void gl::matrix_mult(GLfloat* matrix) {
+	glMultMatrixf(matrix);
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+void gl::matrix_set(GLfloat* matrix) {
+	glLoadMatrixf(matrix);
 }
 
 // ---------------------------------- V8 --------------------------------------------------------------\\
@@ -183,4 +205,69 @@ v8::Handle<v8::Value> radamn::v8_gl_flip_buffers(const v8::Arguments& args) {
 	gl::flip_buffers();
 
 	return v8::True();
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+v8::Handle<v8::Value> radamn::v8_gl_transform(const v8::Arguments& args) {
+	GLfloat m[16] = {
+		1,0,0,0,
+		0,1,0,0,
+		0,0,1,0,
+		0,0,0,1
+	};
+
+	V8_ARG_TO_FLOAT(0, m[0]); //m11);
+	V8_ARG_TO_FLOAT(1, m[1]); //m21);
+	V8_ARG_TO_FLOAT(2, m[4]); //m22);
+	V8_ARG_TO_FLOAT(3, m[5]); //m12);
+
+	V8_ARG_TO_FLOAT(4, m[12]); //dx);
+	V8_ARG_TO_FLOAT(5, m[13]); //dy);
+
+	//if(isnan(m[0])) {
+	//	return v8::ThrowException(v8::Exception::Error(v8::String::New("NaN!")));
+	//}
+
+	VERBOSE << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
+	VERBOSE << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
+	VERBOSE << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
+	VERBOSE << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
+	
+	gl::matrix_mult(m);
+	
+	return v8::Undefined();
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+v8::Handle<v8::Value> radamn::v8_gl_set_transform(const v8::Arguments& args) {
+	GLfloat m[16] = {
+		1,0,0,0,
+		0,1,0,0,
+		0,0,1,0,
+		0,0,0,1
+	};
+
+	V8_ARG_TO_FLOAT(0, m[0]); //m11);
+	V8_ARG_TO_FLOAT(1, m[1]); //m21);
+	V8_ARG_TO_FLOAT(2, m[4]); //m22);
+	V8_ARG_TO_FLOAT(3, m[5]); //m12);
+
+	V8_ARG_TO_FLOAT(4, m[12]); //dx);
+	V8_ARG_TO_FLOAT(5, m[13]); //dy);
+
+
+	VERBOSE << m[0] << "," << m[1] << "," << m[2] <<"," << m[3] << std::endl;
+	VERBOSE << m[4] << "," << m[5] << "," << m[6] <<"," << m[7] << std::endl;
+	VERBOSE << m[8] << "," << m[9] << "," << m[10] <<"," << m[11] << std::endl;
+	VERBOSE << m[12] << "," << m[13] << "," << m[14] <<"," << m[15] << std::endl;
+
+	gl::matrix_set(m);
+
+	return v8::Undefined();
 }

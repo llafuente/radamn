@@ -47,6 +47,10 @@ namespace radamn {
 		static void flip_buffers();		
 		
 		static void clear();
+		
+		static void matrix_mult(GLfloat* matrix);
+		
+		static void matrix_set(GLfloat* matrix);
 	};
 	
 
@@ -56,6 +60,11 @@ namespace radamn {
 	v8::Handle<v8::Value> v8_gl_clear(const v8::Arguments& args);
 	
 	v8::Handle<v8::Value> v8_gl_flip_buffers(const v8::Arguments& args);
+	
+	v8::Handle<v8::Value> v8_gl_transform(const v8::Arguments& args);
+	
+	v8::Handle<v8::Value> v8_gl_set_transform(const v8::Arguments& args);
+	
 }
 
 
