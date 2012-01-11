@@ -44,6 +44,7 @@ namespace radamn {
 
 		static void clear_operator();
 		
+		static void flip_buffers();		
 		
 		static void clear();
 	};
@@ -53,6 +54,8 @@ namespace radamn {
 	v8::Handle<v8::Value> v8_gl_set_background_color(const v8::Arguments& args);
 
 	v8::Handle<v8::Value> v8_gl_clear(const v8::Arguments& args);
+	
+	v8::Handle<v8::Value> v8_gl_flip_buffers(const v8::Arguments& args);
 }
 
 

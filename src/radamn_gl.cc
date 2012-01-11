@@ -146,6 +146,10 @@ void gl::clear() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+void gl::flip_buffers() {
+	SDL_GL_SwapBuffers();
+}
+
 // ---------------------------------- V8 --------------------------------------------------------------\\
 
 
@@ -169,3 +173,14 @@ v8::Handle<v8::Value> radamn::v8_gl_clear(const v8::Arguments& args) {
 	return v8::True();
 }
 
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+v8::Handle<v8::Value> radamn::v8_gl_flip_buffers(const v8::Arguments& args) {
+	v8::HandleScope scope;
+
+	gl::flip_buffers();
+
+	return v8::True();
+}

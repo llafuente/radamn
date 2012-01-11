@@ -33,27 +33,6 @@ v8::Handle<v8::Value> Radamn::Window::setCaption(const v8::Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-v8::Handle<v8::Value> Radamn::Window::clear(const v8::Arguments& args) {
-	v8::HandleScope scope;
-	VERBOSE << "clear" << ENDL;
-#if RADAMN_RENDERER == RADAMN_RENDERER_SOFTWARE
-	SDL_Surface* screen = Radamn::mCurrentScreen;
-	SDL_Rect* srcrect = getFullRectSurface(screen);
-	SDL_FillRect(screen, srcrect, Radamn::Window::mBackgroundColor);
-
-#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGL || RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//Radamn::Window::mBackgroundColor
-	//glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-#endif
-
-	return v8::Undefined();
-}
-
-//
-// ----------------------------------------------------------------------------------------------------
-//
-
 v8::Handle<v8::Value> Radamn::Window::setIcon(const v8::Arguments& args) {
 	v8::HandleScope scope;
 
@@ -75,23 +54,6 @@ v8::Handle<v8::Value> Radamn::Window::setIcon(const v8::Arguments& args) {
 	SDL_WM_SetIcon(SDL_LoadBMP( *icon_path ), NULL);
 
 	VERBOSE << "setted icon("<< *icon_path << ")";
-
-	return v8::True();
-}
-
-//
-// ----------------------------------------------------------------------------------------------------
-//
-
-v8::Handle<v8::Value> Radamn::Window::flip(const v8::Arguments& args) {
-	v8::HandleScope scope;
-
-#if RADAMN_RENDERER == RADAMN_RENDERER_SOFTWARE
-	SDL_Flip( Radamn::mCurrentScreen );
-#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGL || RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
-	SDL_GL_SwapBuffers();
-#endif
-
 
 	return v8::True();
 }
