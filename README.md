@@ -30,9 +30,11 @@ The proyect is not mature enough t start documenting.
 
 Priority
 
+* minor glyh in some cases using closePath, can be avoided not using it... but...
+* fillText should be multiline
 * Sprites (batch rendering) canvas extension to render multiple images into rectangles in one opengl call
-* arcTo
-* memoryleak.log (like the old Ogre3d has 1.2?)
+* arcToç (buggy)
+* memoryleak.log (like the old Ogre3d has 1.2?) useful ?
 * drag&drop ¿using mootools?
 
 Someday/sometime

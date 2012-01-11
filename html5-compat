@@ -1,10 +1,12 @@
 Here is the list of the HTML5 compatibility issues
 
 Wont be implemented
-- dont know yet...
+
+* dont want to scale text, no one want...
+- fillText(... maxwidth)
+- strokeText(..., maxwidth)
 
 
 Radamn changes
-- onRequestFrame takes one parameter, delta, ms from the last frame.
-- will not be implemented: maxwidth @fillText, strokeText (both are fill right now)
-- fillText, strokeText are multiline
+- onRequestFrame takes one parameter, delta, ms from the last frame And it's in Radamn.onRequestFrame no Document/Element
+- strokeText is fillText alias
