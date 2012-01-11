@@ -28,23 +28,6 @@ namespace Radamn {
 		v8::Handle<v8::Value> fullscreen(const v8::Arguments& args);
 		v8::Handle<v8::Value> windowed(const v8::Arguments& args);
 
-		//canvas
-		v8::Handle<v8::Value> translate(const v8::Arguments& args);
-		v8::Handle<v8::Value> rotate(const v8::Arguments& args);
-		v8::Handle<v8::Value> scale(const v8::Arguments& args);
-		v8::Handle<v8::Value> save(const v8::Arguments& args);
-		v8::Handle<v8::Value> restore(const v8::Arguments& args);
-		
-		v8::Handle<v8::Value> stroke(const v8::Arguments& args);
-		v8::Handle<v8::Value> fill(const v8::Arguments& args);
-		
-		//extra canvas
-		v8::Handle<v8::Value> alpha(const v8::Arguments& args);
-		/*
-		glAlphaFunc(GL_GREATER, 0.5);
-		glEnable(GL_ALPHA_TEST);
-		*/
-
 		// radamn specific
 		v8::Handle<v8::Value> screenshot(const v8::Arguments& args);
 	}

@@ -172,6 +172,90 @@ void gl::matrix_set(GLfloat* matrix) {
 	glLoadMatrixf(matrix);
 }
 
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+void gl::stroke_poly(GLfloat* points, int cpoints, int width, gl_color_t color) {
+	glLineWidth (width);
+	
+	if(color.a != 1) {
+		glEnable(GL_BLEND); //enable the blending
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	glEnable (GL_LINE_SMOOTH);
+	
+	GLfloat before[4];
+	glGetFloatv(GL_CURRENT_COLOR, before);
+
+	glColor4f(color.r, color.g, color.b, color.a);
+
+#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
+
+	glBegin (GL_LINE_STRIP);
+	int i = 0, pos = 0;
+	for(;i<cpoints;++i) {
+		VERBOSE << i << "/"<< cpoints << "( "<< points[pos] << "," << points[pos+1] << ")" << ENDL;
+		glVertex3f(points[pos], points[pos+1], points[pos+2]);
+		pos+=3;
+	}
+	glEnd();
+
+#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
+#endif	
+	
+	glDisable(GL_LINE_SMOOTH);
+	if(color.a != 1) {
+		glDisable(GL_BLEND);
+	}
+	
+	glColor4f(before[0], before[1], before[2], before[3]);
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+void gl::fill_poly(GLfloat* points, int cpoints, gl_color_t color) {
+
+	if(color.a != 1) {
+		glEnable(GL_BLEND); //enable the blending
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	glEnable (GL_LINE_SMOOTH);
+	
+	GLfloat before[4];
+	glGetFloatv(GL_CURRENT_COLOR, before);
+
+	glColor4f(color.r, color.g, color.b, color.a);
+
+#if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
+
+	glBegin (GL_POLYGON);
+	int i = 0, pos = 0;
+	for(;i<cpoints;++i) {
+		VERBOSE << i << "( "<< points[pos] << "," << points[pos+1] << ")" << std::endl;
+		glVertex3f (points[pos], points[pos+1], points[pos+2]);
+		pos+=3;
+	}
+	glEnd ();
+
+#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
+#endif	
+
+
+	
+	glDisable(GL_LINE_SMOOTH);
+	if(color.a != 1) {
+		glDisable(GL_BLEND);
+	}
+	
+	glColor4f(before[0], before[1], before[2], before[3]);
+}
+
+
 // ---------------------------------- V8 --------------------------------------------------------------\\
 
 
@@ -270,4 +354,140 @@ v8::Handle<v8::Value> radamn::v8_gl_set_transform(const v8::Arguments& args) {
 	gl::matrix_set(m);
 
 	return v8::Undefined();
+}
+
+/// TODO composite!
+v8::Handle<v8::Value> radamn::v8_gl_fill(const v8::Arguments& args) {
+	VERBOSE << "fill" << std::endl;
+
+	V8_ARG_TO_NEWARRAY(0, coords);
+	V8_ARG_TO_SDL_NEWCOLOR(1, color_src);
+	gl_color_t color = gl_color_from(color_src);
+
+	VERBOSE << "filling with color rgb(" << (int)color.r << "," << (int)color.g << "," << (int)color.b << ")" << std::endl;
+
+	unsigned int i = 0,
+		max = coords->Length(),
+		pos = 0;
+
+	GLfloat* positions = (GLfloat*) malloc(sizeof(GLfloat) * (max+1) * 3);
+	
+	for(;i<max;++i) {
+		v8_get_vec2_from_array_idx(coords, i, positions[pos], positions[pos+1]);
+		positions[pos+2] = 0;
+		pos+=3;
+	}
+
+	//close the path
+	positions[pos] = positions[0];
+	positions[pos+1] = positions[1];
+	positions[pos+2] = 0;
+
+	gl::fill_poly(positions, max+1, color);
+	
+	free(positions);
+	
+	return v8::True();
+}
+
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+/// TODO composite!
+v8::Handle<v8::Value> radamn::v8_gl_stroke(const v8::Arguments& args) {
+
+	V8_ARG_TO_NEWARRAY(0, coords);
+	V8_ARG_TO_NEWFLOAT(1, width);
+	V8_ARG_TO_SDL_NEWCOLOR(2, color_src);
+	gl_color_t color = gl_color_from(color_src);
+
+	VERBOSE << "stroking"  <<
+	" w:" << width <<
+	"color rgb(" << (int)color.r << "," << (int)color.g << "," << (int)color.b << ")"
+	<< "COORDS" << coords->Length() << std::endl;
+
+	unsigned int i = 0,
+		max = coords->Length(),
+		pos = 0;
+
+	GLfloat* positions = (GLfloat*) malloc(sizeof(GLfloat) * (max + 1) *3);
+	
+	for(;i<max;++i) {
+		v8_get_vec2_from_array_idx(coords, i, positions[pos], positions[pos+1]);
+		positions[pos+2] = 0;
+		pos+=3;
+	}
+	//close the path
+	/*
+	positions[pos] = positions[0];
+	positions[pos+1] = positions[1];
+	positions[pos+2] = 0;
+	*/
+	gl::stroke_poly(positions, max, width, color);
+
+	free(positions);
+
+	return v8::True();
+}
+
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+v8::Handle<v8::Value> radamn::v8_gl_save(const v8::Arguments& args) {
+	glPushMatrix();
+	return v8::True();
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+v8::Handle<v8::Value> radamn::v8_gl_restore(const v8::Arguments& args) {
+	glPopMatrix();
+	return v8::True();
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+v8::Handle<v8::Value> radamn::v8_gl_translate(const v8::Arguments& args) {
+	v8::HandleScope scope;
+
+	V8_ARG_TO_NEWFLOAT(0, x)
+	V8_ARG_TO_NEWFLOAT(1, y)
+	V8_ARG_TO_NEWFLOAT(2, z)
+
+	glTranslatef(x, y, z);
+
+	return v8::True();
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+v8::Handle<v8::Value> radamn::v8_gl_rotate(const v8::Arguments& args) {
+	V8_ARG_TO_NEWFLOAT(0, angle);
+
+	glRotatef(angle, 0.0f, 0.0f, 1.0f);
+
+	return v8::True();
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+v8::Handle<v8::Value> radamn::v8_gl_scale(const v8::Arguments& args) {
+	V8_ARG_TO_NEWFLOAT(0, x);
+	V8_ARG_TO_NEWFLOAT(1, y);
+
+	glScalef(x, y, 1.0f);
+
+	return v8::True();
 }

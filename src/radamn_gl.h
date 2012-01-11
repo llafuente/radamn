@@ -51,8 +51,18 @@ namespace radamn {
 		static void matrix_mult(GLfloat* matrix);
 		
 		static void matrix_set(GLfloat* matrix);
+		
+		static void stroke_poly(GLfloat* points, int cpoints, int width, gl_color_t color);
+		
+		static void fill_poly(GLfloat* points, int cpoints, gl_color_t color);
 	};
 	
+	/*
+	//extra canvas
+	v8::Handle<v8::Value> alpha(const v8::Arguments& args);
+	glAlphaFunc(GL_GREATER, 0.5);
+	glEnable(GL_ALPHA_TEST);
+	*/
 
 	// v8 interfaces
 	v8::Handle<v8::Value> v8_gl_set_background_color(const v8::Arguments& args);
@@ -64,6 +74,20 @@ namespace radamn {
 	v8::Handle<v8::Value> v8_gl_transform(const v8::Arguments& args);
 	
 	v8::Handle<v8::Value> v8_gl_set_transform(const v8::Arguments& args);
+	
+	v8::Handle<v8::Value> v8_gl_stroke(const v8::Arguments& args);
+	
+	v8::Handle<v8::Value> v8_gl_fill(const v8::Arguments& args);
+	
+	v8::Handle<v8::Value> v8_gl_save(const v8::Arguments& args);
+	
+	v8::Handle<v8::Value> v8_gl_restore(const v8::Arguments& args);
+	
+	v8::Handle<v8::Value> v8_gl_scale(const v8::Arguments& args);
+	
+	v8::Handle<v8::Value> v8_gl_rotate(const v8::Arguments& args);
+	
+	v8::Handle<v8::Value> v8_gl_translate(const v8::Arguments& args);
 	
 }
 

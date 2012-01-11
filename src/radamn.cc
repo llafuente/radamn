@@ -42,18 +42,6 @@ v8::Handle<v8::Value> Radamn::init(const v8::Arguments& args) {
 	return v8::Undefined();
 }
 
-//
-// ----------------------------------------------------------------------------------------------------
-//
-
-//
-// ----------------------------------------------------------------------------------------------------
-//
-
-//
-// ----------------------------------------------------------------------------------------------------
-//
-
 #ifdef _WIN32
 	void NODE_EXTERN Radamn::Creator::Init(v8::Handle<v8::Object> target)
 #else
@@ -102,14 +90,9 @@ extern "C" {
 	target->Set(v8::String::New("Window"), Window);
 	NODE_SET_METHOD(Window, "setCaption",           Radamn::Window::setCaption);
 	NODE_SET_METHOD(Window, "setIcon",              Radamn::Window::setIcon);
-	NODE_SET_METHOD(Window, "save",                 Radamn::Window::save);
-	NODE_SET_METHOD(Window, "restore",              Radamn::Window::restore);
-	NODE_SET_METHOD(Window, "translate",            Radamn::Window::translate);
-	NODE_SET_METHOD(Window, "rotate",               Radamn::Window::rotate);
-	NODE_SET_METHOD(Window, "scale",                Radamn::Window::scale);
-	NODE_SET_METHOD(Window, "stroke",               Radamn::Window::stroke);
+	
 	NODE_SET_METHOD(Window, "screenshot",           Radamn::Window::screenshot);
-	NODE_SET_METHOD(Window, "fill",                 Radamn::Window::fill);
+	
 	
 	// new gl Object!
 	v8::Local<v8::Object> GL = v8::Object::New();
@@ -119,7 +102,15 @@ extern "C" {
 	NODE_SET_METHOD(GL, "flipBuffers",          radamn::v8_gl_flip_buffers);
 	NODE_SET_METHOD(GL, "transform",            radamn::v8_gl_transform);
 	NODE_SET_METHOD(GL, "setTransform",         radamn::v8_gl_set_transform);
-
+	NODE_SET_METHOD(GL, "stroke",               radamn::v8_gl_stroke);
+	NODE_SET_METHOD(GL, "fill",                 radamn::v8_gl_fill);
+	
+	NODE_SET_METHOD(GL, "translate",            radamn::v8_gl_translate);
+	NODE_SET_METHOD(GL, "rotate",               radamn::v8_gl_rotate);
+	NODE_SET_METHOD(GL, "scale",                radamn::v8_gl_scale);
+	
+	NODE_SET_METHOD(GL, "save",                 radamn::v8_gl_save);
+	NODE_SET_METHOD(GL, "restore",              radamn::v8_gl_restore);
 
 	v8::Local<v8::Object> Image = v8::Object::New();
 	target->Set(v8::String::New("Image"), Image);
