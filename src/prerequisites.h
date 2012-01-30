@@ -36,6 +36,7 @@ namespace radamn {
 	class image;
 	class font;
 	class gl;
+	class loggin;
 
 	static v8::Persistent<v8::ObjectTemplate> SDL_Font_template_;
 	static v8::Persistent<v8::ObjectTemplate> SDL_Surface_template_;
@@ -93,33 +94,11 @@ namespace radamn {
 }
 using namespace radamn;
 
-
-
-#include <iostream>
-#include <fstream>
-
-#include <stdio.h>
-#include <stdarg.h>
-
-namespace Radamn {
-    static char __bigcharbuffer[1024];
-    static std::ofstream verbose;
-}
-
 namespace radamn {
 	void THROW(const char* CHAR_STRING);
 	void THROW(const char* CHAR_STRING, const char* CHAR_STRING2);
 	void THROW(const char* CHAR_STRING, const char* CHAR_STRING2, const char* CHAR_STRING3);
 }
-
-
-
-#define VERBOSE Radamn::verbose << __FILE__ << "@" << __LINE__ << ":" << __FUNCTION__ << " "
-#define VERBOSEC Radamn::verbose
-
-inline char* VERBOSEF(const char *fmt, ...);
-
-
 
 typedef struct OGL_DrawBufferTextured {
     GLsizeiptr positionSize;
@@ -135,3 +114,4 @@ typedef struct OGL_DrawBufferTextured {
 
 
 #endif // RADAMN_PREREQUISITES_H_
+

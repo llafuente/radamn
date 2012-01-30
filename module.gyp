@@ -11,6 +11,9 @@
       'sources': [
 		"src/prerequisites.h",
 		"src/prerequisites.cc",
+
+		"src/radamn_loggin.h",
+		"src/radamn_loggin.cc",
 		
 		"src/radamn.cc",
 		"src/radamn.h",

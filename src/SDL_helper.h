@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <v8.h>
 #include <iostream>
+#include "radamn_loggin.h"
 
 void debug_SDL_Rect(const SDL_Rect* rect, const char* id=" ");
 

@@ -90,7 +90,7 @@ goto exit
 
 :args-done
 echo using radamn path: %RADAMN_ROOT%
-echo using nodejs path: %NODE_ROOT%
+echo using nodejs path: %RADAMN_ROOT%\deps\node\
 
 @rem Skip project generation if requested.
 if defined nobuild goto msi
@@ -111,29 +111,28 @@ goto exit
 :msbuild-found
 @rem copy all DLLs here!
 mkdir build\Release
-copy %RADAMN_ROOT%\deps\SDL\VisualC\SDL\Win32\Release\SDL.dll lib\SDL.dll
-copy %RADAMN_ROOT%\deps\SDL_ttf\lib\SDL_ttf.dll lib\SDL_ttf.dll
-copy %RADAMN_ROOT%\deps\SDL_ttf\lib\zlib1.dll lib\zlib1.dll
-copy %RADAMN_ROOT%\deps\SDL_ttf\lib\libfreetype-6.dll lib\libfreetype-6.dll
-copy %RADAMN_ROOT%\deps\GL\glut32.dll lib\glut32.dll
-copy %RADAMN_ROOT%\deps\libpng\projects\vstudio\Debug\libpng15.dll lib\libpng15.dll
-
+copy %RADAMN_ROOT%\deps\SDL\VisualC\SDL\Win32\Release\SDL.dll examples\SDL.dll
+copy %RADAMN_ROOT%\deps\SDL_ttf\lib\SDL_ttf.dll examples\SDL_ttf.dll
+copy %RADAMN_ROOT%\deps\SDL_ttf\lib\zlib1.dll examples\zlib1.dll
+copy %RADAMN_ROOT%\deps\SDL_ttf\lib\libfreetype-6.dll examples\libfreetype-6.dll
+copy %RADAMN_ROOT%\deps\GL\glut32.dll examples\glut32.dll
+copy %RADAMN_ROOT%\deps\libpng\projects\vstudio\Debug\libpng15.dll examples\libpng15.dll
+copy %RADAMN_ROOT%\deps\node\Debug\node.exe examples\node.exe
 
 @rem Check for nodejs build location variable
 if not defined NODE_ROOT (
 	setx "NODE_ROOT" "%RADAMN_ROOT%/deps/node"
 )
-if not exist %NODE_ROOT% goto nodebuild-not-found
 
-if not exist "%NODE_ROOT%\src\node.h" goto nodebuild-not-found
-if not exist "%NODE_ROOT%\deps\v8\include\v8.h" goto nodebuild-not-found
-if not exist "%NODE_ROOT%\deps\uv\include\uv.h" goto nodebuild-not-found
-if not exist "%NODE_ROOT%\tools\gyp\gyp" goto gyp-not-found
+if not exist "%RADAMN_ROOT%\deps\node\src\node.h" goto nodebuild-not-found
+if not exist "%RADAMN_ROOT%\deps\node\deps\v8\include\v8.h" goto nodebuild-not-found
+if not exist "%RADAMN_ROOT%\deps\node\deps\uv\include\uv.h" goto nodebuild-not-found
+if not exist "%RADAMN_ROOT%\deps\node\tools\gyp\gyp" goto gyp-not-found
 
 @rem detect the location of the node.lib file
 set node_lib_folder=
-if exist "%NODE_ROOT%\Release\node.lib" set node_lib_folder=Release
-if not defined node_lib_folder if exist "%NODE_ROOT%\Debug\node.lib" set node_lib_folder=Debug
+if exist "%RADAMN_ROOT%\deps\node\Release\node.lib" set node_lib_folder=Release
+if not defined node_lib_folder if exist "%RADAMN_ROOT%\deps\node\Debug\node.lib" set node_lib_folder=Debug
 if not defined node_lib_folder goto nodebuild-not-found
 
 @rem Try to locate the gyp file
@@ -144,7 +143,7 @@ if exist %1 set gypfile=%1
 if not defined gypfile if exist "%CD%\module.gyp" set gypfile=module.gyp
 if not defined gypfile goto gyp-file-missing
 @rem Generate visual studio solution
-python %NODE_ROOT%\tools\gyp\gyp -f msvs -G msvs_version=2010 %gypfile% --depth=. -DNODE_ROOT=%NODE_ROOT% -Dnode_lib_folder=%node_lib_folder%  -DRADAMN_ROOT=%RADAMN_ROOT%
+python %NODE_ROOT%\tools\gyp\gyp -f msvs -G msvs_version=2010 %gypfile% --depth=. -DNODE_ROOT=%RADAMN_ROOT%\deps\node\ -Dnode_lib_folder=%node_lib_folder%  -DRADAMN_ROOT=%RADAMN_ROOT%
 if errorlevel 1 goto exit-error
 echo Compile now!
 

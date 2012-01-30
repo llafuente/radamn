@@ -17,6 +17,7 @@ using namespace radamn;
 
 v8::Handle<v8::Value> image::wrap(image* img) {
 	if (image_template_.IsEmpty()) {
+		VERBOSE << "create the image pointer template" << ENDL;
 		v8::HandleScope handle_scope2;
 		v8::Handle<v8::ObjectTemplate> result = v8::ObjectTemplate::New();
 		result->SetInternalFieldCount(1);
@@ -24,13 +25,29 @@ v8::Handle<v8::Value> image::wrap(image* img) {
 		image_template_ = v8::Persistent<v8::ObjectTemplate>::New(raw_template);
 	}
 
-	v8::Handle<v8::ObjectTemplate> templ = image_template_;
-	v8::Handle<v8::Object> result = templ->NewInstance();
-	v8::Handle<v8::External> request_ptr = v8::External::New(img);
-	result->SetInternalField(0, request_ptr);
+	VERBOSE << "clone image pointer for: " << (long int) img << ENDL;
+
+	v8::Handle<v8::Object> result = image_template_->NewInstance();
+	result->SetInternalField(0, v8::External::New(img));
+	
 	result->Set(v8::String::New("width"), v8::Number::New(img->width));
 	result->Set(v8::String::New("height"), v8::Number::New(img->height));
 	result->Set(v8::String::New("alpha"), v8::Boolean::New( img->is(image::ALPHA) ));
+	
+	if(img->mask != 0 ) {
+		int pixel_count = img->width * img->height;
+		v8::Local<v8::Array> v8mask = v8::Array::New(pixel_count);
+
+		//VERBOSE << __LINE__ << "pixels" << pixel_count << ENDL;
+		
+		for (int i = 0; i < pixel_count; ++i) {
+			//VERBOSE << __LINE__ << " - " << i << " = "<< (img->mask[i] ? "true" : "false") << ENDL;
+			v8mask->Set(i, v8::Boolean::New(img->mask[i]));
+		}
+
+		result->Set(v8::String::New("mask"), v8mask);
+	}
+	
 	return result;
 }
 
@@ -39,7 +56,7 @@ image* image::unwrap(const v8::Arguments& args, int position) {
 }
 
 image* image::unwrap(v8::Local<v8::Value> handle) {
-	v8::Handle<v8::External> v8_aux_field = v8::Handle<v8::External>::Cast((handle->ToObject())->GetInternalField(0));
+	v8::Handle<v8::External> v8_aux_field = v8::Handle<v8::External>::Cast(handle->ToObject()->GetInternalField(0));
 	void* v8_aux_ptr = v8_aux_field->Value();
 	return static_cast<image*>(v8_aux_ptr);
 }
@@ -55,8 +72,9 @@ GLfloat* image::uv_from(SDL_Rect* rect) {
 	using std::setprecision;
 	using std::numeric_limits;
 
+	debug_SDL_Rect(rect);
 	VERBOSE
-	<< "text-coords ["
+	<< this->width << "x" << this->height << "text-coords ["
 	<< setprecision(6) << uvs[0] << ","
 	<< setprecision(6) << uvs[1] << ","
 	<< setprecision(6) << uvs[2] << ","
@@ -65,7 +83,7 @@ GLfloat* image::uv_from(SDL_Rect* rect) {
 	return uvs;
 }
 
-bool image::load_from_surface(SDL_Surface* surface, bool bind) {
+bool image::load_from_surface(SDL_Surface* surface, bool bind, bool generate_mask) {
 	bool hasAlpha = true;
 
 	unsigned int memory_allocated;
@@ -76,7 +94,7 @@ bool image::load_from_surface(SDL_Surface* surface, bool bind) {
 	if(surface->format->BytesPerPixel == 4) {
 		this->flags = (this->flags | image::ALPHA);
 		memory_allocated = 4 * this->width * this->height;
-		
+
 	} else {
 		memory_allocated = 3 * this->width * this->height;
 	}
@@ -98,10 +116,10 @@ bool image::load_from_surface(SDL_Surface* surface, bool bind) {
 	return true;
 }
 
-bool image::load_from_file(char* name, bool bind) {
+bool image::load_from_file(char* name, bool bind, bool generate_mask) {
 	bool hasAlpha = true;
 	if(!image_load_from_png(name, this->width, this->height, hasAlpha,  &this->pixels)) {
-		return false;
+		THROW("error: invalid image", name);
 	}
 
 	//for(int i=0;i<this->width*this->height*4;++i) {
@@ -116,7 +134,18 @@ bool image::load_from_file(char* name, bool bind) {
 	if(hasAlpha) {
 		this->flags = (this->flags | image::ALPHA);
 	}
+	if(generate_mask && hasAlpha) {
+		VERBOSE << "generate mask!!";
+		int pixel_count = this->width * this->height;
+		int i = 0;
 
+		//v8::Local<v8::Array>
+		this->mask = (bool*) malloc(sizeof(bool) * this->width * this->height);
+
+		for(;i<pixel_count; ++i) {
+			this->mask[i] = this->pixels[i+4];
+		}
+	}
 
 	glGenTextures(1, &this->texture_id);
 
@@ -182,28 +211,31 @@ void radamn::image_free(image* img) {
 	delete img;
 }
 
-image* radamn::image_new(char* filename) {
+image* radamn::image_new(char* filename, bool generate_mask) {
 	++image_count;
 
 	image* img = new radamn::image();
-	img->load_from_file(filename);
+	img->load_from_file(filename, true, generate_mask);
 	return img;
 }
 
 v8::Handle<v8::Value> radamn::v8_image_load(const v8::Arguments& args) {
     v8::HandleScope scope;
 
-    if (!(args.Length() == 1 && args[0]->IsString())) {
-      THROW("Invalid arguments: v8_image_load(String)");
+    if (!(args.Length() == 2 && args[0]->IsString() && args[1]->IsBoolean())) {
+        THROW("Invalid arguments: v8_image_load(String, Boolean)");
     }
-	
-    v8::String::Utf8Value file(args[0]);
 
-    image* img = image_new(*file);
+    v8::String::Utf8Value file(args[0]);
+	bool generate_mask = args[1]->BooleanValue();
+	
+	VERBOSE << (generate_mask ? "generate mask!" : "ignore mask") << ENDL;
+
+    image* img = image_new(*file, generate_mask);
     if(!img) {
       THROW("v8_image_load cannot load the given image");
     }
-	
+
 	return image::wrap(img);
 }
 v8::Handle<v8::Value> radamn::v8_image_draw(const v8::Arguments& args) {
@@ -220,6 +252,8 @@ v8::Handle<v8::Value> radamn::v8_image_draw(const v8::Arguments& args) {
 	// 3 args! <image>,<image>,<number>,<number>
 
 	bool error = false;
+
+
 
 	V8_CHECK_ARGS(0, Object)
 	V8_CHECK_ARGS(1, String)
@@ -308,9 +342,9 @@ v8::Handle<v8::Value> radamn::v8_image_destroy(const v8::Arguments& args) {
 
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES || RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 	image* img = image::unwrap(args, 0);
-	
+
 	if(!img) return v8::False();
-	
+
 	image_free(img);
 #endif
 

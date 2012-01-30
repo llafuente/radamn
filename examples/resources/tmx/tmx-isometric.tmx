@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="isometric" width="15" height="15" tilewidth="64" tileheight="34">
  <tileset firstgid="1" name="iso-64x64-outside" tilewidth="64" tileheight="64">
-  <image source="iso-64x64-outside.png" width="512" height="1024"/>
+  <image source="../images/iso-64x64-outside.png" width="512" height="1024"/>
  </tileset>
  <layer name="bg" width="15" height="15">
   <data encoding="csv">

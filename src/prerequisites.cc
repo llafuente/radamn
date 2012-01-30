@@ -37,23 +37,6 @@ void radamn::THROW(const char* CHAR_STRING, const char* CHAR_STRING2, const char
 	));
 }
 
-
-
-
-inline char* VERBOSEF(const char *fmt, ...) {
-    va_list ap;
-    int r;
-    #ifdef __OPTIMIZE__
-      if (inside_main)
-        abort();
-    #endif
-    va_start (ap, fmt);
-    //r = vprintf (string, ap);
-    r = vsprintf(Radamn::__bigcharbuffer, fmt, ap);
-    va_end (ap);
-    return Radamn::__bigcharbuffer;
-}
-
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 // on centos: yum install mesa-libGL mesa-libGL-devel mesa-libGLU mesa-libGLU-devel
 #include <SDL_opengl.h>

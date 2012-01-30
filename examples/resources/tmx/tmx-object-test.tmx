@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="40" height="8" tilewidth="32" tileheight="32">
  <tileset firstgid="1" name="tileset-platformer" tilewidth="32" tileheight="32">
-  <image source="tileset-platformer-po2.png" width="256" height="1024"/>
+  <image source="../images/tileset-platformer-po2.png" width="256" height="1024"/>
  </tileset>
  <layer name="Capa de Patrones 1" width="40" height="8">
   <data encoding="csv">

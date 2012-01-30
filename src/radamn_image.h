@@ -46,6 +46,8 @@ namespace radamn {
 
 		//SDL_Rect clipping;
 
+		bool* mask;
+
 	public:
 		GLuint texture_id;
 		int width;
@@ -58,7 +60,7 @@ namespace radamn {
 		
 		image() : 
 			texture_id(0), from(0), flags(0), format(0),
-			pitch(0), width(0), height(0), pixels(0), userdata(0) {
+			pitch(0), width(0), height(0), pixels(0), userdata(0), mask(0) {
 		}
 		
 		/**
@@ -67,17 +69,21 @@ namespace radamn {
 		~image() {
 			if(this->pixels) {
 				free(this->pixels);
+				this->pixels = 0;
 			}
-			
+			if(this->mask) {
+				free(this->mask);
+				this->mask = 0;
+			}
 		}
 
 		inline bool is(Uint32 flag) {
 			return (this->flags & flag) == flag;
 		}
 
-		bool load_from_file(char* name, bool bind=true);
+		bool load_from_file(char* name, bool bind=true, bool generate_mask=false);
 		
-		bool load_from_surface(SDL_Surface* surface, bool bind=true);
+		bool load_from_surface(SDL_Surface* surface, bool bind=true, bool generate_mask=false);
 
 		static v8::Handle<v8::Value> wrap(image* img);
 		static image* unwrap(const v8::Arguments& args, int position);
@@ -101,7 +107,7 @@ namespace radamn {
 
 	inline void image_free(image* img);
 
-	inline image* image_new(char* filename);
+	inline image* image_new(char* filename, bool generate_mask = false);
 
     v8::Handle<v8::Value> v8_image_load(const v8::Arguments& args);
     v8::Handle<v8::Value> v8_image_draw(const v8::Arguments& args);

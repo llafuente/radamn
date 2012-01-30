@@ -9,6 +9,7 @@
 
 #include <SDL.h>
 #include "prerequisites.h"
+#include "radamn_loggin.h"
 
 
 namespace radamn {

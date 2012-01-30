@@ -4,6 +4,7 @@
 #include <v8.h>
 #include "prerequisites.h"
 #include <SDL_ttf.h>
+#include "radamn_loggin.h"
 
 namespace radamn {
 

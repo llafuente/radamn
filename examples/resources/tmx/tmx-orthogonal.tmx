@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="15" height="15" tilewidth="16" tileheight="16">
  <tileset firstgid="1" name="pa1-nohara" tilewidth="16" tileheight="16">
-  <image source="pa1-nohara.png" width="512" height="512"/>
+  <image source="../images/pa1-nohara.png" width="512" height="512"/>
  </tileset>
  <layer name="Capa de Patrones 1" width="15" height="15">
   <data encoding="csv">
