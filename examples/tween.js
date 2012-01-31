@@ -28,7 +28,7 @@ childnode1.appendEntity(image);
 
 node.appendChild(childnode1);
 
-var childnode1_tween = new Fx.Tween(childnode1, {
+var childnode1_tween = new Fx.NodeTween(childnode1, {
     link: 'cancel',
     transition: 'bounce:out',
     duration: 1500,
