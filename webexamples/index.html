@@ -5,12 +5,36 @@
 <title>Untitled Document</title>
 <script type="text/javascript">
 var CRadamn = {
+	createWindow: function(width, height) {
+		var canvas = document.createElement("canvas");
+		canvas.width = width;
+		canvas.height = height;
+		canvas.inject(document.body);
+		return canvas;
+	},
+	pollEvent: function() {
+		return false;
+	},
 	Window: {
+		setCaption : function(caption) {
+			console.log("ignore caption", caption);
+		},
 	},
 	GL: {
 	},
 	Image: {
-		load: function() {}
+		load: function(path) {
+			var img = new Image();
+			img.path = path;
+			img.src = path;
+			
+			img.__ready = false;
+			img.onload = function() {
+				this.__ready == true;
+			};
+			
+			return img;
+		}
 	}
 	};
 </script>
@@ -23,7 +47,10 @@ var CRadamn = {
 <script type="text/javascript" src="../lib/mootools-extends.js"></script>
 -->
 <script type="text/javascript" src="../lib/radamn.math.js"></script>
+<script type="text/javascript" src="../lib/radamn.math.types.js"></script>
+
 <script type="text/javascript" src="../lib/radamn.js"></script>
+
 <script type="text/javascript" src="../lib/radamn.$.js"></script>
 <script type="text/javascript" src="../lib/radamn.window.js"></script>
 <script type="text/javascript" src="../lib/radamn.assets.js"></script>
@@ -37,22 +64,90 @@ var CRadamn = {
 <script type="text/javascript" src="../lib/radamn.tmx.js"></script>
 
 
-<!--
+<script type="text/javascript" src="../examples/plugins/demo.js"></script>
 
-<script type="text/javascript" src="../lib/radamn.$.js"></script>
-<script type="text/javascript" src="../lib/radamn.$.js"></script>
-<script type="text/javascript" src="../lib/radamn.$.js"></script>
-<script type="text/javascript" src="../lib/radamn.$.js"></script>
-<script type="text/javascript" src="../lib/radamn.$.js"></script>
-<script type="text/javascript" src="../lib/radamn.$.js"></script>
 
--->
 
 </head>
 
 <body>
+<canvas id="tutorial"></canvas>
 </body>
+
+<script>
+
+/*
+var canvas = document.getElementById('tutorial');
+console.log(canvas);
+if (canvas.getContext){
+var ctx = canvas.getContext('2d');
+console.log(typeof ctx);
+}
+*/
+
+/**
+* @type Window
+*/
+var win = demo.demoWindow(640, 480, "math");
+
+
+var canvas = win.getCanvas();
+
+/**
+* @type Image
+*/
+var image = Radamn.Assets.getImage("../examples/resources/images/rock.png");
+
+var node = win.getRootNode();
+
+node.addEvent("click", function(e) {
+    console.log(e);
+});
+
+
+var childnode1 = new Radamn.Node();
+
+childnode1.appendEntity(image);
+
+node.appendChild(childnode1);
+
+var childnode1_tween = new Fx.NodeTween(childnode1, {
+    link: 'cancel',
+    transition: 'bounce:out',
+    duration: 1500,
+    fps: 12
+});
+
+// chain! and morph!
+childnode1_tween.start("x", 0, 250, false);
+childnode1_tween.addEventOnce("complete", function() {
+    childnode1_tween.start("y", 0, 200, false);
+    childnode1_tween.addEventOnce("complete", function() {
+        childnode1_tween.start("scale", "1 1", "2 2", false);
+        childnode1_tween.addEventOnce("complete", function() {
+            childnode1_tween.start("rotate", 0, 90, false);
+            childnode1_tween.addEventOnce("complete", function() {
+                childnode1_tween.start("skew", "0 0", "30 30", false);
+            });
+        });
+    });
+});
+
+var counter = 0;
+win.onRequestFrame = function(delta) {
+    ++counter;
+
+    win.render(delta);
+};
+
+setTimeout(function() {
+	Radamn.listenInput(250);
+	Radamn.start(250);
+},1000);
+
+
 
 </script>
 </html>
+
 
