@@ -10,6 +10,23 @@ var CRadamn = {
 		canvas.width = width;
 		canvas.height = height;
 		canvas.inject(document.body);
+		/*
+		var ctx = canvas.getContext("2d");
+		setInterval(function() {
+		console.log("paint!");
+			//happy face!
+			ctx.beginPath();
+			ctx.arc(75,75,50,0,Math.PI*2,true); // Outer circle
+			ctx.moveTo(110,75);
+			ctx.arc(75,75,35,0,Math.PI,false);   // Mouth (clockwise)
+			ctx.moveTo(65,65);
+			ctx.arc(60,65,5,0,Math.PI*2,true);  // Left eye
+			ctx.moveTo(95,65);
+			ctx.arc(90,65,5,0,Math.PI*2,true);  // Right eye
+			ctx.stroke();
+		}, 250);
+		*/
+		
 		return canvas;
 	},
 	pollEvent: function() {
@@ -30,7 +47,8 @@ var CRadamn = {
 			
 			img.__ready = false;
 			img.onload = function() {
-				this.__ready == true;
+			console.log("loaded!");
+				img.__ready = true;
 			};
 			
 			return img;
@@ -38,6 +56,7 @@ var CRadamn = {
 	}
 	};
 </script>
+<script type="text/javascript" src="../lib/sax.js"></script>
 <script type="text/javascript" src="../lib/assert.js"></script>
 <script type="text/javascript" src="../lib/mootools-core-1.4.3.js"></script>
 <script type="text/javascript" src="../lib/mootools-hash.js"></script>
@@ -71,7 +90,6 @@ var CRadamn = {
 </head>
 
 <body>
-<canvas id="tutorial"></canvas>
 </body>
 
 <script>
@@ -140,6 +158,7 @@ win.onRequestFrame = function(delta) {
     win.render(delta);
 };
 
+//wait for everything to load
 setTimeout(function() {
 	Radamn.listenInput(250);
 	Radamn.start(250);

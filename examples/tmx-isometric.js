@@ -10,7 +10,12 @@ var win = demo.demoWindow(640, 480, "TMX");
 
 var canvas = win.getCanvas();
 
-var TMX = new Radamn.TMX("./resources/tmx/tmx-isometric.tmx", {});
+var TMX = new Radamn.TMX("./resources/tmx/tmx-isometric.tmx", {
+	resource_path: {
+		regex: /..\//,
+		replace: "../examples/resources/"
+	}
+});
 
 var tmxnode = new Radamn.Node();
 

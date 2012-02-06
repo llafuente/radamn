@@ -9,7 +9,12 @@ var win = demo.demoWindow(640, 480, "TMX");
 
 var canvas = win.getCanvas();
 
-var TMX = new Radamn.TMX("./resources/tmx/tmx-orthogonal-scrolled.tmx", {});
+var TMX = new Radamn.TMX("./resources/tmx/tmx-orthogonal-scrolled.tmx", {
+	resource_path: {
+		regex: /..\//,
+		replace: "../examples/resources/"
+	}
+});
 
 var tmxnode = new Radamn.Node();
 
