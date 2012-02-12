@@ -50,7 +50,7 @@ exports.demoWindow = function(width, height, caption, grid) {
 	grid = grid || false;
 	// visual test
 	console.log("demo/ create window");
-	var win = Radamn.createWindow(640, 480);
+	var win = Radamn.createWindow(width, height);
 
 	if(!browser) {
 		console.log("demo/ display FPS");
