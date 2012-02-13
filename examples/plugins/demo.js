@@ -49,22 +49,22 @@ exports.attachEscapeInputs = function(window) {
 exports.demoWindow = function(width, height, caption, grid) {
 	grid = grid || false;
 	// visual test
-	console.log("demo/ create window");
+	console.info("[demo] create window");
 	var win = Radamn.createWindow(width, height);
 
 	if(!browser) {
-		console.log("demo/ display FPS");
+		console.info("[demo] display FPS");
 		exports.attachFPSCounter(win, 480, 0);
 	}
 
-	console.log("demo/ attaching ESC/F5/Close window:");
+	console.info("[demo] attaching ESC/F5/Close window:");
 	exports.attachEscapeInputs(win);
 	
-	console.log("demo/ set caption to: "+caption);
+	console.info("[demo] set caption to: "+caption);
 	win.setCaption(caption, caption);
 	
 	if(grid) {
-		console.log("demo/ display grid");
+		console.info("[demo] display grid");
 		exports.attachGrid(win, grid);
 	}
 	
