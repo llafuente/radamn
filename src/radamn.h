@@ -38,26 +38,24 @@ opengl 2s vs opengl 1.5: http://doc.trolltech.com/4.4/opengl-hellogl-es.html#por
 #include <v8.h>
 
 namespace radamn {
-}
-namespace Radamn {
 
-	class Creator : node::ObjectWrap {
-	public:
-		static v8::Persistent<v8::FunctionTemplate> s_ct;
+    class Creator : node::ObjectWrap {
+    public:
+        static v8::Persistent<v8::FunctionTemplate> s_ct;
 #ifdef _WIN32
-		static void NODE_EXTERN Init(v8::Handle<v8::Object> target);
+        static void NODE_EXTERN Init(v8::Handle<v8::Object> target);
 #else
-	static void Init(v8::Handle<v8::Object> target);
+    static void Init(v8::Handle<v8::Object> target);
 #endif
-		Creator() { }
-		~Creator() { }
-		static v8::Handle<v8::Value> New(const v8::Arguments& args) {
-			v8::HandleScope scope;
-			Creator* pm = new Creator();
-			pm->Wrap(args.This());
-			return args.This();
-		}
-	};
+        Creator() { }
+        ~Creator() { }
+        static v8::Handle<v8::Value> New(const v8::Arguments& args) {
+            v8::HandleScope scope;
+            Creator* pm = new Creator();
+            pm->Wrap(args.This());
+            return args.This();
+        }
+    };
 
     static bool isOpenGL = false;
 
