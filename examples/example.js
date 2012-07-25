@@ -24,18 +24,18 @@ for(var j = 0; j < 3; ++j) {
         animation_cfg.push([i*80,j*80, 80, 80]);
     }
 }
-Radamn.addEvent("wheel", function(e) {
+Radamn.on("wheel", function(e) {
     console.log(e);
 });
-Radamn.addEvent("wheelchange", function(e) {
+Radamn.on("wheelchange", function(e) {
     console.log(e);
 });
-Radamn.addEvent("mousedown", function(e) {
+Radamn.on("mousedown", function(e) {
     var nodes = win.ray(e.x, e.y);
     var i=0,
         max=nodes.length;
     for(; i<max; ++i) {
-        nodes[i].fireEvent("click", [e]);
+        nodes[i].emit("click", [e]);
     }
 });
 
@@ -43,7 +43,7 @@ win.setBackgroundColor("#000000");
 
 var node = win.getRootNode();
 
-node.addEvent("click", function(e) {
+node.on("click", function(e) {
     console.log(e);
 });
 
@@ -72,13 +72,13 @@ win.onRequestFrame = function(delta) {
 
     // line test, grid mode :)
 
-	/*
+    /*
     // animation test
     canvas.save();
         canvas.translate(256, 256);
         animation.draw(canvas, delta, 0, 0);
     canvas.restore();
-	*/
+    */
 
     // some draw test
     canvas.save();

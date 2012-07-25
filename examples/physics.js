@@ -44,13 +44,13 @@ function getBodyCB(fixture) {
    return true;
 }
 
-Radamn.addEvent("mousedown", function(e) {
+Radamn.on("mousedown", function(e) {
    isMouseDown = true;
    handleMouseMove(e);
-   Radamn.addEvent("mousemove", handleMouseMove);
+   Radamn.on("mousemove", handleMouseMove);
 }, true);
 
-Radamn.addEvent("mouseup", function() {
+Radamn.on("mouseup", function() {
    Radamn.removeEvent("mousemove", handleMouseMove);
    isMouseDown = false;
    mouseX = undefined;

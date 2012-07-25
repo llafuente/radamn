@@ -16,22 +16,22 @@ var font = Radamn.Assets.getFont("./resources/fonts/Jura-DemiBold.ttf", 32);
 
 var text="last key: ";
 var last_key="";
-Radamn.addEvent("keydown", function(e) {
+Radamn.on("keydown", function(e) {
     if (e.char != "Escape") {
         // type
         last_key = "keydown / " + e.char + "("+ e.keyCode +")";
     }
 });
 
-Radamn.addEvent("wheel", function(e) {
+Radamn.on("wheel", function(e) {
     console.log(e);
     last_key = "wheel event fired";
 });
-Radamn.addEvent("wheelchange", function(e) {
+Radamn.on("wheelchange", function(e) {
     console.log(e);
     last_key = "wheelchange event fired";
 });
-Radamn.addEvent("mousedown", function(e) {
+Radamn.on("mousedown", function(e) {
     last_key = "mousedown event fired \n@("+e.x+","+e.y+")";
 });
 

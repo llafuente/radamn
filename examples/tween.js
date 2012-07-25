@@ -17,7 +17,7 @@ var image = Radamn.Assets.getImage("./resources/images/rock.png");
 
 var node = win.getRootNode();
 
-node.addEvent("click", function(e) {
+node.on("click", function(e) {
     console.log(e);
 });
 
@@ -37,13 +37,13 @@ var childnode1_tween = new Fx.NodeTween(childnode1, {
 
 // chain! and morph!
 childnode1_tween.start("x", 0, 250, false);
-childnode1_tween.addEventOnce("complete", function() {
+childnode1_tween.once("complete", function() {
     childnode1_tween.start("y", 0, 200, false);
-    childnode1_tween.addEventOnce("complete", function() {
+    childnode1_tween.once("complete", function() {
         childnode1_tween.start("scale", "1 1", "2 2", false);
-        childnode1_tween.addEventOnce("complete", function() {
+        childnode1_tween.once("complete", function() {
             childnode1_tween.start("rotate", 0, 90, false);
-            childnode1_tween.addEventOnce("complete", function() {
+            childnode1_tween.once("complete", function() {
                 childnode1_tween.start("skew", "0 0", "30 30", false);
             });
         });

@@ -150,7 +150,7 @@ node3.addToBody(collision_test_seg);
 
 var circle_fill_color = "rgb(0,0,255)";
 //basic collision detections
-Radamn.addEvent("mousemove", function(e) {
+Radamn.on("mousemove", function(e) {
 	var mousepos = new Vec2(e.x, e.y);
 	
 	for(var i =0,max=collideNodeList.length; i<max;++i) {

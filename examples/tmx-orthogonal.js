@@ -16,7 +16,7 @@ var TMX = new Radamn.TMX("./resources/tmx/tmx-orthogonal.tmx", {
 	}
 });
 
-Radamn.addEvent("mousedown", function(e) {
+Radamn.on("mousedown", function(e) {
 	console.log(e);
 	console.log(TMX.getTiles(
 		Math.floor(e.x / TMX.getTileWidth()),

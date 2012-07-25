@@ -72,7 +72,7 @@ function createCircle(mouseEvent) {
     world.CreateBody(bodyDef).CreateFixture(fixDef);
 }
 
-TMX.addEvent("ready", function(tmxclass) {
+TMX.on("ready", function(tmxclass) {
 	// turn off render,
 	tmxclass.ready = false;
 
@@ -106,7 +106,7 @@ appRootNode.appendChild(tmxnode).appendChild(worldnode);
 win.getRootNode().appendChild(appRootNode);
 
 
-Radamn.addEvent("mousedown", function(ev) {
+Radamn.on("mousedown", function(ev) {
 	createCircle(ev);
 });
 

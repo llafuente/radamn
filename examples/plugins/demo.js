@@ -33,11 +33,11 @@ exports.attachGrid = function(window, options) {
 
 exports.attachEscapeInputs = function(window) {
 
-	Radamn.addEvent("quit", function(e) {
+	Radamn.on("quit", function(e) {
 		Radamn.quit();
 	});
 	
-	Radamn.addEvent("keydown", function(e) {
+	Radamn.on("keydown", function(e) {
 		if (e.char == "F5") {
 			window.screenshot();
 		} else if (e.char == "Escape") {

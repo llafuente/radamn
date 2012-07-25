@@ -23,7 +23,7 @@ win.setBackgroundColor("#000000");
 
 var node = win.getRootNode();
 
-node.addEvent("click", function(e) {
+node.on("click", function(e) {
     console.log(e);
 });
 
