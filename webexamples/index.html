@@ -10,22 +10,6 @@ var CRadamn = {
         canvas.width = width;
         canvas.height = height;
         document.body.appendChild(canvas);
-        /*
-        var ctx = canvas.getContext("2d");
-        setInterval(function() {
-        console.log("paint!");
-            //happy face!
-            ctx.beginPath();
-            ctx.arc(75,75,50,0,Math.PI*2,true); // Outer circle
-            ctx.moveTo(110,75);
-            ctx.arc(75,75,35,0,Math.PI,false);   // Mouth (clockwise)
-            ctx.moveTo(65,65);
-            ctx.arc(60,65,5,0,Math.PI*2,true);  // Left eye
-            ctx.moveTo(95,65);
-            ctx.arc(90,65,5,0,Math.PI*2,true);  // Right eye
-            ctx.stroke();
-        }, 250);
-        */
 
         return canvas;
     },
@@ -56,46 +40,48 @@ var CRadamn = {
     }
     };
 </script>
-<script type="text/javascript" src="../lib/sax.js"></script>
-<script type="text/javascript" src="../lib/assert.js"></script>
+<script type="text/javascript" src="/lib/sax.js"></script>
+<script type="text/javascript" src="/lib/assert.js"></script>
 
-<script type="text/javascript" src="../node_modules/node-class/lib/tempus.js"></script>
-<script type="text/javascript" src="../node_modules/node-class/lib/class.js"></script>
-<script type="text/javascript" src="../node_modules/node-class/lib/sugar.js"></script>
-<script type="text/javascript" src="../node_modules/node-class/lib/events.js"></script>
-<script type="text/javascript" src="../node_modules/node-class/lib/eventize.js"></script>
-<script type="text/javascript" src="../node_modules/node-class/lib/sequence.js"></script>
-<script type="text/javascript" src="../node_modules/node-class/lib/iterable.js"></script>
-<script type="text/javascript" src="../node_modules/node-class/lib/eventmachine.js"></script>
-<script type="text/javascript" src="../node_modules/node-class/lib/animate.js"></script>
+<script type="text/javascript" src="/lib/tempus.js"></script>
+<script type="text/javascript" src="/lib/class.js"></script>
+<script type="text/javascript" src="/lib/sugar.js"></script>
+<script type="text/javascript" src="/lib/events.js"></script>
+<script type="text/javascript" src="/lib/eventize.js"></script>
+<script type="text/javascript" src="/lib/sequence.js"></script>
+<script type="text/javascript" src="/lib/iterable.js"></script>
+<script type="text/javascript" src="/lib/eventmachine.js"></script>
+<script type="text/javascript" src="/lib/animate.js"></script>
 
-<script type="text/javascript" src="../lib/radamn.math.js"></script>
-<script type="text/javascript" src="../lib/radamn.math.types.js"></script>
+<script type="text/javascript" src="/lib/radamn.math.js"></script>
+<script type="text/javascript" src="/lib/radamn.math.types.js"></script>
 
-<script type="text/javascript" src="../lib/radamn.js"></script>
+<script type="text/javascript" src="/lib/radamn.js"></script>
 
 <!--
 <script type="text/javascript" src="../lib/radamn.$.js"></script>
 -->
 
-<script type="text/javascript" src="../lib/radamn.camera.js"></script>
-<script type="text/javascript" src="../lib/radamn.window.js"></script>
-<script type="text/javascript" src="../lib/radamn.assets.js"></script>
+<script type="text/javascript" src="/lib/radamn.camera.js"></script>
+<script type="text/javascript" src="/lib/radamn.window.js"></script>
+<script type="text/javascript" src="/lib/radamn.assets.js"></script>
 
 
-<script type="text/javascript" src="../lib/radamn.resource.js"></script>
-<script type="text/javascript" src="../lib/radamn.resource.rendereable.js"></script>
-<script type="text/javascript" src="../lib/radamn.image.js"></script>
+<script type="text/javascript" src="/lib/radamn.request.js"></script>
+
+<script type="text/javascript" src="/lib/radamn.resource.js"></script>
+<script type="text/javascript" src="/lib/radamn.resource.rendereable.js"></script>
+<script type="text/javascript" src="/lib/radamn.image.js"></script>
 <!--
-<script type="text/javascript" src="../lib/radamn.animation.js"></script>
-<script type="text/javascript" src="../lib/radamn.font.js"></script>
-<script type="text/javascript" src="../lib/radamn.canvas.js"></script>
-<script type="text/javascript" src="../lib/radamn.tmx.js"></script>
+<script type="text/javascript" src="/lib/radamn.animation.js"></script>
+<script type="text/javascript" src="/lib/radamn.font.js"></script>
+<script type="text/javascript" src="/lib/radamn.canvas.js"></script>
 -->
+<script type="text/javascript" src="/lib/radamn.tmx.js"></script>
 
-<script type="text/javascript" src="../lib/radamn.node.js"></script>
+<script type="text/javascript" src="/lib/radamn.node.js"></script>
 
-<script type="text/javascript" src="../examples/plugins/demo.js"></script>
+<script type="text/javascript" src="/examples/plugins/demo.js"></script>
 
 
 </head>
@@ -122,6 +108,21 @@ var win = demo.demoWindow(640, 480, "math");
 
 var canvas = win.getCanvas();
 
+var TMX = new Radamn.TMX({
+    tmx_file: "./resources/tmx/tmx-isometric.tmx",
+    resource_path: {
+        regex: /..\//,
+        replace: "../examples/resources/"
+    }
+});
+
+var tmxnode = new Radamn.Node();
+
+tmxnode.appendEntity(TMX);
+tmxnode.matrix.translate(250, 0);
+win.getRootNode().appendChild(tmxnode);
+
+
 /**
 * @type Image
 */
@@ -145,12 +146,11 @@ childnode1.animate
 var animation_properties = {
     transition: $.Animate.Transitions.Linear,
     time: 2000,
-    fps: 30
+    fps: 60
 };
 
 animation_properties.property = "x";
 childnode1.animate(animation_properties, [0, 250]);
-
 
 // chain! and morph!
 childnode1.once("animation:end", function() {
@@ -185,7 +185,7 @@ win.onRequestFrame = function(delta) {
 //wait for everything to load
 setTimeout(function() {
     Radamn.listenInput(250);
-    Radamn.start(250);
+    Radamn.start(false);
 },1000);
 
 
