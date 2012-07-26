@@ -29,3 +29,5 @@ deps/SDL_image/*
 deps/libpng/*
 deps/SDL_ttf/*
 deps/GL/*
+
+node_modules
