@@ -10,7 +10,7 @@ var win = Radamn.createWindow(20,13.3333333333, 600, 400);
 
 demo.attachEscapeInputs(win);
 
-var canvas = win.getCanvas();
+var canvas = win.getContext();
 
 var world = null,
 	mouseX, mouseY, mousePVec, isMouseDown, selectedBody, mouseJoint;
@@ -169,7 +169,7 @@ win.onRequestFrame = function(delta) {
 };
 
 
-var canvas = win.getCanvas();
+var canvas = win.getContext();
 
 
 Radamn.listenInput(50);

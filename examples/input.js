@@ -7,7 +7,7 @@ var demo = require('./plugins/demo.js');
 */
 var win = demo.demoWindow(640, 480, "BOX2DWEB TMX");
 
-var canvas = win.getCanvas();
+var canvas = win.getContext();
 
 /**
 * @type Font

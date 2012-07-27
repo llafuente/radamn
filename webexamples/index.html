@@ -44,8 +44,8 @@ var CRadamn = {
 <script type="text/javascript" src="/lib/assert.js"></script>
 
 <script type="text/javascript" src="/lib/tempus.js"></script>
-<script type="text/javascript" src="/lib/class.js"></script>
 <script type="text/javascript" src="/lib/sugar.js"></script>
+<script type="text/javascript" src="/lib/class.js"></script>
 <script type="text/javascript" src="/lib/events.js"></script>
 <script type="text/javascript" src="/lib/eventize.js"></script>
 <script type="text/javascript" src="/lib/sequence.js"></script>
@@ -106,7 +106,7 @@ console.log(typeof ctx);
 var win = demo.demoWindow(640, 480, "math");
 
 
-var canvas = win.getCanvas();
+var canvas = win.getContext();
 
 var TMX = new Radamn.TMX({
     tmx_file: "./resources/tmx/tmx-isometric.tmx",

@@ -17,7 +17,7 @@ function bTest(intervalRate, adaptive, width, height, scale) {
   this.width = width;
   this.height = height;
   this.scale = scale;
-  
+
   this.bodiesMap = {};
 
   this.world = new b2World(
@@ -35,15 +35,15 @@ function bTest(intervalRate, adaptive, width, height, scale) {
 //   //create ground
 //   var bodyDef = new b2BodyDef;
 //   bodyDef.type = b2Body.b2_staticBody;
-// 
+//
 //   // positions the center of the object (not upper left!)
 //   bodyDef.position.x = this.width / 2 / this.scale;
 //   bodyDef.position.y = this.height / 2 / this.scale;
 //   bodyDef.angle = (45*Math.PI) / 180; // radians
 //   bodyDef.userData = '__BODY__';
-// 
+//
 //   this.fixDef.shape = new b2PolygonShape;
-// 
+//
 //   // half width, half height. eg actual height here is 1 unit
 //   this.fixDef.shape.SetAsBox((this.width-(this.width*0.1) / this.scale) / 2, (10/this.scale) / 2);
 //   this.registerBody(bodyDef).CreateFixture(this.fixDef);
@@ -77,22 +77,22 @@ bTest.prototype.getBodySpec = function(b) {
 
 bTest.prototype.setBodies = function(bodyEntities) {
     var bodyDef = new b2BodyDef;
-    
+
     for(var id in bodyEntities) {
         var entity = bodyEntities[id];
-        
+
         if (entity.id == 'ground') {
             bodyDef.type = b2Body.b2_staticBody;
         } else {
             bodyDef.type = b2Body.b2_dynamicBody;
         }
-        
+
         bodyDef.position.x = entity.x;
         bodyDef.position.y = entity.y;
         bodyDef.userData = entity.id;
         bodyDef.angle = entity.angle;
         var body = this.registerBody(bodyDef);
-        
+
         if (entity.radius) {
             this.fixDef.shape = new b2CircleShape(entity.radius);
             body.CreateFixture(this.fixDef);
@@ -167,4 +167,6 @@ bTest.prototype.removeBody = function(id) {
 }
 
 // @radamn exports to globals
-global.bTest = bTest;
+if(this.global) {
+    global.bTest = bTest;
+}

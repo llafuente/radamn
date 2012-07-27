@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<script type="text/javascript">
+var CRadamn = {
+    createWindow: function(width, height) {
+        var canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        document.body.appendChild(canvas);
+
+        return canvas;
+    },
+    pollEvent: function() {
+        return false;
+    },
+    Window: {
+        setCaption : function(caption) {
+            console.log("ignore caption", caption);
+        },
+    },
+    GL: {
+    },
+    Image: {
+        load: function(path) {
+            var img = new Image();
+            img.path = path;
+            img.src = path;
+
+            img.__ready = false;
+            img.onload = function() {
+            console.log("loaded!");
+                img.__ready = true;
+            };
+
+            return img;
+        }
+    }
+    };
+</script>
+<script type="text/javascript" src="/lib/sax.js"></script>
+<script type="text/javascript" src="/lib/assert.js"></script>
+
+<script type="text/javascript" src="/lib/tempus.js"></script>
+<script type="text/javascript" src="/lib/sugar.js"></script>
+<script type="text/javascript" src="/lib/class.js"></script>
+<script type="text/javascript" src="/lib/events.js"></script>
+<script type="text/javascript" src="/lib/eventize.js"></script>
+<script type="text/javascript" src="/lib/sequence.js"></script>
+<script type="text/javascript" src="/lib/iterable.js"></script>
+<script type="text/javascript" src="/lib/eventmachine.js"></script>
+<script type="text/javascript" src="/lib/animate.js"></script>
+
+<script type="text/javascript" src="/lib/radamn.math.js"></script>
+<script type="text/javascript" src="/lib/radamn.math.types.js"></script>
+
+<script type="text/javascript" src="/lib/radamn.js"></script>
+
+<script type="text/javascript" src="../lib/radamn.$.js"></script>
+
+<script type="text/javascript" src="/lib/radamn.camera.js"></script>
+<script type="text/javascript" src="/lib/radamn.window.js"></script>
+<script type="text/javascript" src="/lib/radamn.assets.js"></script>
+
+
+<script type="text/javascript" src="/lib/radamn.request.js"></script>
+
+<script type="text/javascript" src="/lib/radamn.resource.js"></script>
+<script type="text/javascript" src="/lib/radamn.resource.rendereable.js"></script>
+<script type="text/javascript" src="/lib/radamn.image.js"></script>
+<script type="text/javascript" src="/lib/radamn.font.js"></script>
+<script type="text/javascript" src="/lib/radamn.animation.js"></script>
+
+<script type="text/javascript" src="/lib/radamn.tmx.js"></script>
+
+<script type="text/javascript" src="/lib/radamn.node.js"></script>
+
+<script type="text/javascript" src="/examples/plugins/demo.js"></script>
+
+
+</head>
+
+<body>
+</body>
+
+</html>
+
+<script type="text/javascript" src="/examples/font-rendering.js"></script>

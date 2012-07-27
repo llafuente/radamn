@@ -7,7 +7,7 @@ require('./plugins/demo.js');
 */
 var win = demoWindow(640, 480, "BOX2DWEB TMX", {});
 
-var canvas = win.getCanvas();
+var canvas = win.getContext();
 
 /**
 * @type Image
@@ -141,16 +141,6 @@ win.onRequestFrame = function(delta) {
         canvas.closePath();
         canvas.stroke();
     canvas.restore();
-
-
-    /*
-    image.__draw(win.getCanvas().getSurface(), 50, 50);
-
-    var font_image = font.getImage("saved and then rendered", 0x8ae234);
-    font_image.__draw(win.getCanvas().getSurface(), 0, 0);
-
-    font.write(win.getCanvas().getSurface(), "direct text and free", 0x8ae234, 100, 50);
-    */
 };
 
 Radamn.listenInput(50);

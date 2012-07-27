@@ -8,7 +8,7 @@ var demo = require('./plugins/demo.js');
 var win = demo.demoWindow(640, 480, "math");
 
 
-var canvas = win.getCanvas();
+var canvas = win.getContext();
 
 /**
 * @type Image

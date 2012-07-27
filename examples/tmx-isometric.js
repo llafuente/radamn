@@ -1,47 +1,54 @@
-require('./../lib/radamn');
+(function (exports, browser) {
+    "use strict";
 
-var demo = require('./plugins/demo.js');
-
-/**
-* @type Window
-*/
-var win = demo.demoWindow(640, 480, "TMX");
-
-
-var canvas = win.getCanvas();
-
-var TMX = new Radamn.TMX({
-    tmx_file: "./resources/tmx/tmx-isometric.tmx",
-    resource_path: {
-        regex: /..\//,
-        replace: "../examples/resources/"
+    if(!browser) {
+        require('./../lib/radamn');
     }
-});
 
-var tmxnode = new Radamn.Node();
+    var idemo = browser ? demo : require('./plugins/demo.js');
 
-tmxnode.appendEntity(TMX);
-tmxnode.matrix.translate(250, 0);
-win.getRootNode().appendChild(tmxnode);
+    /**
+    * @type Window
+    */
+    var win = idemo.demoWindow(640, 480, "TMX");
 
-/*
-var fps = require('./fps');
-fps = new fps({
-    font : "./resources/fonts/Jura-DemiBold.ttf"
-    ,x: 400
-});
 
-var fpsnode = new Radamn.Node();
-fpsnode.appendEntity(fps);
+    var canvas = win.getContext();
 
-win.getRootNode().appendChild(fpsnode);
-*/
-var counter = 0;
-win.onRequestFrame = function(delta) {
-    ++counter;
+    var TMX = new Radamn.TMX({
+        tmx_file: "./resources/tmx/tmx-isometric.tmx",
+        resource_path: {
+            regex: /..\//,
+            replace: "../examples/resources/"
+        }
+    });
 
-    win.render(delta);
-};
+    var tmxnode = new Radamn.Node();
 
-Radamn.listenInput(50);
-Radamn.start(50);
+    tmxnode.appendEntity(TMX);
+    tmxnode.matrix.translate(250, 0);
+    win.getRootNode().appendChild(tmxnode);
+
+    /*
+    var fps = require('./fps');
+    fps = new fps({
+        font : "./resources/fonts/Jura-DemiBold.ttf"
+        ,x: 400
+    });
+
+    var fpsnode = new Radamn.Node();
+    fpsnode.appendEntity(fps);
+
+    win.getRootNode().appendChild(fpsnode);
+    */
+    var counter = 0;
+    win.onRequestFrame = function(delta) {
+        ++counter;
+
+        win.render(delta);
+    };
+
+    Radamn.listenInput(50);
+    Radamn.start(50);
+
+}(typeof module == "undefined" ? window : module.exports, typeof module == "undefined"));

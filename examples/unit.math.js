@@ -107,7 +107,7 @@ var polygon = new Polygon([
 console.log(typeOf(polygon));
 console.log((polygon));
 
-var canvas = win.getCanvas();
+var canvas = win.getContext();
 
 var node = null;
 var collideNodeList = [];
