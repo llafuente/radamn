@@ -1,43 +1,44 @@
 (function (exports, browser) {
     "use strict";
 
-    if(!browser) {
+    if (!browser) {
         require('./../lib/Box2dWeb-2.1.a.3.js');
         require('./../lib/radamn');
     }
 
-    var idemo = browser ? demo : require('./plugins/demo.js');
+    var __debug = browser ? $.debug : require("node-class").debug,
+        idemo = browser ? demo : require('./plugins/demo.js'),
+        /**
+        * @type Window
+        */
+        win = idemo.demoWindow(640, 480, "BOX2DWEB TMX"),
 
-    /**
-    * @type Window
-    */
-    var win = idemo.demoWindow(640, 480, "BOX2DWEB TMX");
+        b2Vec2 = Box2D.Common.Math.b2Vec2,
+        b2BodyDef = Box2D.Dynamics.b2BodyDef,
+        b2Body = Box2D.Dynamics.b2Body,
+        b2FixtureDef = Box2D.Dynamics.b2FixtureDef,
+        b2Fixture = Box2D.Dynamics.b2Fixture,
+        b2World = Box2D.Dynamics.b2World,
+        b2MassData = Box2D.Collision.Shapes.b2MassData,
+        b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape,
+        b2CircleShape = Box2D.Collision.Shapes.b2CircleShape,
+        b2DebugDraw = Box2D.Dynamics.b2DebugDraw,
 
+        canvas = win.getContext(),
 
-    var   b2Vec2 = Box2D.Common.Math.b2Vec2
-        ,    b2BodyDef = Box2D.Dynamics.b2BodyDef
-        ,    b2Body = Box2D.Dynamics.b2Body
-        ,    b2FixtureDef = Box2D.Dynamics.b2FixtureDef
-        ,    b2Fixture = Box2D.Dynamics.b2Fixture
-        ,    b2World = Box2D.Dynamics.b2World
-        ,    b2MassData = Box2D.Collision.Shapes.b2MassData
-        ,    b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
-        ,    b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
-        ,    b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
+        TMX = new Radamn.TMX({
+            tmx_file: "./resources/tmx/tmx-orthogonal-scrolled.tmx"
+        }),
 
-    var canvas = win.getContext();
+        world = new b2World(
+            new b2Vec2(0, 10),    //gravity
+            true                 //allow sleep
+        ),
+        debugDraw = new b2DebugDraw(),
 
-    var TMX = new Radamn.TMX({
-        tmx_file: "./resources/tmx/tmx-orthogonal-scrolled.tmx"
-    });
-
-    var world = new b2World(
-          new b2Vec2(0, 10)    //gravity
-       ,  true                 //allow sleep
-    );
+        counter = 0;
 
     //setup debug draw
-    var debugDraw = new b2DebugDraw();
     debugDraw.SetSprite(canvas);
     //debugDraw.SetDrawScale(30.0);
     debugDraw.SetFillAlpha(0.33);
@@ -52,8 +53,8 @@
         fixDef.restitution = 0.2;
         fixDef.shape = new b2PolygonShape;
         fixDef.shape.SetAsBox(
-              tile[6] *0.5, //half width
-              tile[7] * 0.5 //half height
+            tile[6] * 0.5, //half width
+            tile[7] * 0.5 //half height
         );
 
         var bodyDef = new b2BodyDef;
@@ -64,44 +65,45 @@
     }
 
     function createCircle(mouseEvent) {
-        var fixDef = new b2FixtureDef;
+        var fixDef = new b2FixtureDef,
+            bodyDef = new b2BodyDef;
         fixDef.density = 1.0;
         fixDef.friction = 0.5;
         fixDef.restitution = 0.2;
         fixDef.shape = new b2CircleShape(
-           32 //radius
+            32 //radius
         );
 
-        var bodyDef = new b2BodyDef;
         bodyDef.type = b2Body.b2_dynamicBody;
         bodyDef.position.x = mouseEvent.x;
         bodyDef.position.y = mouseEvent.y;
         world.CreateBody(bodyDef).CreateFixture(fixDef);
     }
 
-    TMX.on("ready", function(tmxclass) {
+    TMX.on("ready", function (tmxclass) {
         // turn off render,
         //tmxclass.ready = false;
 
-        var i = 0,
+        var i,
+            j,
+            jmax,
+            tile,
             max = tmxclass.layers.length,
             appRootNode = new Radamn.Node(),
             tmxnode = new Radamn.Node(),
             worldnode = new Radamn.Node(),
-            renderWorld = Radamn.createRenderable(function() {
+            renderWorld = Radamn.createRenderable(function () {
                 world.DrawDebugData();
                 world.ClearForces();
             });
-        for(;i<max; ++i) {
-            var j=0,
-                jmax=tmxclass.layers[i].tiles.length;
+        for (i = 0; i < max; ++i) {
+            jmax = tmxclass.layers[i].tiles.length;
 
-            for(;j<jmax; ++j) {
-                var tile = tmxclass.layers[i].tiles[j];
+            for (j = 0; j < jmax; ++j) {
+                tile = tmxclass.layers[i].tiles[j];
                 createBox(tile);
             }
         }
-
 
         tmxnode.appendEntity(TMX);
         worldnode.appendEntity(renderWorld);
@@ -109,24 +111,23 @@
 
         win.getRootNode().appendChild(appRootNode);
 
-        console.log("root node!", win.getRootNode());
+        __debug("root node!", win.getRootNode());
     });
 
-    Radamn.on("mousedown", function(ev) {
+    Radamn.on("mousedown", function (ev) {
         createCircle(ev);
     });
 
-    var counter = 0;
-    win.onRequestFrame = function(delta) {
+    win.onRequestFrame = function (delta) {
         ++counter;
 
-        win.render(delta, function() {
+        win.render(delta, function () {
             world.Step(
-                        1000 / delta  //frame-rate
-                    ,   10       //velocity iterations
-                    ,   10       //position iterations
-                );
-        }, function() {
+                1000 / delta,  //frame-rate
+                10,            //velocity iterations
+                10             //position iterations
+            );
+        }, function () {
         });
         win.getRootNode().matrix.translate(-(delta / 1000) * 10, false);
     };

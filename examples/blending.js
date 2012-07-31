@@ -5,35 +5,30 @@
         require('./../lib/radamn');
     }
 
-    var idemo = browser ? demo : require('./plugins/demo.js');
-
-    /**
-    * @type Window
-    */
-    var win = idemo.demoWindow(640, 480, "Blending Composite operations");
-
-    var canvas = win.getContext();
-
-    /**
-    * @type Image
-    */
-    var image = Radamn.Assets.getImage("./resources/images/rock.png");
-
-    /**
-    * @type Font
-    */
-    var font = Radamn.Assets.getFont("./resources/fonts/Jura-DemiBold.ttf", 12);
+    var __debug = browser ? $.debug : require("node-class").debug,
+        idemo = browser ? demo : require('./plugins/demo.js');
+        /**
+        * @type Window
+        */
+        win = idemo.demoWindow(640, 480, "Blending Composite operations"),
+        canvas = win.getContext(),
+        /**
+        * @type Image
+        */
+        image = Radamn.Assets.getImage("./resources/images/rock.png"),
+        /**
+        * @type Font
+        */
+        font = Radamn.Assets.getFont("./resources/fonts/Jura-DemiBold.ttf", 12),
+        counter = 0,
+        node = win.getRootNode();
 
     win.setBackgroundColor("#000000");
 
-    var node = win.getRootNode();
-
     node.on("click", function(e) {
-        console.log(e);
+        __debug(e);
     });
 
-
-    var counter = 0;
     win.onRequestFrame = function(delta) {
         ++counter;
 
@@ -59,11 +54,12 @@
 
             ++i;
         }
-        //process.exit();
 
     };
 
     Radamn.listenInput(50);
     Radamn.start(50);
+
+    setInterval(function() {}, 500);
 
 }(typeof module == "undefined" ? window : module.exports, typeof module == "undefined"));

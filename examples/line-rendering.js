@@ -25,8 +25,9 @@
         // line test
         canvas.save();
             canvas.strokeStyle = "rgb(255,0,0)";
-            canvas.fillStyle = "rgb(255,255,255)";
+            canvas.fillStyle = "rgb(0,255,255)";
             canvas.lineWidth = 1;
+            /*
 
             //happy face!
             canvas.beginPath();
@@ -63,6 +64,18 @@
 
             canvas.translate(-256, 192);
 
+
+
+            */
+
+            canvas.beginPath();
+            canvas.moveTo(188, 130);
+            canvas.bezierCurveTo(140, 10, 388, 10, 388, 170);
+
+            canvas.lineWidth = 10;
+            canvas.stroke();
+
+
             // http://www.html5canvastutorials.com/tutorials/html5-canvas-rounded-corners/
             var rectWidth = 200;
             var rectHeight = 100;
@@ -81,8 +94,8 @@
             canvas.lineWidth = 5;
             canvas.stroke();
 
+            /*
             canvas.translate(256,0);
-
             // https://developer.mozilla.org/samples/canvas-tutorial/2_3_canvas_lineto.html
             // Filled triangle
             canvas.beginPath();
@@ -99,7 +112,6 @@
             canvas.closePath();
             canvas.stroke();
 
-
             canvas.translate(-256, 128);
             canvas.beginPath();
             var centerX = 128;
@@ -112,6 +124,8 @@
             canvas.arc(centerX, centerY, radius, startingAngle, endingAngle, counterclockwise);
             canvas.stroke();
 
+
+            // box
             canvas.translate(128, 0);
             canvas.beginPath();
             canvas.moveTo(0,0);
@@ -121,6 +135,8 @@
             canvas.lineTo(0,0);
             canvas.stroke();
 
+
+            // inverse C
             canvas.translate(128, 0);
             canvas.beginPath();
             canvas.lineTo(0,50);
@@ -129,16 +145,18 @@
             canvas.lineTo(0,0);
             canvas.stroke();
 
+
+            // triangle
             canvas.translate(128, 0);
             canvas.beginPath();
             canvas.moveTo(0,0);
             canvas.lineTo(0,50);
             canvas.lineTo(50,50);
             canvas.lineTo(0,0);
-
             canvas.fill();
             canvas.stroke();
 
+            // triangle L
             canvas.translate(128, 0);
             canvas.beginPath();
             canvas.moveTo(0,0);
@@ -147,11 +165,14 @@
             canvas.fill();
             canvas.stroke();
 
+            // \
             canvas.translate(128, 0);
             canvas.beginPath();
             canvas.moveTo(0,0);
             canvas.lineTo(50,50);
             canvas.stroke();
+
+            */
         canvas.restore();
 
     };
