@@ -54,8 +54,6 @@
               this.dead = true
             }
           }
-
-          //console.log(this.id + ", " + impulse + ", " + source.id + ", " + this.strength);
         }
 
         Entity.prototype.getColor = function() {
@@ -216,8 +214,6 @@
         var canvasHeight = ctx.canvas.height;
 
         function draw() {
-          //console.log("d");
-
           //ctx.clearRect(0, 0, canvasWidth, canvasHeight);
           for (var id in world) {
             var entity = world[id];
@@ -244,13 +240,10 @@
 
           box.addContactListener({
             BeginContact: function(idA, idB) {
-              console.log('b');
             },
 
             PostSolve: function(idA, idB, impulse) {
-              //console.log('p');
               if (impulse < 0.1) return;
-              console.log(world);
               var entityA = world[idA];
               var entityB = world[idB];
               if(entityB && entityA) {

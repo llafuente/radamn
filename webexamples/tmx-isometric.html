@@ -4,42 +4,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Untitled Document</title>
 <script type="text/javascript">
-var CRadamn = {
-    createWindow: function(width, height) {
-        var canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        document.body.appendChild(canvas);
 
-        return canvas;
-    },
-    pollEvent: function() {
-        return false;
-    },
-    Window: {
-        setCaption : function(caption) {
-            console.log("ignore caption", caption);
-        },
-    },
-    GL: {
-    },
-    Image: {
-        load: function(path) {
-            var img = new Image();
-            img.path = path;
-            img.src = path;
+<script type="text/javascript" src="/lib/cradamn.js"></script>
 
-            img.__ready = false;
-            img.onload = function() {
-            console.log("loaded!");
-                img.__ready = true;
-            };
-
-            return img;
-        }
-    }
-    };
-</script>
 <script type="text/javascript" src="/lib/sax.js"></script>
 <script type="text/javascript" src="/lib/assert.js"></script>
 

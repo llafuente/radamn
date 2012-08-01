@@ -24,8 +24,6 @@
         },
         draw: function(ctx, delta) {
             var pos = this.referenceNode.getDerivedPosition();
-            console.log(pos);
-
             pos.x = - pos.x;
             pos.y = - pos.y;
 
@@ -39,11 +37,8 @@
                 var offset = (pos.x * this.config[i].factor) % w,
                     j = Math.floor(pos.x / w),
                     jmax = j + 3;
-                console.log(offset, j , jmax);
 
                 for(;j<jmax;++j) {
-                    console.log("x: > ", (offset) + (j * w));
-
                     // ctx.drawImage(this.images[i], (start) + (j * w), 0);
                     // this.config[i].image.factor * j * w
                     ctx.drawImage(this.config[i].image, (j * w) - offset, 0);

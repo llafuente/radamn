@@ -1,6 +1,7 @@
 ﻿require('./../lib/radamn');
 
 var demo = require('./plugins/demo.js');
+var __debug = browser ? $.debug : require("node-class").debug;
 
 /**
 * @type Window
@@ -42,11 +43,11 @@ var circle_vec2_5_5_r1 = new Circle(vec2_5_5, 1);
 var circle_vec2_7_7_r1 = new Circle(vec2_7_7, 1);
 
 
-//console.log(rect1);
-//console.log(rect2);
-//console.log("Rectangle 0,0-1,1 1,1-2,2 intersection",Math.intersection(rect1, rect2));
-//console.log("Rectangle 1,1-2,2 0,0-5,5 intersection",Math.intersection(rect2, rect3));
-//console.log("Rectangle 0,0-1,1 1,1-2,2 distance",Math.distance(rect1, rect2));
+//__debug(rect1);
+//__debug(rect2);
+//__debug("Rectangle 0,0-1,1 1,1-2,2 intersection",Math.intersection(rect1, rect2));
+//__debug("Rectangle 1,1-2,2 0,0-5,5 intersection",Math.intersection(rect2, rect3));
+//__debug("Rectangle 0,0-1,1 1,1-2,2 distance",Math.distance(rect1, rect2));
 
 var segment_t1_1 = new Segment2(Vec2_origin, vec2_5_5);
 var segment_t1_2 = new Segment2(vec2_5_5, vec2_5_0);
@@ -61,33 +62,33 @@ var segment2 = new Segment2(vec2_1_1, vec2_5_5);
 var segment3 = new Segment2(vec2_1_1, vec2_2_2);
 var segment4 = new Segment2(vec2_3_3, vec2_5_5);
 
-//console.log("Segment2 intersection line: ",Math.intersection(segment_t1_1, segment_t1_2));
-//console.log("Segment2 intersection line: ",Math.intersection(segment_t2_1, segment_t2_2));
-//console.log("Segment2 intersection line: ",Math.intersection(segment4, segment3));
+//__debug("Segment2 intersection line: ",Math.intersection(segment_t1_1, segment_t1_2));
+//__debug("Segment2 intersection line: ",Math.intersection(segment_t2_1, segment_t2_2));
+//__debug("Segment2 intersection line: ",Math.intersection(segment4, segment3));
 
-console.log("Segment2 intersection line: ",Math.intersection(segment1, segment2));
+__debug("Segment2 intersection line: ",Math.intersection(segment1, segment2));
 
 
-console.log("vector typeof", typeOf(Vec2_origin));
-console.log("segment typeof", typeOf(segment2_0_to_5));
-console.log("line typeof", typeOf(line2_0_to_5));
-console.log("circle typeof", typeOf(circle_vec2_5_5_r3));
-console.log("rectangle typeof", typeOf(rect1));
+__debug("vector typeof", typeOf(Vec2_origin));
+__debug("segment typeof", typeOf(segment2_0_to_5));
+__debug("line typeof", typeOf(line2_0_to_5));
+__debug("circle typeof", typeOf(circle_vec2_5_5_r3));
+__debug("rectangle typeof", typeOf(rect1));
 
-console.log("---");
+__debug("---");
 
-console.log("distance between points: 0,0 - 1,1 : ", Math.distance(Vec2_origin, vec2_1_1));
-console.log("distance between segment: 0,0 - 5,5 to point 1,1 : ", Math.distance(segment2_0_to_5, vec2_1_1));
-console.log("distance between line: 0,0 - 5,5 to point 1,1 : ", Math.distance(line2_0_to_5, vec2_1_1));
-console.log("distance between points: 5,5 - 7,7 : ", Math.distance(vec2_5_5, vec2_7_7));
-console.log("distance between circle 55r3 77r3 :",Math.distance(circle_vec2_5_5_r3, circle_vec2_7_7_r3));
-console.log("distance between circle 55r1 77r1 :",Math.distance(circle_vec2_5_5_r1, circle_vec2_7_7_r1));
+__debug("distance between points: 0,0 - 1,1 : ", Math.distance(Vec2_origin, vec2_1_1));
+__debug("distance between segment: 0,0 - 5,5 to point 1,1 : ", Math.distance(segment2_0_to_5, vec2_1_1));
+__debug("distance between line: 0,0 - 5,5 to point 1,1 : ", Math.distance(line2_0_to_5, vec2_1_1));
+__debug("distance between points: 5,5 - 7,7 : ", Math.distance(vec2_5_5, vec2_7_7));
+__debug("distance between circle 55r3 77r3 :",Math.distance(circle_vec2_5_5_r3, circle_vec2_7_7_r3));
+__debug("distance between circle 55r1 77r1 :",Math.distance(circle_vec2_5_5_r1, circle_vec2_7_7_r1));
 
-console.log("---");
+__debug("---");
 
-console.log("circle 55r3 77r3 intersection",Math.intersection(circle_vec2_5_5_r3, circle_vec2_7_7_r3));
-console.log("line 0,0-5,5 to 0,0--5,5 intersection",Math.intersection(line2_0_to_5, line2_m5_to_5));
-console.log("line 0,0-5,5 to 0,1-5,6 intersection",Math.intersection(line2_0_to_5, line2_1_to_5));
+__debug("circle 55r3 77r3 intersection",Math.intersection(circle_vec2_5_5_r3, circle_vec2_7_7_r3));
+__debug("line 0,0-5,5 to 0,0--5,5 intersection",Math.intersection(line2_0_to_5, line2_m5_to_5));
+__debug("line 0,0-5,5 to 0,1-5,6 intersection",Math.intersection(line2_0_to_5, line2_1_to_5));
 
 
 
@@ -104,8 +105,8 @@ var polygon = new Polygon([
 ]);
 
 
-console.log(typeOf(polygon));
-console.log((polygon));
+__debug(typeOf(polygon));
+__debug((polygon));
 
 var canvas = win.getContext();
 
@@ -172,7 +173,7 @@ Radamn.on("mousemove", function(e) {
 		
 		collideNodeList[i].childEntities[0].drawOptions.color = color;
 		
-		//console.log("mousemove", mousepos, intersection);
+		//__debug("mousemove", mousepos, intersection);
 	}
 }.maxFPS(1));
 
@@ -200,9 +201,9 @@ win.onRequestFrame = function(delta) {
 
 	canvas.strokeStyle="rgb(255,0,0)";
 	var inter = Math.intersection(segment1, segment2);
-	console.log(segment4);
-	console.log(segment3);
-	console.log(inter);
+	__debug(segment4);
+	__debug(segment3);
+	__debug(inter);
 	
 	canvas.strokePrimitive(inter. segments[0]);
 	*/
