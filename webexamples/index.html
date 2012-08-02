@@ -3,43 +3,6 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Untitled Document</title>
-<script type="text/javascript">
-var CRadamn = {
-    createWindow: function(width, height) {
-        var canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        document.body.appendChild(canvas);
-
-        return canvas;
-    },
-    pollEvent: function() {
-        return false;
-    },
-    Window: {
-        setCaption : function(caption) {
-            console.log("ignore caption", caption);
-        },
-    },
-    GL: {
-    },
-    Image: {
-        load: function(path) {
-            var img = new Image();
-            img.path = path;
-            img.src = path;
-
-            img.__ready = false;
-            img.onload = function() {
-            console.log("loaded!");
-                img.__ready = true;
-            };
-
-            return img;
-        }
-    }
-    };
-</script>
 <script type="text/javascript" src="/lib/sax.js"></script>
 <script type="text/javascript" src="/lib/assert.js"></script>
 
@@ -53,14 +16,13 @@ var CRadamn = {
 <script type="text/javascript" src="/lib/eventmachine.js"></script>
 <script type="text/javascript" src="/lib/animate.js"></script>
 
+
+<script type="text/javascript" src="/lib/cradamn.js"></script>
 <script type="text/javascript" src="/lib/radamn.math.js"></script>
-<script type="text/javascript" src="/lib/radamn.math.types.js"></script>
 
 <script type="text/javascript" src="/lib/radamn.js"></script>
 
-<!--
 <script type="text/javascript" src="../lib/radamn.$.js"></script>
--->
 
 <script type="text/javascript" src="/lib/radamn.camera.js"></script>
 <script type="text/javascript" src="/lib/radamn.window.js"></script>
@@ -72,14 +34,22 @@ var CRadamn = {
 <script type="text/javascript" src="/lib/radamn.resource.js"></script>
 <script type="text/javascript" src="/lib/radamn.resource.rendereable.js"></script>
 <script type="text/javascript" src="/lib/radamn.image.js"></script>
-<!--
-<script type="text/javascript" src="/lib/radamn.animation.js"></script>
 <script type="text/javascript" src="/lib/radamn.font.js"></script>
-<script type="text/javascript" src="/lib/radamn.canvas.js"></script>
--->
+<script type="text/javascript" src="/lib/radamn.animation.js"></script>
+
 <script type="text/javascript" src="/lib/radamn.tmx.js"></script>
 
 <script type="text/javascript" src="/lib/radamn.node.js"></script>
+
+
+<script type="text/javascript" src="/lib/math/vec2.js"></script>
+<script type="text/javascript" src="/lib/math/line2.js"></script>
+<script type="text/javascript" src="/lib/math/segment2.js"></script>
+<script type="text/javascript" src="/lib/math/circle.js"></script>
+<script type="text/javascript" src="/lib/math/rectangle.js"></script>
+<script type="text/javascript" src="/lib/math/polygon.js"></script>
+<script type="text/javascript" src="/lib/math/matrix2d.js"></script>
+<script type="text/javascript" src="/lib/math/beizer.js"></script>
 
 <script type="text/javascript" src="/examples/plugins/demo.js"></script>
 
@@ -88,6 +58,10 @@ var CRadamn = {
 
 <body>
 </body>
+
+</html>
+
+<script type="text/javascript" src="/examples/tween.js"></script>
 
 <script>
 
@@ -98,11 +72,8 @@ if (canvas.getContext){
 var ctx = canvas.getContext('2d');
 console.log(typeof ctx);
 }
-*/
 
-/**
-* @type Window
-*/
+
 var win = demo.demoWindow(640, 480, "math");
 
 
@@ -123,9 +94,6 @@ tmxnode.matrix.translate(250, 0);
 win.getRootNode().appendChild(tmxnode);
 
 
-/**
-* @type Image
-*/
 var image = Radamn.Assets.getImage("../examples/resources/images/rock.png");
 
 var node = win.getRootNode();
@@ -189,7 +157,7 @@ setTimeout(function() {
 },1000);
 
 
-
+*/
 </script>
 </html>
 
