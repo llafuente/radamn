@@ -5,16 +5,14 @@
         require('./../lib/radamn');
     }
 
-    var idemo = browser ? demo : require('./plugins/demo.js');
+    var idemo = browser ? demo : require('./plugins/demo.js'),
+        /**
+        * @type Window
+        */
+        win = idemo.demoWindow(640, 480, "Line Rendering"),
+        canvas = win.getContext(),
+        counter = 0;
 
-    /**
-    * @type Window
-    */
-    var win = idemo.demoWindow(640, 480, "Line Rendering");
-
-    var canvas = win.getContext();
-
-    var counter = 0;
     win.onRequestFrame = function(delta) {
         ++counter;
 
@@ -26,8 +24,7 @@
         canvas.save();
             canvas.strokeStyle = "rgb(255,0,0)";
             canvas.fillStyle = "rgb(0,255,255)";
-            canvas.lineWidth = 1;
-            /*
+            canvas.lineWidth = 5;
 
             //happy face!
             canvas.beginPath();
@@ -40,17 +37,18 @@
             canvas.arc(90,65,5,0,Math.PI*2,true);  // Right eye
             canvas.stroke();
 
+
             canvas.translate( 256, 0);
             //arc test
             for(var i=0;i<4;i++){
               for(var j=0;j<3;j++){
                 canvas.beginPath();
-                var x              = 25+j*50;               // x coordinate
-                var y              = 25+i*50;               // y coordinate
-                var radius         = 20;                    // Arc radius
-                var startAngle     = 0;                     // Starting point on circle
-                var endAngle       = Math.PI+(Math.PI*j)/2; // End point on circle
-                var anticlockwise  = i%2==0 ? false : true; // clockwise or anticlockwise
+                var x              = 25+j*50;                     // x coordinate
+                var y              = 25+i*50;                     // y coordinate
+                var radius         = 20;                          // Arc radius
+                var startAngle     = 0;                           // Starting point on circle
+                var endAngle       = Math.PI + (Math.PI * j) / 2; // End point on circle
+                var anticlockwise  = i % 2 == 0 ? false : true;   // clockwise or anticlockwise
 
                 canvas.arc(x,y,radius,startAngle,endAngle, anticlockwise);
 
@@ -62,11 +60,8 @@
               }
             }
 
+
             canvas.translate(-256, 192);
-
-
-
-            */
 
             canvas.beginPath();
             canvas.moveTo(188, 130);
@@ -74,7 +69,6 @@
 
             canvas.lineWidth = 10;
             canvas.stroke();
-
 
             // http://www.html5canvastutorials.com/tutorials/html5-canvas-rounded-corners/
             var rectWidth = 200;
@@ -94,7 +88,8 @@
             canvas.lineWidth = 5;
             canvas.stroke();
 
-            /*
+
+
             canvas.translate(256,0);
             // https://developer.mozilla.org/samples/canvas-tutorial/2_3_canvas_lineto.html
             // Filled triangle
@@ -172,7 +167,44 @@
             canvas.lineTo(50,50);
             canvas.stroke();
 
-            */
+
+
+
+            canvas.moveTo(0,250);
+
+            canvas.beginPath();
+            canvas.arc(100, 100, 25, 0, Math.HALF_PI);
+            canvas.stroke();
+
+            canvas.beginPath();
+            canvas.arc(200, 100, 25, Math.HALF_PI, Math.PI);
+            canvas.stroke();
+
+            canvas.beginPath();
+            canvas.arc(300, 100, 25, Math.PI, Math.PI + Math.HALF_PI);
+            canvas.stroke();
+
+            canvas.beginPath();
+            canvas.arc(400, 100, 25, Math.PI + Math.HALF_PI, Math.TWO_PI);
+            canvas.stroke();
+
+            //anticlockwise
+            canvas.beginPath();
+            canvas.arc(100, 200, 25, 0, Math.HALF_PI, true);
+            canvas.stroke();
+
+            canvas.beginPath();
+            canvas.arc(200, 200, 25, Math.HALF_PI, Math.PI, true);
+            canvas.stroke();
+
+            canvas.beginPath();
+            canvas.arc(300, 200, 25, Math.PI, Math.PI + Math.HALF_PI, true);
+            canvas.stroke();
+
+            canvas.beginPath();
+            canvas.arc(400, 200, 25, Math.PI + Math.HALF_PI, Math.TWO_PI, true);
+            canvas.stroke();
+
         canvas.restore();
 
     };
