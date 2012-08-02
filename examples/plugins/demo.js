@@ -1,14 +1,15 @@
 (function(exports, browser) {
 
-    if(!browser) {
-        var fps = require('./fps');
-        var grid = require('./grid');
-    }
+    var fps,
+        grid,
+        __info = browser ? $.debug : require("node-class").debug;
 
-    var __info = browser ? $.debug : require("node-class").debug;
-
+    //var fps = require('./fps');
+    //var grid = require('./grid');
 
 exports.attachFPSCounter = function(window, xpos, ypos) {
+    __info("[demo] display FPS");
+
     xpos = xpos || 0;
     ypos = ypos || 0;
     fps = new fps({
@@ -54,11 +55,6 @@ exports.demoWindow = function(width, height, caption, grid) {
     __info("[demo] create window");
     var win = Radamn.createWindow(width, height);
 
-    if(!browser) {
-        __info("[demo] display FPS");
-        exports.attachFPSCounter(win, 480, 0);
-    }
-
     __info("[demo] attaching ESC/F5/Close window:");
     exports.attachEscapeInputs(win);
 
@@ -68,6 +64,10 @@ exports.demoWindow = function(width, height, caption, grid) {
     if(grid) {
         __info("[demo] display grid");
         exports.attachGrid(win, grid);
+    }
+
+    if(fps) {
+        exports.attachFPSCounter(win, 480, 0);
     }
 
     return win;
