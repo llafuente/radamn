@@ -6,7 +6,7 @@
     }
 
     var __debug = browser ? $.debug : require("node-class").debug,
-        idemo = browser ? demo : require('./plugins/demo.js');
+        idemo = browser ? demo : require('./plugins/demo.js'),
         /**
         * @type Window
         */
