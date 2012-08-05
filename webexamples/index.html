@@ -3,162 +3,17 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Untitled Document</title>
-<script type="text/javascript" src="/lib/sax.js"></script>
-<script type="text/javascript" src="/lib/assert.js"></script>
-
-<script type="text/javascript" src="/lib/tempus.js"></script>
-<script type="text/javascript" src="/lib/sugar.js"></script>
-<script type="text/javascript" src="/lib/class.js"></script>
-<script type="text/javascript" src="/lib/events.js"></script>
-<script type="text/javascript" src="/lib/eventize.js"></script>
-<script type="text/javascript" src="/lib/sequence.js"></script>
-<script type="text/javascript" src="/lib/iterable.js"></script>
-<script type="text/javascript" src="/lib/eventmachine.js"></script>
-<script type="text/javascript" src="/lib/animate.js"></script>
-
-
-<script type="text/javascript" src="/lib/cradamn.js"></script>
-<script type="text/javascript" src="/lib/radamn.math.js"></script>
-
-<script type="text/javascript" src="/lib/radamn.js"></script>
-
-<script type="text/javascript" src="../lib/radamn.$.js"></script>
-
-<script type="text/javascript" src="/lib/radamn.camera.js"></script>
-<script type="text/javascript" src="/lib/radamn.window.js"></script>
-<script type="text/javascript" src="/lib/radamn.assets.js"></script>
-
-
-<script type="text/javascript" src="/lib/radamn.request.js"></script>
-
-<script type="text/javascript" src="/lib/radamn.resource.js"></script>
-<script type="text/javascript" src="/lib/radamn.resource.rendereable.js"></script>
-<script type="text/javascript" src="/lib/radamn.image.js"></script>
-<script type="text/javascript" src="/lib/radamn.font.js"></script>
-<script type="text/javascript" src="/lib/radamn.animation.js"></script>
-
-<script type="text/javascript" src="/lib/radamn.tmx.js"></script>
-
-<script type="text/javascript" src="/lib/radamn.node.js"></script>
-
-
-<script type="text/javascript" src="/lib/math/vec2.js"></script>
-<script type="text/javascript" src="/lib/math/line2.js"></script>
-<script type="text/javascript" src="/lib/math/segment2.js"></script>
-<script type="text/javascript" src="/lib/math/circle.js"></script>
-<script type="text/javascript" src="/lib/math/rectangle.js"></script>
-<script type="text/javascript" src="/lib/math/polygon.js"></script>
-<script type="text/javascript" src="/lib/math/matrix2d.js"></script>
-<script type="text/javascript" src="/lib/math/beizer.js"></script>
-
-<script type="text/javascript" src="/examples/plugins/demo.js"></script>
-
-
 </head>
-
 <body>
+<a href="/tween.html">Node Animation</a><br />
+<a href="/line-rendering.html">Line Rendering</a><br />
+<a href="/blending.html">Blending modes</a><br />
+<a href="/font-rendering.html">Fonts</a><br />
+
+<a href="/physics2.html">physics 1(fail)</a><br />
+<a href="/physics-tmx-orthogonal-scrolled.html">physics + TMX</a><br />
+<a href="/tmx-isometric.html">TMX isometric</a><br />
 </body>
-
 </html>
-
-<script type="text/javascript" src="/examples/tween.js"></script>
-
 <script>
-
-/*
-var canvas = document.getElementById('tutorial');
-console.log(canvas);
-if (canvas.getContext){
-var ctx = canvas.getContext('2d');
-console.log(typeof ctx);
-}
-
-
-var win = demo.demoWindow(640, 480, "math");
-
-
-var canvas = win.getContext();
-
-var TMX = new Radamn.TMX({
-    tmx_file: "./resources/tmx/tmx-isometric.tmx",
-    resource_path: {
-        regex: /..\//,
-        replace: "../examples/resources/"
-    }
-});
-
-var tmxnode = new Radamn.Node();
-
-tmxnode.appendEntity(TMX);
-tmxnode.matrix.translate(250, 0);
-win.getRootNode().appendChild(tmxnode);
-
-
-var image = Radamn.Assets.getImage("../examples/resources/images/rock.png");
-
-var node = win.getRootNode();
-
-node.on("click", function(e) {
-    console.log(e);
-});
-
-
-var childnode1 = new Radamn.Node();
-
-childnode1.appendEntity(image);
-
-node.appendChild(childnode1);
-
-childnode1.animate
-
-var animation_properties = {
-    transition: $.Animate.Transitions.Linear,
-    time: 2000,
-    fps: 60
-};
-
-animation_properties.property = "x";
-childnode1.animate(animation_properties, [0, 250]);
-
-// chain! and morph!
-childnode1.once("animation:end", function() {
-
-    animation_properties.property = "y";
-    childnode1.animate(animation_properties, [0, 250]);
-    childnode1.once("animation:end", function() {
-
-        animation_properties.property = "scale";
-        childnode1.animate(animation_properties, ["1 1", "2 2"]);
-        childnode1.once("animation:end", function() {
-
-            animation_properties.property = "rotate";
-            childnode1.animate(animation_properties, [0, 90]);
-            childnode1.once("animation:end", function() {
-
-                animation_properties.property = "skew";
-                childnode1.animate(animation_properties, ["0 0", "30 30"]);
-            });
-        });
-    });
-});
-
-
-var counter = 0;
-win.onRequestFrame = function(delta) {
-    ++counter;
-
-    win.render(delta);
-};
-
-//wait for everything to load
-setTimeout(function() {
-    Radamn.listenInput(250);
-    Radamn.start(false);
-},1000);
-
-
-*/
 </script>
-</html>
-
-
