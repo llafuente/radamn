@@ -7,7 +7,7 @@ var demo = require('./plugins/demo.js');
 */
 var win = demo.demoWindow(640, 480, "TMX");
 
-var canvas = win.getCanvas();
+var canvas = win.getContext();
 
 var TMX = new Radamn.TMX("./resources/tmx/tmx-object-test.tmx", {
 	resource_path: {

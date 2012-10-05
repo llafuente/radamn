@@ -1,61 +1,72 @@
-require('./../lib/radamn');
+(function (exports, browser) {
+    "use strict";
 
-var demo = require('./plugins/demo.js');
+    if(!browser) {
+        require("./../lib/radamn");
+    }
 
-/**
-* @type Window
-*/
-var win = demo.demoWindow(640, 480, "math");
+    var idemo = browser ? demo : require("./plugins/demo.js"),
+        __debug = browser ? $.debug : require("node-class").debug,
+        Animate = browser ? $.Animate : require("node-class").Animate,
+        /**
+        * @type Window
+        */
+        win = idemo.demoWindow(640, 480, "math"),
+        canvas = win.getContext(),
+        /**
+        * @type Image
+        */
+        image = Radamn.Assets.getImage("./resources/images/rock.png"),
+        node = win.getRootNode(),
+        childnode1 = new Radamn.Node(),
+        counter = 0,
+        animation_properties = {
+            transition: Animate.Transitions.Linear,
+            time: 2000,
+            fps: 60
+        };
+
+    node.on("click", function (e) {
+        __debug(e);
+    });
 
 
-var canvas = win.getCanvas();
+    childnode1.appendEntity(image);
 
-/**
-* @type Image
-*/
-var image = Radamn.Assets.getImage("./resources/images/rock.png");
+    node.appendChild(childnode1);
 
-var node = win.getRootNode();
+    animation_properties.property = "x";
+    childnode1.animate(animation_properties, [0, 250]);
 
-node.addEvent("click", function(e) {
-    console.log(e);
-});
+    // chain! and morph!
+    childnode1.once("animation:end", function () {
 
+        animation_properties.property = "y";
+        childnode1.animate(animation_properties, [0, 250]);
+        childnode1.once("animation:end", function () {
 
-var childnode1 = new Radamn.Node();
+            animation_properties.property = "scale";
+            childnode1.animate(animation_properties, ["1 1", "2 2"]);
+            childnode1.once("animation:end", function () {
 
-childnode1.appendEntity(image);
+                animation_properties.property = "rotate";
+                childnode1.animate(animation_properties, [0, 90]);
+                childnode1.once("animation:end", function () {
 
-node.appendChild(childnode1);
-
-var childnode1_tween = new Fx.NodeTween(childnode1, {
-    link: 'cancel',
-    transition: 'bounce:out',
-    duration: 1500,
-    fps: 12
-});
-
-// chain! and morph!
-childnode1_tween.start("x", 0, 250, false);
-childnode1_tween.addEventOnce("complete", function() {
-    childnode1_tween.start("y", 0, 200, false);
-    childnode1_tween.addEventOnce("complete", function() {
-        childnode1_tween.start("scale", "1 1", "2 2", false);
-        childnode1_tween.addEventOnce("complete", function() {
-            childnode1_tween.start("rotate", 0, 90, false);
-            childnode1_tween.addEventOnce("complete", function() {
-                childnode1_tween.start("skew", "0 0", "30 30", false);
+                    animation_properties.property = "skew";
+                    childnode1.animate(animation_properties, ["0 0", "30 30"]);
+                });
             });
         });
     });
-});
 
-var counter = 0;
-win.onRequestFrame = function(delta) {
-    ++counter;
+    win.onRequestFrame = function (delta) {
+        ++counter;
 
-    win.render(delta);
-};
+        win.render(delta);
+    };
 
-Radamn.listenInput(50);
-Radamn.start(1000/50);
+    Radamn.listenInput(50);
+    Radamn.start(1000 / 50);
+
+}(typeof module == "undefined" ? window : module.exports, typeof module == "undefined"));

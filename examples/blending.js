@@ -1,63 +1,65 @@
-require('./../lib/radamn');
+(function (exports, browser) {
+    "use strict";
 
-var demo = require('./plugins/demo.js');
+    if(!browser) {
+        require('./../lib/radamn');
+    }
 
-/**
-* @type Window
-*/
-var win = demo.demoWindow(640, 480, "Blending Composite operations");
+    var __debug = browser ? $.debug : require("node-class").debug,
+        idemo = browser ? demo : require('./plugins/demo.js'),
+        /**
+        * @type Window
+        */
+        win = idemo.demoWindow(640, 480, "Blending Composite operations"),
+        canvas = win.getContext(),
+        /**
+        * @type Image
+        */
+        image = Radamn.Assets.getImage("./resources/images/rock.png"),
+        /**
+        * @type Font
+        */
+        font = Radamn.Assets.getFont("./resources/fonts/Jura-DemiBold.ttf", 12),
+        counter = 0,
+        node = win.getRootNode();
 
-var canvas = win.getCanvas();
+    win.setBackgroundColor("#000000");
 
-/**
-* @type Image
-*/
-var image = Radamn.Assets.getImage("./resources/images/rock.png");
+    node.on("click", function(e) {
+        __debug(e);
+    });
 
-/**
-* @type Font
-*/
-var font = Radamn.Assets.getFont("./resources/fonts/Jura-DemiBold.ttf", 12);
+    win.onRequestFrame = function(delta) {
+        ++counter;
 
-win.setBackgroundColor("#000000");
+        win.render(delta);
 
-var node = win.getRootNode();
+        var key = null,
+            i = 0;
 
-node.addEvent("click", function(e) {
-    console.log(e);
-});
+        for(key in Radamn.$.BLENDING) {
+            canvas.save();
 
+            canvas.globalCompositeOperation = Radamn.$.BLENDING.SOURCE_OVER;
+            canvas.translate(128 *(i%4), 128 * Math.floor(i/4));
+            canvas.drawImage(image.surface, 0, 0);
+            canvas.translate(32, 32);
+            canvas.globalCompositeOperation = Radamn.$.BLENDING[key];
+            canvas.drawImage(image.surface, 0, 0);
+            canvas.translate(-32, -32);
 
-var counter = 0;
-win.onRequestFrame = function(delta) {
-    ++counter;
+            canvas.globalCompositeOperation = Radamn.$.BLENDING.SOURCE_OVER;
+            canvas.restore();
+            font.fill(canvas, Radamn.$.BLENDING[key], "#00FF00", 128 *(i%4), 128 * Math.floor(i/4));
 
-    win.render(delta);
-	
-	var key = null,
-		i = 0;
-	
-	for(key in Radamn.$.BLENDING) {
+            ++i;
+        }
 
-		canvas.save();
+    };
 
-		canvas.globalCompositeOperation = Radamn.$.BLENDING.SOURCE_OVER;
-		canvas.translate(128 *(i%4), 128 * Math.floor(i/4));
-		canvas.drawImage(image, 0, 0);
-		canvas.translate(32, 32);
-		canvas.globalCompositeOperation = Radamn.$.BLENDING[key];
-		canvas.drawImage(image, 0, 0);
-		canvas.translate(-32, -32);
+    Radamn.listenInput(50);
+    Radamn.start(50);
 
-		canvas.globalCompositeOperation = Radamn.$.BLENDING.SOURCE_OVER;
-		canvas.restore();
-		font.fill(canvas, Radamn.$.BLENDING[key], "#00FF00", 128 *(i%4), 128 * Math.floor(i/4));
-		
-		++i;
-	}
-	//process.exit();	
-	
-};
+    setInterval(function() {}, 500);
 
-Radamn.listenInput(50);
-Radamn.start(50);
+}(typeof module == "undefined" ? window : module.exports, typeof module == "undefined"));
