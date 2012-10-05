@@ -32,7 +32,7 @@ v8::Handle<v8::Value> image::wrap(image* img) {
 
     v8_image_ptr->Set(v8::String::New("width"), v8::Number::New(img->width));
     v8_image_ptr->Set(v8::String::New("height"), v8::Number::New(img->height));
-    v8_image_ptr->Set(v8::String::New("alpha"), v8::Boolean::New(img->is(image::ALPHA)));
+    v8_image_ptr->Set(v8::String::New("alpha"), v8::Boolean::New(img->is(image::HAS_ALPHA)));
 
     if(img->mask != 0 ) {
         int pixel_count = img->width * img->height;
@@ -104,7 +104,7 @@ bool image::load_from_surface(SDL_Surface* surface, bool bind, bool generate_mas
     this->height = surface->h;
 
     if(surface->format->BytesPerPixel == 4) {
-        this->flags = (this->flags | image::ALPHA);
+        this->flags = (this->flags | image::HAS_ALPHA);
         memory_allocated = 4 * this->width * this->height;
 
     } else {
@@ -118,9 +118,9 @@ bool image::load_from_surface(SDL_Surface* surface, bool bind, bool generate_mas
     //    VERBOSE << (int) this->pixels[i] << " ";
     //}
 
-    glGenTextures(1, &this->texture_id);
+    this->texture_id = gl::gen_texture_id();
 
-    this->flags = (this->flags | image::LOADED);
+    this->flags = (this->flags | image::IS_LOADED);
 
     if(bind)
         this->bind();
@@ -144,7 +144,7 @@ bool image::load_from_file(char* name, bool bind, bool generate_mask) {
     }
 
     if(hasAlpha) {
-        this->flags = (this->flags | image::ALPHA);
+        this->flags = (this->flags | image::HAS_ALPHA);
     }
     if(generate_mask && hasAlpha) {
         VERBOSE << "generate mask!!";
@@ -159,9 +159,9 @@ bool image::load_from_file(char* name, bool bind, bool generate_mask) {
         }
     }
 
-    glGenTextures(1, &this->texture_id);
+    this->texture_id = gl::gen_texture_id();
 
-    this->flags = (this->flags | image::LOADED);
+    this->flags = (this->flags | image::IS_LOADED);
 
     if(bind)
         this->bind();
@@ -170,28 +170,29 @@ bool image::load_from_file(char* name, bool bind, bool generate_mask) {
 }
 
 bool image::unbind() {
-    if(!this->is(image::OPENGL)) {
+    if(!this->is(image::GL_READY)) {
         return false;
     }
 
-    this->flags = (this->flags | ~image::OPENGL);
+    this->flags = (this->flags | ~image::GL_READY);
     return true;
 }
 
 bool image::bind() {
-    if(this->is(image::OPENGL)) {
+    if(this->is(image::GL_READY)) {
+        VERBOSE << "glBindTexture" << ENDL;
         glBindTexture( GL_TEXTURE_2D, this->texture_id );
         return false;
     }
-
+    VERBOSE << "glBindTexture & load" << ENDL;
     glBindTexture(GL_TEXTURE_2D, this->texture_id);
     glTexImage2D(GL_TEXTURE_2D,
         0,
-        this->is(image::ALPHA) ? GL_RGBA : GL_RGB,
+        this->is(image::HAS_ALPHA) ? GL_RGBA : GL_RGB,
         this->width,
         this->height,
         0,
-        this->is(image::ALPHA) ? GL_RGBA : GL_RGB,
+        this->is(image::HAS_ALPHA) ? GL_RGBA : GL_RGB,
         GL_UNSIGNED_BYTE,
         this->pixels
     );
@@ -201,7 +202,7 @@ bool image::bind() {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    this->flags = (this->flags | image::OPENGL);
+    this->flags = (this->flags | image::GL_READY);
     return true;
 }
 
@@ -253,7 +254,7 @@ v8::Handle<v8::Value> radamn::v8_image_load(const v8::Arguments& args) {
 v8::Handle<v8::Value> radamn::v8_image_draw(const v8::Arguments& args) {
     v8::HandleScope scope;
 
-    VERBOSE << "v8_image_draw(" << args.Length() << "@"
+    VERBOSE << args.Length() << "("
         << args[0]->IsObject() << ","
         << args[1]->IsString() << ","
         << args[2]->IsNumber() << ","

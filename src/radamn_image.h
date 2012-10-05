@@ -33,9 +33,9 @@ namespace radamn {
 
     class image {
     public:
-        static const Uint32 LOADED = 0x000001;
-        static const Uint32 OPENGL = 0x000002;
-        static const Uint32 ALPHA = 0x000004;
+        static const Uint32 IS_LOADED = 0x000001;
+        static const Uint32 GL_READY = 0x000002;
+        static const Uint32 HAS_ALPHA = 0x000004;
 
     protected :
         SDL_Surface* from;

@@ -22,6 +22,19 @@ gl* gl::singleton() {
 // ----------------------------------------------------------------------------------------------------
 //
 
+GLuint gl::gen_texture_id() {
+    GLuint aux;
+    glGenTextures(1, &aux);
+
+    VERBOSE << aux << ENDL;
+
+    return aux;
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
 gl_operators gl::operator_from_string(char* str) {
     if(0 == strcmp(str, "clear")) return OPERATOR_CLEAR;
     if(0 == strcmp(str, "source-atop")) return OPERATOR_ATOP;
@@ -44,6 +57,16 @@ gl_operators gl::operator_from_string(char* str) {
 //
 
 void gl::set_operator(gl_operators op) {
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+    glDepthFunc( GL_LEQUAL );
+
+    return ;
+
+    //this code is buggy!
+
+
     struct {
         GLenum src;
         GLenum dst;
@@ -291,10 +314,11 @@ void gl::draw_image(image* img, SDL_Rect* from, SDL_Rect* to, gl_operators compo
 //
 
 void gl::draw_quad(GLuint texture_id, GLfloat* uvs, SDL_Rect* dst, gl_operators_t composite) {
+
     gl::set_operator(composite);
 
-    glEnable(GL_TEXTURE_2D);
     glBindTexture( GL_TEXTURE_2D, texture_id );
+    glEnable(GL_TEXTURE_2D);
 
     GLfloat
     width =  (float)dst->x + dst->w,
@@ -309,10 +333,10 @@ void gl::draw_quad(GLuint texture_id, GLfloat* uvs, SDL_Rect* dst, gl_operators_
 
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
     glBegin(GL_QUADS);
-    glTexCoord2f(uvs[0], uvs[1]); glVertex3f((float)dst->x, (float)dst->y, 0);
-    glTexCoord2f(uvs[2], uvs[1]); glVertex3f((float)width,  (float)dst->y, 0);
-    glTexCoord2f(uvs[2], uvs[3]); glVertex3f((float)width,  (float)height, 0);
-    glTexCoord2f(uvs[0], uvs[3]); glVertex3f((float)dst->x, (float)height, 0);
+        glTexCoord2f(uvs[0], uvs[1]); glVertex3f((float)dst->x, (float)dst->y, 0);
+        glTexCoord2f(uvs[2], uvs[1]); glVertex3f((float)width,  (float)dst->y, 0);
+        glTexCoord2f(uvs[2], uvs[3]); glVertex3f((float)width,  (float)height, 0);
+        glTexCoord2f(uvs[0], uvs[3]); glVertex3f((float)dst->x, (float)height, 0);
     glEnd();
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
     GLfloat vertices[] = {
@@ -352,6 +376,7 @@ void gl::draw_quad(GLuint texture_id, GLfloat* uvs, SDL_Rect* dst, gl_operators_
     glDisable(GL_TEXTURE_2D);
 
     gl::clear_operator();
+
     VERBOSE << "done" << ENDL;
 }
 

@@ -38,6 +38,8 @@ namespace radamn {
 
         static gl* singleton();
 
+        static GLuint gen_texture_id();
+
         static gl_operators operator_from_string(char* str);
 
         /// from cairo
