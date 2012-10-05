@@ -5,7 +5,6 @@
 #include "prerequisites.h"
 #include "radamn_image.h"
 #include "v8_helper.h"
-#include "SDL_helper.h"
 
 using namespace radamn;
 

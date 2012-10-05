@@ -9,6 +9,8 @@
 #include <node.h>
 #include <SDL.h>
 
+#include "radamn_loggin.h"
+
 #define ENDL std::endl
 
 #define RADAMN_RENDERER_SOFTWARE 1
@@ -19,15 +21,14 @@
 //#define RADAMN_RENDERER RADAMN_RENDERER_SOFTWARE
 #define RADAMN_RENDERER RADAMN_RENDERER_OPENGL
 
-
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
-// on centos: yum install mesa-libGL mesa-libGL-devel mesa-libGLU mesa-libGLU-devel
-#include <SDL_opengl.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-//#include <GL/glaux.h>
+    // on centos: yum install mesa-libGL mesa-libGL-devel mesa-libGLU mesa-libGLU-devel
+    #include <SDL_opengl.h>
+    #include <GL/gl.h>
+    #include <GL/glu.h>
+    //#include <GL/glaux.h>
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
-// include the proper libs
+    // include the proper libs
 #endif
 
 // declare namespaces!
@@ -90,6 +91,27 @@ namespace radamn {
      */
     gl_color_t gl_color_from(SDL_Color color);
 
+    //
+    // ----------------------------------------------------------------------------------------------------
+    //
+
+    inline void __debug(const SDL_Rect* rect, const char* id) {
+        VERBOSE << id << "[ x: " << rect->x << " y: " << rect->y << " w: " << rect->w << " h: " << rect->h << "]" << std::endl;
+    }
+
+
+    inline void __debug(const SDL_Surface* surface, const char* id) {
+        VERBOSE << id << "[ w: " << surface->w << " h: " << surface->h << "]" << std::endl;
+    }
+
+    inline void __debug(const SDL_Color* color) {
+        VERBOSE <<"SDL_Color rgb( " << color->r << " , " << color->g << " , " << color->b << ")" <<std::endl;
+    }
+
+    //
+    // ----------------------------------------------------------------------------------------------------
+    //
+
 }
 using namespace radamn;
 
@@ -109,7 +131,6 @@ typedef struct OGL_DrawBufferTextured {
     GLfloat* coords;
     GLuint* coordsBuffer;
 }OGL_DrawBufferTextured;
-
 
 
 #endif // RADAMN_PREREQUISITES_H_

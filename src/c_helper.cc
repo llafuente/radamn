@@ -37,3 +37,8 @@ void strcpy(const char *from, char* to)
 //
 // ----------------------------------------------------------------------------------------------------
 //
+
+int nextpoweroftwo(float x) {
+    double logbase2 = log(x) / log(2.0f);
+    return (int) floor(pow(2,ceil(logbase2))  + 0.5 );
+}

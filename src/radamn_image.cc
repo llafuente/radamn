@@ -8,7 +8,7 @@
 #include "v8_helper.h"
 #include "opengl_helper.h"
 #include "prerequisites.h"
-#include "radamn_gl.h"
+#include "gl.h"
 
 #include <assert.h>
 
@@ -84,7 +84,7 @@ GLfloat* image::uv_from(SDL_Rect* rect) {
     using std::setprecision;
     using std::numeric_limits;
 
-    debug_SDL_Rect(rect, "rect");
+    __debug(rect, "rect");
     VERBOSE
     << this->width << "x" << this->height << "text-coords ["
     << setprecision(6) << uvs[0] << ","
@@ -314,10 +314,10 @@ v8::Handle<v8::Value> radamn::v8_image_draw(const v8::Arguments& args) {
 
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 
-    debug_SDL_Rect(srcrect, "srcrect");
-    debug_SDL_Rect(dstrect, "dstrect");
+    __debug(srcrect, "srcrect");
+    __debug(dstrect, "dstrect");
 
-    opengl_draw_textured_SDL_Rect(img, srcrect, dstrect, emode);
+    gl::draw_image(img, srcrect, dstrect, emode);
 
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
     THROW("OPENGLES is not supported atm");

@@ -21,6 +21,7 @@
 
 #include <v8.h>
 #include <node.h>
+#include "gl.h"
 
 namespace radamn {
     static unsigned int image_count = 0;

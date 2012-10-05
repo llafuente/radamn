@@ -23,22 +23,17 @@
         "src/c_helper.cc",
         "src/c_helper.h",
 
-        "src/openGL_helper.cc",
-        "src/openGL_helper.h",
-
         "src/radamn_font.cc",
         "src/radamn_font.h",
         "src/radamn_image.cc",
         "src/radamn_image.h",
         "src/radamn_window.cc",
         "src/radamn_window.h",
-        "src/SDL_helper.cc",
-        "src/SDL_helper.h",
         "src/v8_helper.cc",
         "src/v8_helper.h",
 
-        "src/radamn_gl.cc",
-        "src/radamn_gl.h",
+        "src/gl.cc",
+        "src/gl.h",
       ],
 
       "target_name": "<(module_name)",
