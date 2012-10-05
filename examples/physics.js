@@ -10,7 +10,7 @@ var win = Radamn.createWindow(20,13.3333333333, 600, 400);
 
 demo.attachEscapeInputs(win);
 
-var canvas = win.getCanvas();
+var canvas = win.getContext();
 
 var world = null,
 	mouseX, mouseY, mousePVec, isMouseDown, selectedBody, mouseJoint;
@@ -44,13 +44,13 @@ function getBodyCB(fixture) {
    return true;
 }
 
-Radamn.addEvent("mousedown", function(e) {
+Radamn.on("mousedown", function(e) {
    isMouseDown = true;
    handleMouseMove(e);
-   Radamn.addEvent("mousemove", handleMouseMove);
+   Radamn.on("mousemove", handleMouseMove);
 }, true);
 
-Radamn.addEvent("mouseup", function() {
+Radamn.on("mouseup", function() {
    Radamn.removeEvent("mousemove", handleMouseMove);
    isMouseDown = false;
    mouseX = undefined;
@@ -169,7 +169,7 @@ win.onRequestFrame = function(delta) {
 };
 
 
-var canvas = win.getCanvas();
+var canvas = win.getContext();
 
 
 Radamn.listenInput(50);

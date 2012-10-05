@@ -1,74 +1,76 @@
 (function(exports, browser) {
 
-if(!browser) {
-	var fps = require('./fps');
-	var grid = require('./grid');
-}
+    var fps,
+        grid,
+        __info = browser ? $.debug : require("node-class").debug;
 
+    //var fps = require('./fps');
+    //var grid = require('./grid');
 
 exports.attachFPSCounter = function(window, xpos, ypos) {
-	xpos = xpos || 0;
-	ypos = ypos || 0;
-	fps = new fps({
-		font : "./resources/fonts/Jura-DemiBold.ttf"
-		,x: xpos
-		,y: ypos
-	});
+    __info("[demo] display FPS");
 
-	var fpsnode = new Radamn.Node();
-	fpsnode.appendEntity(fps);
+    xpos = xpos || 0;
+    ypos = ypos || 0;
+    fps = new fps({
+        font : "./resources/fonts/Jura-DemiBold.ttf"
+        ,x: xpos
+        ,y: ypos
+    });
 
-	window.getRootNode().appendChild(fpsnode);
+    var fpsnode = new Radamn.Node();
+    fpsnode.appendEntity(fps);
+
+    window.getRootNode().appendChild(fpsnode);
 }
 
 
 exports.attachGrid = function(window, options) {
-	grid = new grid({});
+    grid = new grid({});
 
-	var gridnode = new Radamn.Node().appendEntity(grid);
+    var gridnode = new Radamn.Node().appendEntity(grid);
 
-	window.getRootNode().appendChild(gridnode);
+    window.getRootNode().appendChild(gridnode);
 }
 
 
 exports.attachEscapeInputs = function(window) {
 
-	Radamn.addEvent("quit", function(e) {
-		Radamn.quit();
-	});
-	
-	Radamn.addEvent("keydown", function(e) {
-		if (e.char == "F5") {
-			window.screenshot();
-		} else if (e.char == "Escape") {
-			Radamn.quit();
-		}
-	});
+    Radamn.on("quit", function(e) {
+        Radamn.quit();
+    });
+
+    Radamn.on("keydown", function(e) {
+        if (e.char == "F5") {
+            window.screenshot();
+        } else if (e.char == "Escape") {
+            Radamn.quit();
+        }
+    });
 }
 
 exports.demoWindow = function(width, height, caption, grid) {
-	grid = grid || false;
-	// visual test
-	console.info("[demo] create window");
-	var win = Radamn.createWindow(width, height);
+    grid = grid || false;
+    // visual test
+    __info("[demo] create window");
+    var win = Radamn.createWindow(width, height);
 
-	if(!browser) {
-		console.info("[demo] display FPS");
-		exports.attachFPSCounter(win, 480, 0);
-	}
+    __info("[demo] attaching ESC/F5/Close window:");
+    exports.attachEscapeInputs(win);
 
-	console.info("[demo] attaching ESC/F5/Close window:");
-	exports.attachEscapeInputs(win);
-	
-	console.info("[demo] set caption to: "+caption);
-	win.setCaption(caption, caption);
-	
-	if(grid) {
-		console.info("[demo] display grid");
-		exports.attachGrid(win, grid);
-	}
-	
-	return win;
+    __info("[demo] set caption to: "+caption);
+    win.setCaption(caption, caption);
+
+    if(grid) {
+        __info("[demo] display grid");
+        exports.attachGrid(win, grid);
+    }
+
+    if(fps) {
+        exports.attachFPSCounter(win, 480, 0);
+    }
+
+    return win;
 }
 
 })(typeof exports === "undefined" ? (this.demo = {}) : exports, typeof exports === "undefined");

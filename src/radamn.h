@@ -25,7 +25,6 @@ opengl es: http://doc.trolltech.com/4.4/opengl-hellogl-es.html#porting-opengl-to
 opengl 2s vs opengl 1.5: http://doc.trolltech.com/4.4/opengl-hellogl-es.html#porting-opengl-to-opengl-es
 */
 
-// workaround to png.h problems
 #include "prerequisites.h"
 
 #include "radamn_window.h"

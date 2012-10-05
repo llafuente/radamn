@@ -1,7 +1,6 @@
 #include "radamn.h"
 
 #include "prerequisites.h"
-#include "SDL_helper.h"
 #include "v8_helper.h"
 
 #include "radamn_image.h"
@@ -10,7 +9,7 @@
 
 #include <SDL_version.h>
 #include <SDL_ttf.h>
-#include "radamn_gl.h"
+#include "gl.h"
 #include <node.h>
 #include <v8.h>
 
@@ -230,12 +229,6 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
         return ThrowException(v8::Exception::TypeError(v8::String::New("Cannot create the window!")));
     }
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
-    screen = SDL_SetVideoMode(width, height, 16, SDL_OPENGL | SDL_HWSURFACE);
-
-    if (!screen) {
-        return ThrowException(v8::Exception::TypeError(v8::String::New("Cannot create the window!")));
-    }
-
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,    1);
 
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE,        8);
@@ -243,16 +236,23 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,       8);
     SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,      8);
 
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,      16);
+    //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,      16);
     SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,     32);
 
-    SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,    8);
-    SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE,  8);
-    SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE,   8);
-    SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,  8);
+    //SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,    8);
+    //SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE,  8);
+    //SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE,   8);
+    //SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,  8);
 
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,  1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,  2);
+    //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,  1);
+    //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,  2);
+
+    screen = SDL_SetVideoMode(width, height, 32, SDL_OPENGL);
+
+    if (!screen) {
+        return ThrowException(v8::Exception::TypeError(v8::String::New("Cannot create the window!")));
+    }
+
 
     glClearColor(0, 0, 0, 0);
     glClearDepth(1.0f);
@@ -270,7 +270,7 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
     glLoadIdentity ();
 
     glDisable(GL_DEPTH_TEST);
-    glShadeModel(GL_FLAT);
+    glShadeModel(GL_FLAT); // GL_SMOOTH
 
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
     return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));
