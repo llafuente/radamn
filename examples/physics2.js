@@ -19,7 +19,6 @@
 
     var idemo = browser ? demo : require('./plugins/demo.js');
 
-    //var screen = module.exports.createScreen(640, 480, module.exports.$.INIT.OPENGL);
     //segmentation fault on linux xD
     /**
     * @type Window

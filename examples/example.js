@@ -145,8 +145,3 @@ win.onRequestFrame = function(delta) {
 
 Radamn.listenInput(50);
 Radamn.start(50);
-
-/** resize in real time ! wtf! it should be another window... someday :)
-var screen2 = module.exports.createScreen(480, 320, module.exports.$.INIT.OPENGL);
-screen2.setCaption("caption2!!", "caption2!");
-*/
