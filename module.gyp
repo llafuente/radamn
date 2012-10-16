@@ -51,16 +51,21 @@
         "_FILE_OFFSET_BITS=64"
       ],
 
+      "dependencies": [
+        #"<(RADAMN_ROOT)/deps/node/node.gyp:node",
+        #'<(RADAMN_ROOT)/deps/SDL2/sdl.gyp:SDL',
+        #'<(RADAMN_ROOT)/deps/libpng/projects/gyp/libpng.gyp:libpng',
+      ],
+
       "include_dirs": [
         "<(RADAMN_ROOT)/deps/node/src",
         "<(RADAMN_ROOT)/deps/node/deps/v8/include",
         "<(RADAMN_ROOT)/deps/node/deps/uv/include",
-        "<(RADAMN_ROOT)/deps/SDL/include",
+        "<(RADAMN_ROOT)/deps/SDL2/include",
         "<(RADAMN_ROOT)/deps",
         "<(RADAMN_ROOT)/deps/GL",
         "<(RADAMN_ROOT)/deps/libpng",
-        "<(RADAMN_ROOT)/deps/SDL_ttf/include",
-        "<(RADAMN_ROOT)/deps/SDL_image",
+        "<(RADAMN_ROOT)/deps/SDL_ttf",
         "$(IncludePath)",
         "<(RADAMN_ROOT)/src/",
       ],
@@ -79,11 +84,12 @@
              #"-l winmm.lib",
              #"-l Version.lib",
              #"-l Imm32.lib",
-             "-l <(RADAMN_ROOT)/deps/GL/glut32.lib",
+             #"-l <(RADAMN_ROOT)/deps/GL/glut32.lib",
              "-l <(NODE_ROOT)/<(node_lib_folder)/node.lib" ,
-             "-l <(RADAMN_ROOT)/deps/SDL/VisualC/SDL/Win32/Release/SDL.lib",
-             "-l <(RADAMN_ROOT)/deps/libpng/projects/vstudio/Debug/libpng15.lib",
-             "-l <(RADAMN_ROOT)/deps/SDL_ttf/lib/SDL_ttf.lib",
+             "-l <(RADAMN_ROOT)/deps/SDL2/VisualC/SDL/Win32/Release/SDL.lib",
+             "-l <(NODE_ROOT)/deps/zlib/Release/lib/zlib.lib" ,
+             "-l <(RADAMN_ROOT)/deps/libpng/projects/vstudio/Release Library/libpng15.lib",
+             "-l <(RADAMN_ROOT)/deps/SDL_ttf/windows_libs/SDL_ttf.lib",
           ],
           "msvs_configuration_attributes": {
               "OutputDirectory": "build\\Release",

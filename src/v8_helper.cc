@@ -4,7 +4,6 @@
 #include <v8.h>
 #include "prerequisites.h"
 #include "c_helper.h"
-#include "opengl_helper.h"
 #include <SDL_opengl.h>
 #include <GL/gl.h>
 #include <GL/glu.h>

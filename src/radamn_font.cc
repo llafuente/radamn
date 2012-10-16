@@ -5,6 +5,7 @@
 #include "prerequisites.h"
 #include "radamn_image.h"
 #include "v8_helper.h"
+#include "c_helper.h"
 
 using namespace radamn;
 
@@ -195,13 +196,24 @@ image* font::get_text_image(const char* text, SDL_Color fg_color) {
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
     //upload to opengl and return this is not efficiency so i maybe need to think another method...
 
-    const SDL_VideoInfo *vi = SDL_GetVideoInfo ();
+
+    //const SDL_VideoInfo *vi = SDL_GetVideoInfo ();
+
+    SDL_DisplayMode mode;
+    //SDL_GetDesktopDisplayMode(&mode);
+    //SDL_GetFullscreenDisplayMode(&mode);
+
+    SDL_GetCurrentDisplayMode(0, &mode);
+
+    Uint32 Rmask, Gmask, Bmask, Amask;
+    int bpp;
+    SDL_PixelFormatEnumToMasks(mode.format, &bpp, &Rmask, &Gmask, &Bmask, &Amask);
 
     /* Convert the rendered text to a known format */
     w = nextpoweroftwo((float) initial->w);
     h = nextpoweroftwo((float) initial->h);
     VERBOSE << "Expand texture to: [" << w << "," << h << "]" << ENDL;
-    scaled = SDL_CreateRGBSurface(0, w, h, vi->vfmt->BitsPerPixel, vi->vfmt->Rmask, vi->vfmt->Gmask, vi->vfmt->Bmask, vi->vfmt->Amask);
+    scaled = SDL_CreateRGBSurface(0, w, h, bpp, Rmask, Gmask, Bmask, Amask);
     SDL_BlitSurface(initial, 0, scaled, 0);
     VERBOSE << "Expanded" << ENDL;
 
@@ -246,13 +258,23 @@ image* font::get_text_image(uint16_t* text, SDL_Color fg_color) {
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
     //upload to opengl and return this is not efficiency so i maybe need to think another method...
 
-    const SDL_VideoInfo *vi = SDL_GetVideoInfo ();
+    //const SDL_VideoInfo *vi = SDL_GetVideoInfo ();
+
+    SDL_DisplayMode mode;
+    //SDL_GetDesktopDisplayMode(&mode);
+    //SDL_GetFullscreenDisplayMode(&mode);
+
+    SDL_GetCurrentDisplayMode(0, &mode);
+
+    Uint32 Rmask, Gmask, Bmask, Amask;
+    int bpp;
+    SDL_PixelFormatEnumToMasks(mode.format, &bpp, &Rmask, &Gmask, &Bmask, &Amask);
 
     /* Convert the rendered text to a known format */
     w = nextpoweroftwo((float) initial->w);
     h = nextpoweroftwo((float) initial->h);
     VERBOSE << "Expand texture to: [" << w << "," << h << "]" << ENDL;
-    scaled = SDL_CreateRGBSurface(0, w, h, vi->vfmt->BitsPerPixel, vi->vfmt->Rmask, vi->vfmt->Gmask, vi->vfmt->Bmask, vi->vfmt->Amask);
+    scaled = SDL_CreateRGBSurface(0, w, h,bpp, Rmask, Gmask, Bmask, Amask);
     SDL_BlitSurface(initial, 0, scaled, 0);
     VERBOSE << "Expanded" << ENDL;
 

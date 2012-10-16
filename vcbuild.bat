@@ -19,42 +19,42 @@ set next_is_path=0
 if "%1"=="" goto args-done
 if "%1"=="--clean" goto clean
 if %next_is_path% == 1 (
-	if "%1"=="." (
-		setx %set_next_path%=%cd%
-	) else (
-		setx %set_next_path%=%1
-	)
-	echo "setting %set_next_path%"
-	set next_is_path=0
+    if "%1"=="." (
+        setx %set_next_path%=%cd%
+    ) else (
+        setx %set_next_path%=%1
+    )
+    echo "setting %set_next_path%"
+    set next_is_path=0
 )
 if /i "%1"=="--radamn" (
-	set next_is_path=1
-	set set_next_path=RADAMN_ROOT
-	goto arg-ok
+    set next_is_path=1
+    set set_next_path=RADAMN_ROOT
+    goto arg-ok
 )
 if /i "%1"=="--nodejs" (
-	set next_is_path=1
-	set set_next_path=NODE_ROOT
-	goto arg-ok
+    set next_is_path=1
+    set set_next_path=NODE_ROOT
+    goto arg-ok
 )
 
 if /i "%1"=="--android" (
 
-	if not exist "%ANDROID_NDK_ROOT%"  (
-		echo set android ndk: "%RADAMN_ROOT%\deps\android-ndk-r7"
-		setx ANDROID_NDK_ROOT "%RADAMN_ROOT%\deps\android-ndk-r7"
-	)
-	
-	if not exist "%ANDROID_NDK_ROOT%" goto android-ndk-not-found
+    if not exist "%ANDROID_NDK_ROOT%"  (
+        echo set android ndk: "%RADAMN_ROOT%\deps\android-ndk-r7"
+        setx ANDROID_NDK_ROOT "%RADAMN_ROOT%\deps\android-ndk-r7"
+    )
 
-	if not exist "%ANT_HOME%" (
-		echo set ant dir: "%RADAMN_ROOT%\deps\apache-ant-1.8.2"
-		setx ANT_HOME "%RADAMN_ROOT%\deps\apache-ant-1.8.2"
-	)
-	
-	if not exist "%ANT_HOME%" goto ant-not-found
+    if not exist "%ANDROID_NDK_ROOT%" goto android-ndk-not-found
 
-	goto arg-ok
+    if not exist "%ANT_HOME%" (
+        echo set ant dir: "%RADAMN_ROOT%\deps\apache-ant-1.8.2"
+        setx ANT_HOME "%RADAMN_ROOT%\deps\apache-ant-1.8.2"
+    )
+
+    if not exist "%ANT_HOME%" goto ant-not-found
+
+    goto arg-ok
 )
 
 
@@ -71,8 +71,8 @@ echo Options
 echo --radamn [path]    use the given path as radamn root by default us: RADAMN_ROOT
 echo --nodejs [path]      use the given path as node root by default us: NODE_ROOT
 echo --help                   display help
-echo --clean                 remove all objects that this creates and exit 
-echo Valid 
+echo --clean                 remove all objects that this creates and exit
+echo Valid
 goto exit
 
 :clean
@@ -111,29 +111,22 @@ goto exit
 :msbuild-found
 @rem copy all DLLs here!
 mkdir build\Release
-copy %RADAMN_ROOT%\deps\SDL\VisualC\SDL\Win32\Release\SDL.dll examples\SDL.dll
-copy %RADAMN_ROOT%\deps\SDL_ttf\lib\SDL_ttf.dll examples\SDL_ttf.dll
-copy %RADAMN_ROOT%\deps\SDL_ttf\lib\zlib1.dll examples\zlib1.dll
-copy %RADAMN_ROOT%\deps\SDL_ttf\lib\libfreetype-6.dll examples\libfreetype-6.dll
-copy %RADAMN_ROOT%\deps\GL\glut32.dll examples\glut32.dll
-copy %RADAMN_ROOT%\deps\libpng\projects\vstudio\Debug\libpng15.dll examples\libpng15.dll
-copy %RADAMN_ROOT%\deps\node\Debug\node.exe examples\node.exe
+
+
 
 @rem Check for nodejs build location variable
 if not defined NODE_ROOT (
-	setx "NODE_ROOT" "%RADAMN_ROOT%/deps/node"
+    setx "NODE_ROOT" "%RADAMN_ROOT%\deps\node"
 )
-
 if not exist "%RADAMN_ROOT%\deps\node\src\node.h" goto nodebuild-not-found
 if not exist "%RADAMN_ROOT%\deps\node\deps\v8\include\v8.h" goto nodebuild-not-found
 if not exist "%RADAMN_ROOT%\deps\node\deps\uv\include\uv.h" goto nodebuild-not-found
 if not exist "%RADAMN_ROOT%\deps\node\tools\gyp\gyp" goto gyp-not-found
 
 @rem detect the location of the node.lib file
-set node_lib_folder=
-if exist "%RADAMN_ROOT%\deps\node\Release\node.lib" set node_lib_folder=Release
-if not defined node_lib_folder if exist "%RADAMN_ROOT%\deps\node\Debug\node.lib" set node_lib_folder=Debug
-if not defined node_lib_folder goto nodebuild-not-found
+set node_lib_folder=Release
+if exist "%RADAMN_ROOT%\deps\node\Debug\node.lib" set node_lib_folder=Debug
+
 
 @rem Try to locate the gyp file
 set gypfile=
@@ -143,11 +136,32 @@ if exist %1 set gypfile=%1
 if not defined gypfile if exist "%CD%\module.gyp" set gypfile=module.gyp
 if not defined gypfile goto gyp-file-missing
 @rem Generate visual studio solution
-python %NODE_ROOT%\tools\gyp\gyp -f msvs -G msvs_version=2010 %gypfile% --depth=. -DNODE_ROOT=%RADAMN_ROOT%\deps\node\ -Dnode_lib_folder=%node_lib_folder%  -DRADAMN_ROOT=%RADAMN_ROOT%
+
+@rem build node!
+if not exist %NODE_ROOT%\node.sln %NODE_ROOT%\vcbuild.bat release nosign nobuild
+msbuild "%RADAMN_ROOT%\deps\node\node.sln" /t:Build /clp:NoSummary;NoItemAndPropertyList;Verbosity=minimal /nologo "/p:Configuration=Release"
+
+copy %RADAMN_ROOT%\deps\node\Release\node.exe examples\node.exe
+
+@rem build libpng
+msbuild "%RADAMN_ROOT%\deps\libpng\projects\vstudio\vstudio.sln" /t:Build /clp:NoSummary;NoItemAndPropertyList;Verbosity=minimal /nologo "/p:Configuration=Release Library"
+
+@rem build SDL
+msbuild "%RADAMN_ROOT%\deps\SDL\VisualC\SDL_VS2010.sln" /t:Build /clp:NoSummary;NoItemAndPropertyList;Verbosity=minimal /nologo "/p:Configuration=Release"
+copy %RADAMN_ROOT%\deps\SDL\VisualC\SDL\Win32\Release\SDL.dll examples\SDL.dll
+
+@rem "build" SDL_ttf
+copy %RADAMN_ROOT%\deps\SDL_ttf\windows_libs\SDL_ttf.dll examples\SDL_ttf.dll
+copy %RADAMN_ROOT%\deps\SDL_ttf\windows_libs\zlib1.dll examples\zlib1.dll
+copy %RADAMN_ROOT%\deps\SDL_ttf\windows_libs\libfreetype-6.dll examples\libfreetype-6.dll
+
+@rem build radamn at last!
+echo python %NODE_ROOT%\tools\gyp\gyp -f msvs -G msvs_version=2010 %gypfile% --depth=%RADAMN_ROOT% -D NODE_ROOT=%RADAMN_ROOT%\deps\node\ -D node_lib_folder=%node_lib_folder%  -D RADAMN_ROOT=%RADAMN_ROOT%
+python %NODE_ROOT%\tools\gyp\gyp -f msvs -G msvs_version=2010 %gypfile% --depth=%RADAMN_ROOT% -D NODE_ROOT=%RADAMN_ROOT%\deps\node\ -D node_lib_folder=%node_lib_folder%  -D RADAMN_ROOT=%RADAMN_ROOT%
 if errorlevel 1 goto exit-error
 echo Compile now!
 
-msbuild "%~dp0\module.sln" /t:Clean,Build /clp:NoSummary;NoItemAndPropertyList;Verbosity=minimal /nologo
+msbuild "%~dp0\module.sln" /t:Build /clp:NoSummary;NoItemAndPropertyList;Verbosity=minimal /nologo
 echo "move DLL to lib"
 copy build\Release\radamn.node lib\radamn.node
 goto exit
@@ -169,11 +183,11 @@ echo Visual studio tools were not found! Please check the VS100COMNTOOLS path va
 goto exit
 
 :gyp-not-found
-echo GYP was not found. Please check that gyp is located in %NODE_ROOT%/tools/gyp/ 
+echo GYP was not found. Please check that gyp is located in %NODE_ROOT%\tools\gyp\
 goto exit
 
 :nodebuild-not-found
-echo Node build path not found! Please check the NODE_ROOT path variable exists and that it points to the root of the git repo where you have build 
+echo Node build path not found! Please check the NODE_ROOT path variable exists and that it points to the root of the git repo where you have build
 goto exit
 
 :gyp-file-missing
@@ -184,7 +198,7 @@ goto exit
 echo An error occured. Please check the above output
 
 :radamn-not-found
-echo RADAMN_ROOT not found, if you want to use this as 
+echo RADAMN_ROOT not found, if you want to use this as
 
 :exit
 @rem clear local variables

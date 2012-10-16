@@ -1,5 +1,6 @@
 #include "gl.h"
 #include "v8_helper.h"
+#include "radamn_window.h"
 
 using namespace radamn;
 
@@ -175,7 +176,8 @@ void gl::clear() {
 
 
 void gl::flip_buffers() {
-    SDL_GL_SwapBuffers();
+    glFlush();
+    SDL_GL_SwapWindow(radamn::window::win);
 }
 
 //

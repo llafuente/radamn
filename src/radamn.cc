@@ -9,6 +9,7 @@
 
 #include <SDL_version.h>
 #include <SDL_ttf.h>
+#include <SDL_opengl.h>
 #include "gl.h"
 #include <node.h>
 #include <v8.h>
@@ -22,8 +23,16 @@ using namespace radamn;
 v8::Handle<v8::Value> radamn::init(const v8::Arguments& args) {
     VERBOSE << "radamn::init" << ENDL;
 
-    SDL_Init( SDL_INIT_EVERYTHING );
-    SDL_EnableUNICODE(1);
+    if (SDL_Init( SDL_INIT_EVERYTHING ) != 0)  {
+        return ThrowException(v8::Exception::Error(
+            v8::String::Concat(
+                v8::String::New("Error initializing SDL: "),
+                v8::String::New(SDL_GetError())
+            )
+        ));
+    }
+
+    //SDL_EnableUNICODE(1);
 
     if(TTF_Init() == -1) {
         return ThrowException(v8::Exception::Error(v8::String::Concat(
@@ -79,12 +88,9 @@ extern "C" {
     NODE_SET_METHOD(target, "createWindow", radamn::createWindow);
     NODE_SET_METHOD(target, "getJoysticks", radamn::getJoysticks);
     NODE_SET_METHOD(target, "pollEvent", radamn::pollEvent);
-    NODE_SET_METHOD(target, "getVideoModes", radamn::getVideoModes);
 
     v8::Local<v8::Object> Window = v8::Object::New();
     target->Set(v8::String::New("Window"), Window);
-    NODE_SET_METHOD(Window, "setCaption",           radamn::window::setCaption);
-    NODE_SET_METHOD(Window, "setIcon",              radamn::window::setIcon);
 
     NODE_SET_METHOD(Window, "screenshot",           radamn::window::screenshot);
 
@@ -159,7 +165,7 @@ static v8::Handle<v8::Value> radamn::quit(const v8::Arguments& args) {
 static v8::Handle<v8::Value> radamn::getVersion(const v8::Arguments& args) {
     char buffer[256];
 
-    const SDL_VideoInfo* VideoInfo = SDL_GetVideoInfo();
+    //const SDL_VideoInfo* VideoInfo = SDL_GetVideoInfo();
 
     sprintf(buffer, "SDL %d.%d.%d\n%s\n GL %s, %s, %s %s\n GLU \n\n",
         SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL,
@@ -216,58 +222,137 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
     v8::HandleScope scope;
 
     if (!(args.Length() == 2 && args[0]->IsNumber() && args[1]->IsNumber())) {
-        return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected SetVideoMode(Number, Number, Number, Number)")));
+        return ThrowException(v8::Exception::TypeError(v8::String::New("invalid arguments: Expected SetVideoMode(Number, Number, Number, Number)")));
     }
 
     int width = (args[0]->Int32Value());
     int height = (args[1]->Int32Value());
 
-    SDL_Surface* screen = 0;
 #if RADAMN_RENDERER == RADAMN_RENDERER_SOFTWARE
-    screen = SDL_SetVideoMode(width, height, 16, SDL_SWSURFACE);
-    if (!screen) {
-        return ThrowException(v8::Exception::TypeError(v8::String::New("Cannot create the window!")));
-    }
+    return ThrowException(v8::Exception::TypeError(v8::String::New("cannot create the window")));
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,    1);
 
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE,        8);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,      8);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,       8);
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,      8);
 
-    //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,      16);
-    SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,     32);
+    /*
+    VERBOSE << "SDL_GL_RED_SIZE     " << SDL_GL_SetAttribute(SDL_GL_RED_SIZE,           8) << ENDL;
+    VERBOSE << "SDL_GL_GREEN_SIZE   " << SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,         8) << ENDL;
+    VERBOSE << "SDL_GL_BLUE_SIZE    " << SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,          8) << ENDL;
+    VERBOSE << "SDL_GL_ALPHA_SIZE   " << SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,         8) << ENDL;
+    VERBOSE << "SDL_GL_BUFFER_SIZE  " << SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,        0) << ENDL;
+    VERBOSE << "SDL_GL_DOUBLEBUFFER " << SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,       1) << ENDL;
+    VERBOSE << "SDL_GL_DEPTH_SIZE   " << SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,         32) << ENDL;
+    */
+    VERBOSE << "SDL_GL_DOUBLEBUFFER " << SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,       1) << ENDL;
+    VERBOSE << "SDL_GL_DEPTH_SIZE   " << SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,         32) << ENDL;
+    /*
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,       0);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,     0);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE,   0);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE,    0);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,   0);
+    SDL_GL_SetAttribute(SDL_GL_STEREO,             0);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0); // 1
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0); // 2
+    //deprecated: SDL_GL_SetAttribute(SDL_GL_RETAINED_BACKING,   1);
+    */
 
-    //SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,    8);
-    //SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE,  8);
-    //SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE,   8);
-    //SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,  8);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
-    //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,  1);
-    //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,  2);
+    VERBOSE << "SDL_GL_ACCELERATED_VISUAL " << SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1) << ENDL;
 
-    screen = SDL_SetVideoMode(width, height, 32, SDL_OPENGL);
 
-    if (!screen) {
-        return ThrowException(v8::Exception::TypeError(v8::String::New("Cannot create the window!")));
+    int n;
+    n = SDL_GetNumVideoDrivers();
+    for (int i = 0; i < n; ++i) {
+        VERBOSE << "VideoDriver: " << SDL_GetVideoDriver(i) << ENDL;
     }
 
+    SDL_VideoInit( SDL_GetVideoDriver(0) );
+
+    VERBOSE << "Create window using VideoDriver: " << SDL_GetCurrentVideoDriver() << ENDL;
+
+    SDL_DisplayMode mode;
+    SDL_GetCurrentDisplayMode(0, &mode);
+    SDL_PixelFormatEnumToMasks(mode.format, &radamn::window::bpp, &radamn::window::rmask, &radamn::window::gmask, &radamn::window::bmask, &radamn::window::amask);
+    VERBOSE << "bpp: " << radamn::window::bpp << ENDL;
+    VERBOSE << "rmask: " << radamn::window::rmask << ENDL;
+    VERBOSE << "gmask: " << radamn::window::gmask << ENDL;
+    VERBOSE << "bmask: " << radamn::window::bmask << ENDL;
+    VERBOSE << "amask: " << radamn::window::amask << ENDL;
+
+    //SDL_DisplayMode fullscreen_mode;
+    //SDL_zero(fullscreen_mode);
+    //fullscreen_mode.format = SDL_PIXELFORMAT_RGB888;
+    //fullscreen_mode.refresh_rate = mode.refresh_rate;
+
+
+    // SDL_WINDOW_FULLSCREEN;
+    // SDL_WINDOW_BORDERLESS
+    // SDL_WINDOW_RESIZABLE
+    // SDL_WINDOW_MINIMIZED
+    // SDL_WINDOW_MAXIMIZED
+    // SDL_WINDOW_INPUT_GRABBED
+    radamn::window::win = SDL_CreateWindow("radamn", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    SDL_GetWindowSize(radamn::window::win, &radamn::window::width, &radamn::window::height);
+
+    VERBOSE << "width: " << radamn::window::width << ENDL;
+    VERBOSE << "height: " << radamn::window::height << ENDL;
+
+    n = SDL_GetNumRenderDrivers();
+    SDL_RendererInfo info;
+    int renderer_id = -1;
+    for (int i = 0; i < n; ++i) {
+        SDL_GetRenderDriverInfo(i, &info);
+        VERBOSE << "RenderDriver[" << i << "] " << info.name << ENDL;
+        if(SDL_strcasecmp(info.name, "opengl") == 0) {
+            renderer_id = i;
+        }
+    }
+
+    if(renderer_id == -1) {
+        return ThrowException(v8::Exception::TypeError(v8::String::New("cannot find opengl renderer")));
+    }
+
+    VERBOSE << "Create renderer: " << renderer_id << ENDL;
+    // SDL_RENDERER_PRESENTVSYNC
+    radamn::window::renderer = SDL_CreateRenderer(radamn::window::win, renderer_id, 0);
+
+    VERBOSE << "Swap Interval : " << SDL_GL_GetSwapInterval() << ENDL;
+    VERBOSE << "Vendor        : " << glGetString(GL_VENDOR)   << ENDL;
+    VERBOSE << "Renderer      : " << glGetString(GL_RENDERER) << ENDL;
+    VERBOSE << "Version       : " << glGetString(GL_VERSION)  << ENDL;
+
+    SDL_GL_SwapWindow(radamn::window::win);
+    SDL_GLContext context = SDL_GL_CreateContext(radamn::window::win);
+    if(context == NULL) {
+        VERBOSE << "SDL_GL_CreateContext: " << SDL_GetError() << ENDL;
+        return ThrowException(v8::Exception::TypeError(v8::String::New("cannot create gl context")));
+    }
+    SDL_GL_MakeCurrent(radamn::window::win, context);
+
+    int ret = SDL_GL_SetSwapInterval(1);
+    VERBOSE << "SDL_GL_SetSwapInterval: " << ret << ENDL;
+    if(ret != 0) {
+        VERBOSE << SDL_GetError() << ENDL;
+    }
+
+    // SDL_RenderPresent(radamn::window::renderer);
 
     glClearColor(0, 0, 0, 0);
     glClearDepth(1.0f);
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, radamn::window::width, radamn::window::height);
 
     glMatrixMode(GL_TEXTURE);
-    glLoadIdentity ();
+    glLoadIdentity();
 
     // 2d projection matrix
-    glMatrixMode (GL_PROJECTION);
-    glLoadIdentity ();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
     glOrtho (0, width, height, 0, -1, 1); // flip Y
 
-    glMatrixMode (GL_MODELVIEW);
-    glLoadIdentity ();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
     glDisable(GL_DEPTH_TEST);
     glShadeModel(GL_FLAT); // GL_SMOOTH
@@ -276,54 +361,9 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
     return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));
 #endif
 
-    VERBOSE << "window created" << ENDL;
+    VERBOSE << "done!" << ENDL;
 
     return v8::True();
-}
-
-//
-// ----------------------------------------------------------------------------------------------------
-//
-
-//true any
-//throw if error
-//array with the list
-
-static v8::Handle<v8::Value> radamn::getVideoModes(const v8::Arguments& args) {
-    v8::HandleScope scope;
-
-    SDL_Rect** modes;
-
-    /* Get available fullscreen/hardware modes */
-    modes = SDL_ListModes(NULL, SDL_FULLSCREEN|SDL_HWSURFACE);
-
-    /* Check if there are any modes available */
-    if (modes == (SDL_Rect**)0) {
-        //throw!
-        ThrowException(v8::Exception::TypeError(v8::String::New("No modes available!")));
-    }
-
-    /* Check if our resolution is restricted */
-    if (modes == (SDL_Rect**)-1) {
-        return v8::True();
-    }
-
-    v8::Local<v8::Object> output = v8::Object::New();
-    VERBOSE << "Available Modes";
-
-    int i;
-    for (i=0; modes[i]; ++i) {
-        VERBOSE << modes[i]->w << "x"<< modes[i]->h;
-
-        v8::Local<v8::Object> target = v8::Object::New();
-
-        target->Set(v8::String::New("x"), v8::Number::New(modes[i]->w));
-        target->Set(v8::String::New("h"), v8::Number::New(modes[i]->h));
-
-        output->Set(v8::Number::New(i), target);
-    }
-
-    return output;
 }
 
 //
@@ -454,10 +494,12 @@ v8::Handle<v8::Value> radamn::pollEvent(const v8::Arguments& args) {
     evt->Set(v8::String::New("shiftKey"), v8::Boolean::New( KMOD_SHIFT == (KMOD_SHIFT & event.key.keysym.mod) ));
 
     switch (event.type) {
-    case SDL_ACTIVEEVENT:
-        evt->Set(v8::String::New("type"),  v8::String::New("ACTIVEEVENT"));
-        evt->Set(v8::String::New("gain"),  v8::Number::New(event.active.gain));
-        evt->Set(v8::String::New("state"), v8::Number::New(event.active.state));
+    case SDL_WINDOWEVENT:
+        return v8::False();
+    //case SDL_ACTIVEEVENT:
+    //    evt->Set(v8::String::New("type"),  v8::String::New("ACTIVEEVENT"));
+    //    evt->Set(v8::String::New("gain"),  v8::Number::New(event.active.gain));
+    //    evt->Set(v8::String::New("state"), v8::Number::New(event.active.state));
         break;
     case SDL_KEYDOWN:
     case SDL_KEYUP:
@@ -483,6 +525,7 @@ v8::Handle<v8::Value> radamn::pollEvent(const v8::Arguments& args) {
     case SDL_MOUSEMOTION:
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
+    case SDL_MOUSEWHEEL:
         //evt->Set(String::New("which"), Number::New(event.motion.which));
         evt->Set(v8::String::New("state"),   v8::Number::New(event.motion.state));
 
@@ -496,40 +539,30 @@ v8::Handle<v8::Value> radamn::pollEvent(const v8::Arguments& args) {
         evt->Set(v8::String::New("screenY"), v8::Number::New(event.motion.yrel));
 
         switch(event.type) {
+        case SDL_MOUSEWHEEL :
+            evt->Set(v8::String::New("type"),   v8::String::New("wheel"));
+            evt->Set(v8::String::New("deltaX"), v8::Number::New(event.wheel.x));
+            evt->Set(v8::String::New("deltaY"), v8::Number::New(event.wheel.y));
+            break;
         case SDL_MOUSEMOTION :
             evt->Set(v8::String::New("type"),    v8::String::New("mousemove"));
             evt->Set(v8::String::New("button"),  v8::Number::New(event.button.button));
             break;
         case SDL_MOUSEBUTTONDOWN :
-            if(event.button.button == SDL_BUTTON_WHEELDOWN) {
-                evt->Set(v8::String::New("type"),   v8::String::New("wheel"));
-                evt->Set(v8::String::New("deltaX"), v8::Number::New(event.wheel.x));
-                evt->Set(v8::String::New("deltaY"), v8::Number::New(event.wheel.y));
-            } else {
-                evt->Set(v8::String::New("type"),   v8::String::New("mousedown"));
-                evt->Set(v8::String::New("button"), v8::Number::New(event.button.button));
-            }
-
+            evt->Set(v8::String::New("type"),   v8::String::New("mousedown"));
+            evt->Set(v8::String::New("button"), v8::Number::New(event.button.button));
             break;
         case SDL_MOUSEBUTTONUP :
-            if(event.button.button == SDL_BUTTON_WHEELUP) {
-                evt->Set(v8::String::New("type"),   v8::String::New("wheel"));
-                evt->Set(v8::String::New("deltaX"), v8::Number::New(event.wheel.x));
-                evt->Set(v8::String::New("deltaY"), v8::Number::New(event.wheel.y));
-            } else {
-                evt->Set(v8::String::New("type"),   v8::String::New("mouseup"));
-                evt->Set(v8::String::New("button"), v8::Number::New(event.button.button));
-            }
-
+            evt->Set(v8::String::New("type"),   v8::String::New("mouseup"));
+            evt->Set(v8::String::New("button"), v8::Number::New(event.button.button));
             break;
         }
 
         // what to do with click ?
         //evt->Set(String::New("type"), String::New("click"));
+    break;
 
-        break;
-
-        // my own DOMJoystickEvent based on mozilla: MozJoyAxisMove, MozJoyButtonUp, MozJoyButtonDown
+    // my own DOMJoystickEvent based on mozilla: MozJoyAxisMove, MozJoyButtonUp, MozJoyButtonDown
     case SDL_JOYAXISMOTION:
         evt->Set(v8::String::New("type"),  v8::String::New("joyaxismove"));
 
@@ -560,6 +593,7 @@ v8::Handle<v8::Value> radamn::pollEvent(const v8::Arguments& args) {
         evt->Set(v8::String::New("type"),      v8::String::New("quit"));
         break;
     default:
+        return v8::False();
         evt->Set(v8::String::New("type"),      v8::String::New("not-supported"));
         evt->Set(v8::String::New("typeCode"),  v8::Number::New(event.type));
         break;

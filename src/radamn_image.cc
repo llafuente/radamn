@@ -6,7 +6,6 @@
 #include <iostream>
 #include <v8.h>
 #include "v8_helper.h"
-#include "opengl_helper.h"
 #include "prerequisites.h"
 #include "gl.h"
 

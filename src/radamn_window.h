@@ -8,10 +8,19 @@
 
 namespace radamn {
     namespace window {
+        static SDL_Window * win;
+        static SDL_Renderer * renderer;
+        static int width = 0;
+        static int height = 0;
+
+        static Uint32 rmask = 0;
+        static Uint32 gmask = 0;
+        static Uint32 bmask = 0;
+        static Uint32 amask = 0;
+        static int bpp =0;
+
         static Uint32 mBackgroundColor = 0;
 
-        v8::Handle<v8::Value> setCaption(const v8::Arguments& args);
-        v8::Handle<v8::Value> setIcon(const v8::Arguments& args);
         v8::Handle<v8::Value> getRootNode(const v8::Arguments& args);
 
         v8::Handle<v8::Value> grabInput(const v8::Arguments& args);

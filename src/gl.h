@@ -1,8 +1,6 @@
 #ifndef RADAMN_GL_H_
 #define RADAMN_GL_H_
 
-#include "openGL_helper.h"
-
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
 #endif
