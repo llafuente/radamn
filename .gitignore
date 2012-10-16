@@ -1,3 +1,8 @@
+*.hg
+*.hgignore
+*.hgtags
+*.hgtags
+
 build/
 lib/radamn.node
 examples/radamn.log
@@ -6,12 +11,23 @@ examples/node_modules
 #remove all dlls for now
 lib/*.dll
 
+#ignore all libpng build directories
+deps/libpng/projects/vstudio/libpng/Release/
+deps/libpng/projects/vstudio/libpng/Release Library/
+deps/libpng/projects/vstudio/pngvalid/Release/
+deps/libpng/projects/vstudio/pngvalid/Release Library/
+deps/libpng/projects/vstudio/pngtest/Release/
+deps/libpng/projects/vstudio/pngtest/Release Library/
+deps/libpng/projects/vstudio/Release/
+deps/libpng/projects/vstudio/Release Library/
+
 # various stuff that VC++ produces/uses
 Debug/
 Release/
 *.sln
 !nodemsi.sln
 *.suo
+*.ncb
 *.vcproj
 *.vcxproj
 *.vcxproj.user
@@ -19,15 +35,13 @@ Release/
 UpgradeLog*.XML
 _UpgradeReport_Files/
 ipch/
+
 *.sdf
 *.opensdf
 
-
-deps/node/*
-deps/SDL/*
-deps/SDL_image/*
-deps/libpng/*
-deps/SDL_ttf/*
-deps/GL/*
+radamn.vcxproj
+radamn.vcxproj.user
+radamn.vcxproj.filters
+module.sln
 
 node_modules
