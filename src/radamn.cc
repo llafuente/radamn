@@ -337,8 +337,6 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
         VERBOSE << SDL_GetError() << ENDL;
     }
 
-    // SDL_RenderPresent(radamn::window::renderer);
-
     glClearColor(0, 0, 0, 0);
     glClearDepth(1.0f);
     glViewport(0, 0, radamn::window::width, radamn::window::height);
