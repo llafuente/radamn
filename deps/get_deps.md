@@ -1,9 +1,19 @@
-## GL
-<pre>    windows: download http://www.xmission.com/~nate/glut/glut-3.7.6-bin.zip and decompress here
-linux: when install X you should have GL at /usr/include/GL
-andoid: not needed is included in the oficial SDK
-mac: ??
-iphone: not needed is included in the oficial SDK</pre>
+## Radamn dependencies
+
+Right now only node is needed.
+
+git clone -b v0.8.12-release git://github.com/joyent/node.git
+
+The rest is included in the GIT because the proyects need small modifications or will be replaced
+
+* libpng use zlib in nodejs
+* SDL_ttf is used but will be replaced by FreeType because portability issues
+* SDL_image, already removed, now we only accept PNGs
+* SDL, I'm using SDL 2 to maximize cross-platform
+* GLUT/GL is removed, not needed with SDL 2 anymore and proper platforms SDKs
+* GLEW, could be added soon to support full opengl 3.2 that is my target
+
+I left this for my own reference to update deps
 
 ## NODEJS
 <pre>    any os: git clone git://github.com/joyent/node.git node</pre>
@@ -11,10 +21,7 @@ iphone: not needed is included in the oficial SDK</pre>
 ## SDL
 <pre>    any os: hg clone http://hg.libsdl.org/SDL SDL</pre>
 
-## libpng 
-<pre>    http://prdownloads.sourceforge.net/libpng/libpng-1.5.5.tar.gz?download</pre>
-
-## SDL_image
+##
 <pre>    any os: hg clone http://hg.libsdl.org/SDL_image</pre>
 
 ## SDL_ttf
