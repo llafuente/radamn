@@ -33,9 +33,8 @@ This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 # node --version
-v0.6.12
-# node-waf --version
-waf 1.5.16 (7610:7647M)
+v0.8.12
+
 ```
 
 #### windows xp/7
@@ -47,6 +46,8 @@ The proyect is not mature enough to start documenting.
 ## 2. Todo list
 
 Priority
+
+* Port to SDL 2, OpenGL 3.2 (this make master unstable right now!!!)
 
 * Sprites (batch rendering) canvas extension to render multiple images into rectangles in one opengl call
 * drag&drop @Radamn.Node
@@ -73,19 +74,18 @@ Demo/Examples
 
 The proyect has three layers, two for me, one for you :)
 
-* C/C++: SDL, OpenGL, Audio, nodejs
-* Javascript Framework (Radamn). Provide a proper API on top of the basic C++ land API. This will deal with browser/nodejs(client) compatibility.
-* User (Javascript) land, where you will write your code, platform independent all in Javascript!
+* C/C++ [CRadamn / CLand]: SDL, OpenGL, Font, *Audio*, nodejs
+* Javascript Framework [JRadamn]: Provide a proper API on top of CRadamn. This will deal with browser/nodejs compatibility.
+* Javascript User land, where you will write your code, platform/browser independent all in Javascript!
 
-Radamn will provide a 2D game engine/rendering layer OPENGL based (currently OPENGL, OPENGLES-1/OPENGLES-2 maybe someday)
+Radamn will provide a 2D game engine/rendering layer OPENGL based (currently OPENGL, OPENGLES-2 planned)
 
 Plaforms:
 
-* Linux (fully supported today)
+* Linux (fully supported)
 * MacOS (not tested)
-* Windows (fully supported today, in some systems there are input problems, keyboard only)
+* Windows (fully supported, in some systems there are input problems, keyboard only)
 * Browser (fully compatible Firefox, Chrome, need to test ie9/10). I will focus on this after frozen the API.
-
 
 The full API will be public soon.
 
