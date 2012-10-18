@@ -1,147 +1,112 @@
-@rem vcbuild --radamn %cd% --nodejs %cd%/deps/node
-@rem vcbuild --radamn "C:\proyectos\radamn\radamn" --nodejs "C:\proyectos\radamn\radamn\deps\node"
 @echo off
 
-if /i "%1"=="help" goto help
-if /i "%1"=="--help" goto help
-if /i "%1"=="-help" goto help
-if /i "%1"=="/help" goto help
-if /i "%1"=="?" goto help
-if /i "%1"=="-?" goto help
-if /i "%1"=="--?" goto help
-if /i "%1"=="/?" goto help
+cd %~dp0
 
-set next_is_path=0
+if /i "%1"=="radam_help" goto radam_help
+if /i "%1"=="--radam_help" goto radam_help
+if /i "%1"=="-radam_help" goto radam_help
+if /i "%1"=="/radam_help" goto radam_help
+if /i "%1"=="?" goto radam_help
+if /i "%1"=="-?" goto radam_help
+if /i "%1"=="--?" goto radam_help
+if /i "%1"=="/?" goto radam_help
 
-@rem manually set RADAMN and NODE paths
+@rem Process arguments.
+set config=Release
+set target=Build
+set target_arch=ia32
+set debug_arg=
+set noprojgen=
+set nobuild=
+set jslint=
+set noetw=
+set noetw_arg=
+
 :next-arg
+if "%1"=="" goto radamn_args-done
+if /i "%1"=="debug"         set config=Debug&goto radamn_arg-ok
+if /i "%1"=="release"       set config=Release&goto radamn_arg-ok
+if /i "%1"=="clean"         set target=Clean&goto radamn_arg-ok
+if /i "%1"=="ia32"          set target_arch=ia32&goto radamn_arg-ok
+if /i "%1"=="x86"           set target_arch=ia32&goto radamn_arg-ok
+if /i "%1"=="x64"           set target_arch=x64&goto radamn_arg-ok
+if /i "%1"=="noprojgen"     set noprojgen=1&goto radamn_arg-ok
+@rem if /i "%1"=="nobuild"       set nobuild=1&goto radamn_arg-ok
+if /i "%1"=="noetw"         set noetw=1&goto radamn_arg-ok
+if /i "%1"=="jslint"        set jslint=1&goto radamn_arg-ok
 
-if "%1"=="" goto args-done
-if "%1"=="--clean" goto clean
-if %next_is_path% == 1 (
-    if "%1"=="." (
-        setx %set_next_path%=%cd%
-    ) else (
-        setx %set_next_path%=%1
-    )
-    echo "setting %set_next_path%"
-    set next_is_path=0
-)
-if /i "%1"=="--radamn" (
-    set next_is_path=1
-    set set_next_path=RADAMN_ROOT
-    goto arg-ok
-)
-if /i "%1"=="--nodejs" (
-    set next_is_path=1
-    set set_next_path=NODE_ROOT
-    goto arg-ok
-)
+echo Warning: ignoring invalid command line option `%1`.
 
-if /i "%1"=="--android" (
-
-    if not exist "%ANDROID_NDK_ROOT%"  (
-        echo set android ndk: "%RADAMN_ROOT%\deps\android-ndk-r7"
-        setx ANDROID_NDK_ROOT "%RADAMN_ROOT%\deps\android-ndk-r7"
-    )
-
-    if not exist "%ANDROID_NDK_ROOT%" goto android-ndk-not-found
-
-    if not exist "%ANT_HOME%" (
-        echo set ant dir: "%RADAMN_ROOT%\deps\apache-ant-1.8.2"
-        setx ANT_HOME "%RADAMN_ROOT%\deps\apache-ant-1.8.2"
-    )
-
-    if not exist "%ANT_HOME%" goto ant-not-found
-
-    goto arg-ok
-)
-
-
-
-
-@rem arguments loops
-:arg-ok
+:radamn_arg-ok
+:radamn_arg-ok
 shift
 goto next-arg
 
-:help
-echo Usage: vcbuild [options]
-echo Options
-echo --radamn [path]    use the given path as radamn root by default us: RADAMN_ROOT
-echo --nodejs [path]      use the given path as node root by default us: NODE_ROOT
-echo --help                   display help
-echo --clean                 remove all objects that this creates and exit
-echo Valid
-goto exit
+:radamn_args-done
+if defined jslint goto jslint
 
-:clean
-echo "clean!"
-rd /s /q build
-rd /s /q ipch
-del /q *.suo
-del /q *.sln
-del /q *.filters
-del /q *.user
-del /q *.opensdf
-del /q *.sdf
-del /q *.vcxproj
-goto exit
+if "%config%"=="Debug" set debug_arg=--debug
 
-:args-done
-echo using radamn path: %RADAMN_ROOT%
-echo using nodejs path: %RADAMN_ROOT%\deps\node\
+:radamn_project-gen
+goto radamn_msbuild
 
-@rem Skip project generation if requested.
-if defined nobuild goto msi
-
+:radamn_msbuild
 @rem Bail out early if not running in VS build env.
-if defined VCINSTALLDIR goto msbuild-found
-if not defined VS100COMNTOOLS goto msbuild-not-found
-if not exist "%VS100COMNTOOLS%\..\..\vc\vcvarsall.bat" goto msbuild-not-found
+if defined VCINSTALLDIR goto radamn_msbuild-found
+if not defined VS100COMNTOOLS goto radamn_msbuild-not-found
+if not exist "%VS100COMNTOOLS%\..\..\vc\vcvarsall.bat" goto radamn_msbuild-not-found
 call "%VS100COMNTOOLS%\..\..\vc\vcvarsall.bat"
-if not defined VCINSTALLDIR goto msbuild-not-found
-goto msbuild-found
+if not defined VCINSTALLDIR goto radamn_msbuild-not-found
+goto radamn_msbuild-found
 
-:msbuild-not-found
-echo msbuild cannot be found...
-goto exit
+:radamn_msbuild-not-found
+echo Build skipped. To build, this file needs to run from VS cmd prompt.
+goto run
 
+:radamn_msbuild-found
 
-:msbuild-found
-@rem copy all DLLs here!
+@rem *******************************************
+@rem *******************************************
+@rem *******************************************
+
 mkdir build\Release
 
+@rem first generate and compile node. After that copy common.gypi and create radamn project and compile
 
-
-@rem Check for nodejs build location variable
-if not defined NODE_ROOT (
-    setx "NODE_ROOT" "%RADAMN_ROOT%\deps\node"
+if not exist %RADAMN_ROOT%\deps\node\common.gypi (
+    echo "BUILD NODE FIRST!"
+    echo %RADAMN_ROOT%\deps\node\vcbuild
+    goto radamn_exit
 )
-if not exist "%RADAMN_ROOT%\deps\node\src\node.h" goto nodebuild-not-found
-if not exist "%RADAMN_ROOT%\deps\node\deps\v8\include\v8.h" goto nodebuild-not-found
-if not exist "%RADAMN_ROOT%\deps\node\deps\uv\include\uv.h" goto nodebuild-not-found
-if not exist "%RADAMN_ROOT%\deps\node\tools\gyp\gyp" goto gyp-not-found
+
+copy %RADAMN_ROOT%\deps\node\common.gypi %RADAMN_ROOT%\common.gypi
+
+@rem Generate the VS project.
+python %NODE_ROOT%\tools\gyp\gyp -f msvs -G msvs_version=2010 %RADAMN_ROOT%\radamn.gyp --depth=%RADAMN_ROOT% -D NODE_ROOT=%RADAMN_ROOT%\deps\node\ -D RADAMN_ROOT=%RADAMN_ROOT% -D CONFIG=%config%
+if errorlevel 1 goto radamn_create-msvs-files-failed
+if not exist %RADAMN_ROOT%\radamn.sln goto radamn_create-msvs-files-failed
+echo radamn Project files generated.
+
+msbuild radamn.sln /t:%target% /clp:NoSummary;NoItemAndPropertyList;Verbosity=minimal /nologo /p:Configuration=%config%
+
+copy %RADAMN_ROOT%\deps\node\%config%\node.exe examples\node.exe
+
+goto radam_exit
+
+@rem test code
+@rem test code
+@rem test code
+@rem test code
+@rem test code
+
 
 @rem detect the location of the node.lib file
-set node_lib_folder=Release
-if exist "%RADAMN_ROOT%\deps\node\Debug\node.lib" set node_lib_folder=Debug
-
-
-@rem Try to locate the gyp file
-set gypfile=
-@rem if the user has specified the file, this is the one we will use
-if exist %1 set gypfile=%1
-@rem otherwise try to locate the module.gyp file
-if not defined gypfile if exist "%CD%\module.gyp" set gypfile=module.gyp
-if not defined gypfile goto gyp-file-missing
-@rem Generate visual studio solution
 
 @rem build node!
-if not exist %NODE_ROOT%\node.sln %NODE_ROOT%\vcbuild.bat release nosign nobuild
-msbuild "%RADAMN_ROOT%\deps\node\node.sln" /t:Build /clp:NoSummary;NoItemAndPropertyList;Verbosity=minimal /nologo "/p:Configuration=Release"
 
-copy %RADAMN_ROOT%\deps\node\Release\node.exe examples\node.exe
+
+
+
 
 @rem build libpng
 msbuild "%RADAMN_ROOT%\deps\libpng\projects\vstudio\vstudio.sln" /t:Build /clp:NoSummary;NoItemAndPropertyList;Verbosity=minimal /nologo "/p:Configuration=Release Library"
@@ -155,53 +120,63 @@ copy %RADAMN_ROOT%\deps\SDL_ttf\windows_libs\SDL_ttf.dll examples\SDL_ttf.dll
 copy %RADAMN_ROOT%\deps\SDL_ttf\windows_libs\zlib1.dll examples\zlib1.dll
 copy %RADAMN_ROOT%\deps\SDL_ttf\windows_libs\libfreetype-6.dll examples\libfreetype-6.dll
 
+
+
 @rem build radamn at last!
-echo python %NODE_ROOT%\tools\gyp\gyp -f msvs -G msvs_version=2010 %gypfile% --depth=%RADAMN_ROOT% -D NODE_ROOT=%RADAMN_ROOT%\deps\node\ -D node_lib_folder=%node_lib_folder%  -D RADAMN_ROOT=%RADAMN_ROOT%
-python %NODE_ROOT%\tools\gyp\gyp -f msvs -G msvs_version=2010 %gypfile% --depth=%RADAMN_ROOT% -D NODE_ROOT=%RADAMN_ROOT%\deps\node\ -D node_lib_folder=%node_lib_folder%  -D RADAMN_ROOT=%RADAMN_ROOT%
-if errorlevel 1 goto exit-error
+
 echo Compile now!
 
 msbuild "%~dp0\module.sln" /t:Build /clp:NoSummary;NoItemAndPropertyList;Verbosity=minimal /nologo
 echo "move DLL to lib"
 copy build\Release\radamn.node lib\radamn.node
-goto exit
+goto radam_exit
 
-:ant-not-found
-echo ANT cannot be found, please set the enviroment variable yourself: setx ANT_HOME <path>
-goto exit
 
-:android-ndk-not-found
-echo Android NDK cannot be found, please set the enviroment variable yourself: setx ANDROID_NDK_ROOT <path>
-goto exit
 
-:android-ndk-not-found
-echo Android NDK cannot be found, please edit this file and set your version!
-goto exit
+@rem *******************************************
+@rem *******************************************
+@rem *******************************************
 
-:msbuild-not-found
-echo Visual studio tools were not found! Please check the VS100COMNTOOLS path variable
-goto exit
 
-:gyp-not-found
-echo GYP was not found. Please check that gyp is located in %NODE_ROOT%\tools\gyp\
-goto exit
 
-:nodebuild-not-found
-echo Node build path not found! Please check the NODE_ROOT path variable exists and that it points to the root of the git repo where you have build
-goto exit
 
-:gyp-file-missing
-echo Could not locate a gyp file. No module.gyp file found and you haven't specified any existing gyp file as an argument
-goto exit
+:radamn_create-msvs-files-failed
+echo Failed to create vc project files.
+goto radam_exit
 
-:exit-error
-echo An error occured. Please check the above output
+:jslint
+echo running jslint
+set PYTHONPATH=tools/closure_linter/
+python tools/closure_linter/closure_linter/gjslint.py --unix_mode --strict --nojsdoc -r lib/ -r src/ -r test/ --exclude_files lib/punycode.js
+goto radam_exit
 
-:radamn-not-found
-echo RADAMN_ROOT not found, if you want to use this as
+:radam_help
+echo vcbuild.bat [debug/release] [clean] [noprojgen] [nobuild] [x86/x64]
+echo Examples:
+echo   vcbuild.bat                : builds release build
+echo   vcbuild.bat debug          : builds debug build
+echo   vcbuild.bat release        : builds release build
+goto radam_exit
 
-:exit
-@rem clear local variables
-set node_lib_folder=
-set gypfile=
+:radam_exit
 
+echo "radamn_exit"
+
+@rem if /i "%1"=="--android" (
+@rem
+@rem     if not exist "%ANDROID_NDK_ROOT%"  (
+@rem         echo set android ndk: "%RADAMN_ROOT%\deps\android-ndk-r7"
+@rem         setx ANDROID_NDK_ROOT "%RADAMN_ROOT%\deps\android-ndk-r7"
+@rem     )
+@rem
+@rem     if not exist "%ANDROID_NDK_ROOT%" goto android-ndk-not-found
+@rem
+@rem     if not exist "%ANT_HOME%" (
+@rem         echo set ant dir: "%RADAMN_ROOT%\deps\apache-ant-1.8.2"
+@rem         setx ANT_HOME "%RADAMN_ROOT%\deps\apache-ant-1.8.2"
+@rem     )
+@rem
+@rem     if not exist "%ANT_HOME%" goto ant-not-found
+@rem
+@rem     goto radamn_arg-ok
+@rem )
