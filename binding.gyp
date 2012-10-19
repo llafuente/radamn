@@ -75,10 +75,14 @@
       ],
       "dependencies": [
         './deps/libpng/libpng.gyp:libpng15',
+        './deps/freetype/freetype.gyp:ft2',
+        './deps/SDL_ttf/sdl_ttf.gyp:SDL_ttf',
         './deps/SDL2/sdl.gyp:SDL2'
       ],
       'export_dependent_settings': [
         './deps/SDL2/sdl.gyp:SDL2',
+        './deps/freetype/freetype.gyp:ft2',
+        './deps/SDL_ttf/sdl_ttf.gyp:SDL_ttf',
         './deps/libpng/libpng.gyp:libpng15'
       ],
 
@@ -106,8 +110,9 @@
              "-l deps/node/<(configuration)/node.lib" ,
              "-l <(configuration)/SDL2.lib",
              "-l <(configuration)/libpng15.lib",
+             "-l <(configuration)/ft2.lib",
              "-l deps/node/<(configuration)/lib/zlib.lib" ,
-             "-l deps/SDL_ttf/windows_libs/SDL_ttf.lib"
+             "-l <(configuration)/SDL_ttf.lib",
           ]
         }],
         [ "OS=='mac'", {
