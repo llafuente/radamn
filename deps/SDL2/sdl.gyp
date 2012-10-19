@@ -7,7 +7,6 @@
 
     "target_defaults": {
         "include_dirs": [ "include", "<(sdl_dir)/include" ],
-        "cflags": [ "-g", "-Wall" ],
 
         "target_conditions": [
             ["OS == 'linux'", {
@@ -35,20 +34,8 @@
 
         "configurations": {
             "Debug": {
-                "cflags": [ "-O0" ],
-                "msvs_settings": {
-                    "VCCLCompilerTool": {
-                        "RuntimeLibrary": 3
-                    }
-                }
             },
             "Release": {
-                "cflags": [ "-O3" ],
-                "msvs_settings": {
-                    "VCCLCompilerTool": {
-                        "RuntimeLibrary": 2
-                    }
-                }
             }
         }
     },
@@ -57,7 +44,7 @@
         {
             "target_name": "SDL2",
             "type": "<(library)",
-            "product_dir": "../../System",
+            "product_dir": "../../examples",
             "cflags": [ "-fvisibility=hidden" ],
             "sources": [
                 "<(sdl_dir)/src/SDL_assert.c",
@@ -89,7 +76,6 @@
                 "<(sdl_dir)/src/events/SDL_windowevents.c",
                 "<(sdl_dir)/src/file/SDL_rwops.c",
                 "<(sdl_dir)/src/haptic/SDL_haptic.c",
-                #"<(sdl_dir)/src/haptic/dummy/SDL_syshaptic.c",
                 "<(sdl_dir)/src/joystick/SDL_joystick.c",
                 "<(sdl_dir)/src/power/SDL_power.c",
                 "<(sdl_dir)/src/render/SDL_render.c",

@@ -133,7 +133,7 @@ extern "C" {
 
     gl* opengl = gl::singleton();
 
-    NODE_MODULE(Creator, init);
+    NODE_MODULE(radamn, init);
 }
 
 

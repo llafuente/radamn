@@ -73,13 +73,13 @@ mkdir build\Release
 
 @rem first generate and compile node. After that copy common.gypi and create radamn project and compile
 
-if not exist %RADAMN_ROOT%\deps\node\common.gypi (
+if not exist %RADAMN_ROOT%\deps\node\node.sln (
     echo "BUILD NODE FIRST!"
-    echo %RADAMN_ROOT%\deps\node\vcbuild
+    echo %RADAMN_ROOT%\deps\node\vcbuild release nosign
     goto radamn_exit
 )
 
-copy %RADAMN_ROOT%\deps\node\common.gypi %RADAMN_ROOT%\common.gypi
+@rem copy %RADAMN_ROOT%\deps\node\common.gypi %RADAMN_ROOT%\common.gypi
 
 @rem Generate the VS project.
 python %NODE_ROOT%\tools\gyp\gyp -f msvs -G msvs_version=2010 %RADAMN_ROOT%\radamn.gyp --depth=%RADAMN_ROOT% -D NODE_ROOT=%RADAMN_ROOT%\deps\node\ -D RADAMN_ROOT=%RADAMN_ROOT% -D CONFIG=%config% -D target_arch=%target_arch%
@@ -91,16 +91,10 @@ msbuild radamn.sln /t:%target% /clp:NoSummary;NoItemAndPropertyList;Verbosity=mi
 
 copy %RADAMN_ROOT%\deps\node\%config%\node.exe examples\node.exe
 
-@rem build SDL
-copy %RADAMN_ROOT%\deps\SDL\VisualC\SDL\Win32\Release\SDL.dll examples\SDL.dll
-
 @rem "build" SDL_ttf
 copy %RADAMN_ROOT%\deps\SDL_ttf\windows_libs\SDL_ttf.dll examples\SDL_ttf.dll
 copy %RADAMN_ROOT%\deps\SDL_ttf\windows_libs\zlib1.dll examples\zlib1.dll
 copy %RADAMN_ROOT%\deps\SDL_ttf\windows_libs\libfreetype-6.dll examples\libfreetype-6.dll
-
-@rem radamn
-copy build\Release\radamn.node lib\radamn.node
 
 goto radam_exit
 

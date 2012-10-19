@@ -4,6 +4,7 @@
 
 {
   'variables': {
+    "configuration": "Release"
   },
   "target_defaults": {
       "configurations": {
@@ -17,11 +18,12 @@
     {
       'target_name': 'libpng15',
       'type': 'static_library',
+      "product_dir": "../../<(configuration)",
       'defines': [
         'PNG_USER_CONFIG',
       ],
       "libraries": [
-        '../node/deps/zlib/<(CONFIG)/zlib.lib'
+        '../node/deps/zlib/<(configuration)/zlib.lib'
       ],
       'sources': [
         'png.c',
