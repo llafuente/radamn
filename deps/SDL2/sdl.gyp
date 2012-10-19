@@ -210,8 +210,8 @@
                             }]
                         ]
                     },
-                    "include_dirs": [ "include", "/Archivos de programa/Microsoft DirectX SDK (June 2010)/Include/" ],
-
+                    #if you see the error: Cannot open include file: 'dxsdkver.h', edit this :)
+                    "include_dirs": [ "include", "/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Include/" ],
                 }],
                 ["OS == 'mac'", {
                     "libraries": [
