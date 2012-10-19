@@ -79,7 +79,8 @@
         "src/radamn_window.cc",
         "src/v8_helper.cc",
         "src/gl.cc",
-        "src/init.cc",
+
+        #"src/init.cc",
 
 
         "src/prerequisites.h",
