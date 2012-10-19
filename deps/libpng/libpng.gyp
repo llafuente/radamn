@@ -5,23 +5,18 @@
 {
   'variables': {
   },
-
-    "target_defaults": {
-        "configurations": {
-            "Debug": {
-            },
-            "Release": {
-            }
-        }
-    },
-
+  "target_defaults": {
+      "configurations": {
+          "Debug": {
+          },
+          "Release": {
+          }
+      }
+  },
   'targets': [
     {
       'target_name': 'libpng15',
       'type': 'static_library',
-      'dependencies': [
-        '../node/deps/zlib/zlib.gyp:zlib'
-      ],
       'defines': [
         'PNG_USER_CONFIG',
       ],
@@ -55,19 +50,25 @@
         '../node/deps/zlib/',
         './contrib/pngminim/decoder'
       ],
-      'direct_dependent_settings': {
-        'defines': [
-          'CHROME_PNG_WRITE_SUPPORT',
-          'PNG_USER_CONFIG',
-        ],
-      },
-      'export_dependent_settings': [
-        '../node/deps/zlib/zlib.gyp:zlib',
-      ],
       'conditions': [
         ['OS=="android"', {
           'toolsets': ['target', 'host'],
         }],
+        ['OS=="linux"', {
+          'target_defaults': {
+            'cflags': ['-fPIC', '-g', '-O3',],
+            #'defines': ['OS_LINUX'],
+          },
+        },],
+        ['OS=="win"', {
+          'target_defaults': {
+            #'defines': ['OS_WIN', 'WIN32', 'NOMINMAX', 'UNICODE', '_UNICODE', 'WIN32_LEAN_AND_MEAN', '_WIN32_WINNT=0x0501'],
+            'msvs_settings': {
+              'VCLinkerTool': {'GenerateDebugInformation': 'true',},
+              'VCCLCompilerTool': {'DebugInformationFormat': '3',},
+            },
+          },
+        },],
       ],
     },
   ],

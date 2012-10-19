@@ -82,7 +82,7 @@ if not exist %RADAMN_ROOT%\deps\node\common.gypi (
 copy %RADAMN_ROOT%\deps\node\common.gypi %RADAMN_ROOT%\common.gypi
 
 @rem Generate the VS project.
-python %NODE_ROOT%\tools\gyp\gyp -f msvs -G msvs_version=2010 %RADAMN_ROOT%\radamn.gyp --depth=%RADAMN_ROOT% -D NODE_ROOT=%RADAMN_ROOT%\deps\node\ -D RADAMN_ROOT=%RADAMN_ROOT% -D CONFIG=%config%
+python %NODE_ROOT%\tools\gyp\gyp -f msvs -G msvs_version=2010 %RADAMN_ROOT%\radamn.gyp --depth=%RADAMN_ROOT% -D NODE_ROOT=%RADAMN_ROOT%\deps\node\ -D RADAMN_ROOT=%RADAMN_ROOT% -D CONFIG=%config% -D target_arch=%target_arch%
 if errorlevel 1 goto radamn_create-msvs-files-failed
 if not exist %RADAMN_ROOT%\radamn.sln goto radamn_create-msvs-files-failed
 echo radamn Project files generated.
@@ -91,28 +91,7 @@ msbuild radamn.sln /t:%target% /clp:NoSummary;NoItemAndPropertyList;Verbosity=mi
 
 copy %RADAMN_ROOT%\deps\node\%config%\node.exe examples\node.exe
 
-goto radam_exit
-
-@rem test code
-@rem test code
-@rem test code
-@rem test code
-@rem test code
-
-
-@rem detect the location of the node.lib file
-
-@rem build node!
-
-
-
-
-
-@rem build libpng
-msbuild "%RADAMN_ROOT%\deps\libpng\projects\vstudio\vstudio.sln" /t:Build /clp:NoSummary;NoItemAndPropertyList;Verbosity=minimal /nologo "/p:Configuration=Release Library"
-
 @rem build SDL
-msbuild "%RADAMN_ROOT%\deps\SDL\VisualC\SDL_VS2010.sln" /t:Build /clp:NoSummary;NoItemAndPropertyList;Verbosity=minimal /nologo "/p:Configuration=Release"
 copy %RADAMN_ROOT%\deps\SDL\VisualC\SDL\Win32\Release\SDL.dll examples\SDL.dll
 
 @rem "build" SDL_ttf
@@ -120,25 +99,14 @@ copy %RADAMN_ROOT%\deps\SDL_ttf\windows_libs\SDL_ttf.dll examples\SDL_ttf.dll
 copy %RADAMN_ROOT%\deps\SDL_ttf\windows_libs\zlib1.dll examples\zlib1.dll
 copy %RADAMN_ROOT%\deps\SDL_ttf\windows_libs\libfreetype-6.dll examples\libfreetype-6.dll
 
-
-
-@rem build radamn at last!
-
-echo Compile now!
-
-msbuild "%~dp0\module.sln" /t:Build /clp:NoSummary;NoItemAndPropertyList;Verbosity=minimal /nologo
-echo "move DLL to lib"
+@rem radamn
 copy build\Release\radamn.node lib\radamn.node
+
 goto radam_exit
 
-
-
 @rem *******************************************
 @rem *******************************************
 @rem *******************************************
-
-
-
 
 :radamn_create-msvs-files-failed
 echo Failed to create vc project files.

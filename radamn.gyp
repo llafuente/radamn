@@ -4,38 +4,96 @@
     "module_name": "radamn",
     #These are required variables to make a proper node module build
     "library": "shared_library",
-    "target_name": "Creator",
+    "target_name": "radamn",
     "configuration": "Release"
   },
+  'target_defaults': {
+    'default_configuration': 'Release',
+    'configurations': {
+      'Debug': {
+        'defines': [ 'DEBUG', '_DEBUG' ],
+        #'cflags': [ '-g', '-O0' ],
+        'conditions': [
+          ['target_arch=="x64"', {
+            'msvs_configuration_platform': 'x64',
+          }]
+        ]
+      },
+      'Release': {
+        'conditions': [
+          ['target_arch=="x64"', {
+            'msvs_configuration_platform': 'x64',
+          }]
+        ],
+        #'cflags!': [ '-O3', '-fstrict-aliasing' ],
 
+        #'msvs_settings': {
+        #  'VCCLCompilerTool': {
+        #    'Optimization': 3, # /Ox, full optimization
+        #    'FavorSizeOrSpeed': 1, # /Ot, favour speed over size
+        #    'InlineFunctionExpansion': 2, # /Ob2, inline anything eligible
+        #    'WholeProgramOptimization': 'true', # /GL, whole program optimization, needed for LTCG
+        #    'OmitFramePointers': 'true',
+        #    'EnableFunctionLevelLinking': 'true',
+        #    'EnableIntrinsicFunctions': 'true',
+        #    'RuntimeTypeInfo': 'false',
+        #    'ExceptionHandling': '0',
+        #    'AdditionalOptions': [
+        #      '/MP', # compile across multiple CPUs
+        #    ],
+        'msvs_settings': {
+            'AdditionalOptions': [
+              '/MP', # compile across multiple CPUs
+            ],
+          'VCLibrarianTool': {
+            'AdditionalOptions': [
+              '/LTCG', # link time code generation
+            ],
+          }
+        }
+        #  },
+        #  'VCLibrarianTool': {
+        #    'AdditionalOptions': [
+        #      '/LTCG', # link time code generation
+        #    ],
+        #  },
+        #  'VCLinkerTool': {
+        #    'LinkTimeCodeGeneration': 1, # link-time code generation
+        #    'OptimizeReferences': 2, # /OPT:REF
+        #    'EnableCOMDATFolding': 2, # /OPT:ICF
+        #    'LinkIncremental': 1, # disable incremental linking
+        #  },
+        #},
+      }
+    },
+  },
   "targets": [
     {
       "sources": [
-        "src/prerequisites.h",
         "src/prerequisites.cc",
-
-        "src/radamn_loggin.h",
         "src/radamn_loggin.cc",
-
         "src/radamn.cc",
-        "src/radamn.h",
-
         "src/c_helper.cc",
-        "src/c_helper.h",
-
         "src/radamn_font.cc",
-        "src/radamn_font.h",
         "src/radamn_image.cc",
-        "src/radamn_image.h",
         "src/radamn_window.cc",
-        "src/radamn_window.h",
         "src/v8_helper.cc",
-        "src/v8_helper.h",
-
         "src/gl.cc",
+        "src/init.cc",
+
+
+        "src/prerequisites.h",
+        "src/radamn_loggin.h",
+        "src/radamn.h",
+        "src/c_helper.h",
+        "src/radamn_font.h",
+        "src/radamn_image.h",
+        "src/radamn_window.h",
+        "src/v8_helper.h",
         "src/gl.h",
+
         # node.gyp is added to the project by default.
-        'common.gypi',
+        "common.gypi",
       ],
 
       "target_name": "<(module_name)",
@@ -53,12 +111,10 @@
         "_FILE_OFFSET_BITS=64"
       ],
       "dependencies": [
-        #"./deps/node/node.gyp:node",
         './deps/libpng/libpng.gyp:libpng15',
         './deps/SDL2/sdl.gyp:SDL2'
       ],
       'export_dependent_settings': [
-        #"./deps/node/node.gyp:node",
         './deps/SDL2/sdl.gyp:SDL2',
         './deps/libpng/libpng.gyp:libpng15'
       ],
@@ -85,15 +141,10 @@
           "libraries": [
              "-l opengl32.lib" ,
              "-l glu32.lib",
-             # static linking SDL ? winmm.lib, Version.lib, Imm32.lib
-             #"-l winmm.lib",
-             #"-l Version.lib",
-             #"-l Imm32.lib",
-             #"-l <(RADAMN_ROOT)/deps/GL/glut32.lib",
-             "-l <(NODE_ROOT)/<(CONFIG)/node.lib" ,
-             "-l <(RADAMN_ROOT)/deps/SDL2/VisualC/SDL/Win32/<(CONFIG)/SDL.lib",
-             "-l <(NODE_ROOT)/deps/zlib/<(CONFIG)/lib/zlib.lib" ,
-             "-l <(RADAMN_ROOT)/deps/libpng/Default\lib\libpng15.lib",
+             "-l <(RADAMN_ROOT)/deps/node/<(CONFIG)/node.lib" ,
+             "-l <(RADAMN_ROOT)/<(CONFIG)/SDL2.lib",
+             "-l <(RADAMN_ROOT)/<(CONFIG)/lib/libpng15.lib",
+             "-l <(RADAMN_ROOT)/deps/node/<(CONFIG)/lib/zlib.lib" ,
              "-l <(RADAMN_ROOT)/deps/SDL_ttf/windows_libs/SDL_ttf.lib",
           ],
           "msvs_configuration_attributes": {
