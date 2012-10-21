@@ -14,7 +14,7 @@
     {
       'target_name': 'SDL_ttf',
       'type': 'static_library',
-      "product_dir": "../../<(configuration)",
+      "product_dir": "<(module_root_dir)/<(configuration)",
       'sources': [
         'SDL_ttf.c',
         'glfont.c',

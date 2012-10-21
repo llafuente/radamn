@@ -18,12 +18,12 @@
     {
       'target_name': 'libpng15',
       'type': 'static_library',
-      "product_dir": "../../<(configuration)",
+      "product_dir": "<(module_root_dir)/<(configuration)",
       'defines': [
         'PNG_USER_CONFIG',
       ],
       "libraries": [
-        '<(node_root_dir)/deps/zlib/<(configuration)/zlib.lib'
+        "-l <(module_root_dir)/deps/zlib.lib",
       ],
       'sources': [
         'png.c',
@@ -59,18 +59,14 @@
         ['OS=="linux"', {
           'target_defaults': {
             'cflags': ['-fPIC', '-g', '-O3',],
-            #'defines': ['OS_LINUX'],
+            'defines': ['OS_LINUX'],
           },
         },],
         ['OS=="win"', {
           'target_defaults': {
-            #'defines': ['OS_WIN', 'WIN32', 'NOMINMAX', 'UNICODE', '_UNICODE', 'WIN32_LEAN_AND_MEAN', '_WIN32_WINNT=0x0501'],
-            'msvs_settings': {
-              'VCLinkerTool': {'GenerateDebugInformation': 'true',},
-              'VCCLCompilerTool': {'DebugInformationFormat': '3',},
-            },
+            'defines': ['OS_WIN', 'NOMINMAX', 'UNICODE', '_UNICODE'],
           },
-        },],
+        }]
       ],
     },
   ],

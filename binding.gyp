@@ -75,15 +75,15 @@
       ],
       "dependencies": [
         './deps/libpng/libpng.gyp:libpng15',
-        './deps/freetype/freetype.gyp:ft2',
-        './deps/SDL_ttf/sdl_ttf.gyp:SDL_ttf',
-        './deps/SDL2/sdl.gyp:SDL2'
-      ],
-      'export_dependent_settings': [
         './deps/SDL2/sdl.gyp:SDL2',
         './deps/freetype/freetype.gyp:ft2',
-        './deps/SDL_ttf/sdl_ttf.gyp:SDL_ttf',
-        './deps/libpng/libpng.gyp:libpng15'
+        './deps/SDL_ttf/sdl_ttf.gyp:SDL_ttf'
+      ],
+      'export_dependent_settings': [
+        './deps/libpng/libpng.gyp:libpng15',
+        './deps/SDL2/sdl.gyp:SDL2',
+        './deps/freetype/freetype.gyp:ft2',
+        './deps/SDL_ttf/sdl_ttf.gyp:SDL_ttf'
       ],
 
       "include_dirs": [
@@ -104,15 +104,12 @@
             "uint=unsigned int",
             # we need to use node"s preferred "win32" rather than gyp"s preferred "win"
             "PLATFORM='win32'",
+            "_WINDOWS",
+            "HAVE_LIBC",
+            "M_PI=3.14159265358979323846264338327950288"
           ],
           "libraries": [
              "-l opengl32.lib" ,
-             "-l deps/node/<(configuration)/node.lib" ,
-             "-l <(configuration)/SDL2.lib",
-             "-l <(configuration)/libpng15.lib",
-             "-l <(configuration)/ft2.lib",
-             "-l deps/node/<(configuration)/lib/zlib.lib" ,
-             "-l <(configuration)/SDL_ttf.lib",
           ]
         }],
         [ "OS=='mac'", {

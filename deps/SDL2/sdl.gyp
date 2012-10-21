@@ -44,7 +44,7 @@
         {
             "target_name": "SDL2",
             "type": "<(library)",
-            "product_dir": "../../examples",
+            "product_dir": "<(module_root_dir)/examples",
             "cflags": [ "-fvisibility=hidden" ],
             "sources": [
                 "<(sdl_dir)/src/SDL_assert.c",
@@ -158,6 +158,11 @@
                     }
                 }],
                 ["OS == 'win'", {
+                    "defines" : [
+                        "_WINDOWS",
+                        "HAVE_LIBC",
+                        "M_PI=3.14159265358979323846264338327950288"
+                    ],
                     "libraries": [ "-lwinmm.lib", "-limm32.lib", "-lversion.lib" ],
                     "sources": [
                         "<(sdl_dir)/src/libm/e_atan2.c",
