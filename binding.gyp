@@ -1,6 +1,6 @@
 {
   "variables": {
-    "target_name": "radamn",
+    "target_name": "cradamn",
     "configuration": "Release"
   },
   'target_defaults': {
@@ -63,7 +63,7 @@
       "type": "shared_library",
       "product_name":"<(target_name)",
       "product_extension":"node",
-      "product_dir": "lib/",
+      "product_dir": "<(module_root_dir)/lib/",
       #remove the default lib prefix on each library
       "product_prefix":"",
 
@@ -74,12 +74,14 @@
         "_FILE_OFFSET_BITS=64"
       ],
       "dependencies": [
+        './deps/zlib/zlib.gyp:zlib',
         './deps/libpng/libpng.gyp:libpng15',
         './deps/SDL2/sdl.gyp:SDL2',
         './deps/freetype/freetype.gyp:ft2',
         './deps/SDL_ttf/sdl_ttf.gyp:SDL_ttf'
       ],
       'export_dependent_settings': [
+        './deps/zlib/zlib.gyp:zlib',
         './deps/libpng/libpng.gyp:libpng15',
         './deps/SDL2/sdl.gyp:SDL2',
         './deps/freetype/freetype.gyp:ft2',

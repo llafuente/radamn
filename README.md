@@ -6,11 +6,17 @@ Powered by nodejs, v8 and Mootools. Rendering: OpenGL (2+) current, OpenglES(1+)
 ## 0. Installation
 
 
-Compilation (wikis)
+##Build
 
-[linux](/llafuente/radamn/wiki/Compile-in-Linux)
-[windows](/llafuente/radamn/wiki/Compile-in-Windows)
-[Android Experimental (just compile)](/llafuente/radamn/wiki/Compile-in-Android)
+Compile (tested on windows)
+
+    npm install node-gyp
+    node-gyp configure build
+
+Common errors:
+
+    ..\..\..\deps\SDL2\src\audio\xaudio2\SDL_xaudio2.c(31): fatal error C1083: Cannot open include file: 'dxsdkver.h': No such file or directory [C:\noboxout\radamn\build\deps\SDL2\SDL2.vcxproj]
+Go to /deps/SDL2/sdl.gyp and edit the include dirs, add the proper DX SDK
 
 
 After this, some packages are needed

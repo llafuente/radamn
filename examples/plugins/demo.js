@@ -58,9 +58,6 @@ exports.demoWindow = function(width, height, caption, grid) {
     __info("[demo] attaching ESC/F5/Close window:");
     exports.attachEscapeInputs(win);
 
-    __info("[demo] set caption to: "+caption);
-    win.setCaption(caption, caption);
-
     if(grid) {
         __info("[demo] display grid");
         exports.attachGrid(win, grid);

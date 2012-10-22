@@ -23,7 +23,7 @@
         'PNG_USER_CONFIG',
       ],
       "libraries": [
-        "-l <(module_root_dir)/deps/zlib.lib",
+        "-l <(module_root_dir)/<(configuration)/zlib.lib",
       ],
       'sources': [
         'png.c',
@@ -49,7 +49,7 @@
       ],
       'include_dirs': [
         './',
-        '<(node_root_dir)/deps/zlib/',
+        '<(module_root_dir)/deps/zlib/',
         './contrib/pngminim/decoder'
       ],
       'conditions': [

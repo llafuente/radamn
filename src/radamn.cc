@@ -133,7 +133,7 @@ extern "C" {
 
     gl* opengl = gl::singleton();
 
-    NODE_MODULE(radamn, init);
+    NODE_MODULE(cradamn, init);
 }
 
 
@@ -233,18 +233,16 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
 
 
-    /*
-    VERBOSE << "SDL_GL_RED_SIZE     " << SDL_GL_SetAttribute(SDL_GL_RED_SIZE,           8) << ENDL;
-    VERBOSE << "SDL_GL_GREEN_SIZE   " << SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,         8) << ENDL;
-    VERBOSE << "SDL_GL_BLUE_SIZE    " << SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,          8) << ENDL;
-    VERBOSE << "SDL_GL_ALPHA_SIZE   " << SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,         8) << ENDL;
-    VERBOSE << "SDL_GL_BUFFER_SIZE  " << SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,        0) << ENDL;
+
+    VERBOSE << "SDL_GL_RED_SIZE     " << SDL_GL_SetAttribute(SDL_GL_RED_SIZE,           5) << ENDL;
+    VERBOSE << "SDL_GL_GREEN_SIZE   " << SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,         5) << ENDL;
+    VERBOSE << "SDL_GL_BLUE_SIZE    " << SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,          5) << ENDL;
+    VERBOSE << "SDL_GL_ALPHA_SIZE   " << SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,         1) << ENDL;
+    VERBOSE << "SDL_GL_BUFFER_SIZE  " << SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,        16) << ENDL;
     VERBOSE << "SDL_GL_DOUBLEBUFFER " << SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,       1) << ENDL;
-    VERBOSE << "SDL_GL_DEPTH_SIZE   " << SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,         32) << ENDL;
-    */
-    VERBOSE << "SDL_GL_DOUBLEBUFFER " << SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,       1) << ENDL;
-    VERBOSE << "SDL_GL_DEPTH_SIZE   " << SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,         32) << ENDL;
-    /*
+    VERBOSE << "SDL_GL_DEPTH_SIZE   " << SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,         16) << ENDL;
+
+
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,       0);
     SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,     0);
     SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE,   0);
@@ -254,38 +252,27 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0); // 1
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0); // 2
     //deprecated: SDL_GL_SetAttribute(SDL_GL_RETAINED_BACKING,   1);
-    */
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     VERBOSE << "SDL_GL_ACCELERATED_VISUAL " << SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1) << ENDL;
 
 
-    int n;
+    int n, video_driver_id=0;
     n = SDL_GetNumVideoDrivers();
     for (int i = 0; i < n; ++i) {
-        VERBOSE << "VideoDriver: " << SDL_GetVideoDriver(i) << ENDL;
+        VERBOSE << "VideoDriver [" << SDL_GetVideoDriver(i) << "]" << ENDL;
+        if(SDL_strcasecmp(SDL_GetVideoDriver(i), "windows") == 0) { //this must be editted!
+            video_driver_id = i;
+        }
     }
 
-    SDL_VideoInit( SDL_GetVideoDriver(0) );
-
-    VERBOSE << "Create window using VideoDriver: " << SDL_GetCurrentVideoDriver() << ENDL;
-
-    SDL_DisplayMode mode;
-    SDL_GetCurrentDisplayMode(0, &mode);
-    SDL_PixelFormatEnumToMasks(mode.format, &radamn::window::bpp, &radamn::window::rmask, &radamn::window::gmask, &radamn::window::bmask, &radamn::window::amask);
-    VERBOSE << "bpp: " << radamn::window::bpp << ENDL;
-    VERBOSE << "rmask: " << radamn::window::rmask << ENDL;
-    VERBOSE << "gmask: " << radamn::window::gmask << ENDL;
-    VERBOSE << "bmask: " << radamn::window::bmask << ENDL;
-    VERBOSE << "amask: " << radamn::window::amask << ENDL;
-
-    //SDL_DisplayMode fullscreen_mode;
-    //SDL_zero(fullscreen_mode);
-    //fullscreen_mode.format = SDL_PIXELFORMAT_RGB888;
-    //fullscreen_mode.refresh_rate = mode.refresh_rate;
-
+    VERBOSE << "Creating VideoDriver [" << video_driver_id << "]" << ENDL;
+    if( SDL_VideoInit( SDL_GetVideoDriver(video_driver_id) ) != 0) {
+        return ThrowException(v8::Exception::TypeError(v8::String::New("SDL_VideoInit error")));
+    }
 
     // SDL_WINDOW_FULLSCREEN;
     // SDL_WINDOW_BORDERLESS
@@ -294,10 +281,10 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
     // SDL_WINDOW_MAXIMIZED
     // SDL_WINDOW_INPUT_GRABBED
     radamn::window::win = SDL_CreateWindow("radamn", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-    SDL_GetWindowSize(radamn::window::win, &radamn::window::width, &radamn::window::height);
 
-    VERBOSE << "width: " << radamn::window::width << ENDL;
-    VERBOSE << "height: " << radamn::window::height << ENDL;
+    if(radamn::window::win == NULL) {
+        return ThrowException(v8::Exception::TypeError(v8::String::New("SDL_CreateWindow error")));
+    }
 
     n = SDL_GetNumRenderDrivers();
     SDL_RendererInfo info;
@@ -309,35 +296,31 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
             renderer_id = i;
         }
     }
-
+/*
     if(renderer_id == -1) {
         return ThrowException(v8::Exception::TypeError(v8::String::New("cannot find opengl renderer")));
     }
 
-    VERBOSE << "Create renderer: " << renderer_id << ENDL;
-    // SDL_RENDERER_PRESENTVSYNC
-    radamn::window::renderer = SDL_CreateRenderer(radamn::window::win, renderer_id, 0);
+    VERBOSE << "Creating renderer [" << renderer_id << "]" << ENDL;
+    // - SDL_RENDERER_PRESENTVSYNC
+    // - SDL_RENDERER_TARGETTEXTURE
+    radamn::window::renderer = SDL_CreateRenderer(radamn::window::win, renderer_id, SDL_RENDERER_ACCELERATED);
+*/
 
-    VERBOSE << "Swap Interval : " << SDL_GL_GetSwapInterval() << ENDL;
-    VERBOSE << "Vendor        : " << glGetString(GL_VENDOR)   << ENDL;
-    VERBOSE << "Renderer      : " << glGetString(GL_RENDERER) << ENDL;
-    VERBOSE << "Version       : " << glGetString(GL_VERSION)  << ENDL;
 
-    SDL_GL_SwapWindow(radamn::window::win);
     SDL_GLContext context = SDL_GL_CreateContext(radamn::window::win);
     if(context == NULL) {
         VERBOSE << "SDL_GL_CreateContext: " << SDL_GetError() << ENDL;
         return ThrowException(v8::Exception::TypeError(v8::String::New("cannot create gl context")));
     }
-    SDL_GL_MakeCurrent(radamn::window::win, context);
 
-    int ret = SDL_GL_SetSwapInterval(1);
-    VERBOSE << "SDL_GL_SetSwapInterval: " << ret << ENDL;
-    if(ret != 0) {
-        VERBOSE << SDL_GetError() << ENDL;
+    int ret = 0;
+    if (SDL_GL_SetSwapInterval(-1) == -1) {
+        ret = SDL_GL_SetSwapInterval(1);
     }
 
-    glClearColor(0, 0, 0, 0);
+    SDL_GetWindowSize(radamn::window::win, &radamn::window::width, &radamn::window::height);
+
     glClearDepth(1.0f);
     glViewport(0, 0, radamn::window::width, radamn::window::height);
 
@@ -354,6 +337,74 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
 
     glDisable(GL_DEPTH_TEST);
     glShadeModel(GL_FLAT); // GL_SMOOTH
+
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    VERBOSE << "window width: " << radamn::window::width << ENDL;
+    VERBOSE << "window height: " << radamn::window::height << ENDL;
+
+    SDL_DisplayMode mode;
+    SDL_GetCurrentDisplayMode(0, &mode);
+    SDL_PixelFormatEnumToMasks(mode.format, &radamn::window::bpp, &radamn::window::rmask, &radamn::window::gmask, &radamn::window::bmask, &radamn::window::amask);
+    VERBOSE << "BPP: " << radamn::window::bpp << ENDL;
+    VERBOSE << "RMASK: " << radamn::window::rmask << ENDL;
+    VERBOSE << "GMASK: " << radamn::window::gmask << ENDL;
+    VERBOSE << "BMASK: " << radamn::window::bmask << ENDL;
+    VERBOSE << "AMASK: " << radamn::window::amask << ENDL;
+
+    VERBOSE << "Swap Interval : " << SDL_GL_GetSwapInterval() << ENDL;
+    VERBOSE << "Vendor        : " << glGetString(GL_VENDOR)   << ENDL;
+    VERBOSE << "Renderer      : " << glGetString(GL_RENDERER) << ENDL;
+    VERBOSE << "Version       : " << glGetString(GL_VERSION)  << ENDL;
+
+
+    int status,
+        value;
+
+    status = SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &value);
+    if (!status) {
+        VERBOSE << "SDL_GL_RED_SIZE: requested 5, got " << value << ENDL;
+    } else {
+        VERBOSE << "Failed to get SDL_GL_RED_SIZE: " << SDL_GetError() << ENDL;
+    }
+    status = SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &value);
+    if (!status) {
+        VERBOSE << "SDL_GL_GREEN_SIZE: requested 5, got " << value << ENDL;
+    } else {
+        VERBOSE << "Failed to get SDL_GL_GREEN_SIZE: " << SDL_GetError() << ENDL;
+    }
+    status = SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &value);
+    if (!status) {
+        VERBOSE << "SDL_GL_BLUE_SIZE: requested 5, got " << value << ENDL;
+    } else {
+        VERBOSE << "Failed to get SDL_GL_BLUE_SIZE: " << SDL_GetError() << ENDL;
+    }
+    status = SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &value);
+    if (!status) {
+        VERBOSE << "SDL_GL_DEPTH_SIZE: requested 16, got " << value << ENDL;
+    } else {
+        VERBOSE << "Failed to get SDL_GL_DEPTH_SIZE: " << SDL_GetError() << ENDL;
+    }
+    status = SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &value);
+    if (!status) {
+        VERBOSE << "SDL_GL_MULTISAMPLEBUFFERS: requested 1, got " << value << ENDL;
+    } else {
+        VERBOSE << "Failed to get SDL_GL_MULTISAMPLEBUFFERS: " << SDL_GetError() << ENDL;
+    }
+    status = SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &value);
+    if (!status) {
+        VERBOSE << "SDL_GL_MULTISAMPLESAMPLES: requested 1, got " << value << ENDL;
+    } else {
+        VERBOSE << "Failed to get SDL_GL_MULTISAMPLESAMPLES: " << SDL_GetError() << ENDL;
+    }
+    status = SDL_GL_GetAttribute(SDL_GL_ACCELERATED_VISUAL, &value);
+    if (!status) {
+        VERBOSE << "SDL_GL_ACCELERATED_VISUAL: requested 1, got " << value << ENDL;
+    } else {
+        VERBOSE << "Failed to get SDL_GL_ACCELERATED_VISUAL: " << SDL_GetError() << ENDL;
+    }
+
 
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
     return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));

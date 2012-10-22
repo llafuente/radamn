@@ -176,9 +176,8 @@ void gl::clear() {
 
 
 void gl::flip_buffers() {
-    SDL_RenderPresent(radamn::window::renderer);
-    //glFlush();
-    //SDL_GL_SwapWindow(radamn::window::win);
+    SDL_GL_SwapWindow(radamn::window::win);
+    VERBOSE << "FLIP" << ENDL;
 }
 
 //
