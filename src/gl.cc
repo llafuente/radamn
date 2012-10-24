@@ -60,8 +60,9 @@ gl_operators gl::operator_from_string(char* str) {
 void gl::set_operator(gl_operators op) {
 
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-    glDepthFunc( GL_LEQUAL );
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+    //glDepthFunc( GL_LEQUAL );
 
     return ;
 
@@ -166,6 +167,7 @@ void gl::clear_operator() {
 
 void gl::clear() {
     gl_color_t* color= &(gl::singleton()->background);
+    VERBOSE << "rgba (" << color->r << "," <<  color->g << ","<< color->b << "," << color->a << ")"<< ENDL;
     glClearColor(color->r, color->g, color->b, color->a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -177,7 +179,7 @@ void gl::clear() {
 
 void gl::flip_buffers() {
     SDL_GL_SwapWindow(radamn::window::win);
-    VERBOSE << "FLIP" << ENDL;
+    SDL_Delay(50); // XXX test code!!
 }
 
 //
@@ -208,7 +210,6 @@ void gl::stroke_poly(GLfloat* points, int cpoints, int width, gl_color_t color) 
         glEnable(GL_BLEND); //enable the blending
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
-
     glEnable (GL_LINE_SMOOTH);
 
     GLfloat before[4];
@@ -269,7 +270,6 @@ void gl::fill_poly(GLfloat* points, int cpoints, gl_color_t color) {
         glEnable(GL_BLEND); //enable the blending
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
-
     glEnable (GL_LINE_SMOOTH);
 
     GLfloat before[4];
@@ -387,11 +387,15 @@ void gl::draw_quad(GLuint texture_id, GLfloat* uvs, SDL_Rect* dst, gl_operators_
 
 
 v8::Handle<v8::Value> radamn::v8_gl_set_background_color(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     v8::HandleScope scope;
 
     V8_ARG_TO_SDL_NEWCOLOR(0, color_src);
 
     gl::singleton()->background = gl_color_from(color_src);
+
+    VERBOSE << "end" << ENDL;
 
     return v8::True();
 }
@@ -401,7 +405,11 @@ v8::Handle<v8::Value> radamn::v8_gl_set_background_color(const v8::Arguments& ar
 //
 
 v8::Handle<v8::Value> radamn::v8_gl_clear(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     gl::clear();
+
+    VERBOSE << "end" << ENDL;
 
     return v8::True();
 }
@@ -411,9 +419,11 @@ v8::Handle<v8::Value> radamn::v8_gl_clear(const v8::Arguments& args) {
 //
 
 v8::Handle<v8::Value> radamn::v8_gl_flip_buffers(const v8::Arguments& args) {
-    v8::HandleScope scope;
+    VERBOSE << "start" << ENDL;
 
     gl::flip_buffers();
+
+    VERBOSE << "end" << ENDL;
 
     return v8::True();
 }
@@ -423,6 +433,8 @@ v8::Handle<v8::Value> radamn::v8_gl_flip_buffers(const v8::Arguments& args) {
 //
 
 v8::Handle<v8::Value> radamn::v8_gl_transform(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     GLfloat m[16] = {
         1,0,0,0,
         0,1,0,0,
@@ -449,6 +461,8 @@ v8::Handle<v8::Value> radamn::v8_gl_transform(const v8::Arguments& args) {
 
     gl::matrix_mult(m);
 
+    VERBOSE << "end" << ENDL;
+
     return v8::Undefined();
 }
 
@@ -457,6 +471,8 @@ v8::Handle<v8::Value> radamn::v8_gl_transform(const v8::Arguments& args) {
 //
 
 v8::Handle<v8::Value> radamn::v8_gl_set_transform(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     GLfloat m[16] = {
         1,0,0,0,
         0,1,0,0,
@@ -480,12 +496,14 @@ v8::Handle<v8::Value> radamn::v8_gl_set_transform(const v8::Arguments& args) {
 
     gl::matrix_set(m);
 
+    VERBOSE << "end" << ENDL;
+
     return v8::Undefined();
 }
 
 /// TODO composite!
 v8::Handle<v8::Value> radamn::v8_gl_fill(const v8::Arguments& args) {
-    VERBOSE << "fill" << std::endl;
+    VERBOSE << "start" << ENDL;
 
     V8_ARG_TO_NEWARRAY(0, coords);
     V8_ARG_TO_SDL_NEWCOLOR(1, color_src);
@@ -514,6 +532,8 @@ v8::Handle<v8::Value> radamn::v8_gl_fill(const v8::Arguments& args) {
 
     free(positions);
 
+    VERBOSE << "end" << ENDL;
+
     return v8::True();
 }
 
@@ -524,6 +544,7 @@ v8::Handle<v8::Value> radamn::v8_gl_fill(const v8::Arguments& args) {
 
 /// TODO composite!
 v8::Handle<v8::Value> radamn::v8_gl_stroke(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
 
     V8_ARG_TO_NEWARRAY(0, coords);
     V8_ARG_TO_NEWFLOAT(1, width);
@@ -556,6 +577,8 @@ v8::Handle<v8::Value> radamn::v8_gl_stroke(const v8::Arguments& args) {
 
     free(positions);
 
+    VERBOSE << "end" << ENDL;
+
     return v8::True();
 }
 
@@ -565,7 +588,12 @@ v8::Handle<v8::Value> radamn::v8_gl_stroke(const v8::Arguments& args) {
 //
 
 v8::Handle<v8::Value> radamn::v8_gl_save(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     glPushMatrix();
+
+    VERBOSE << "end" << ENDL;
+
     return v8::True();
 }
 
@@ -574,7 +602,12 @@ v8::Handle<v8::Value> radamn::v8_gl_save(const v8::Arguments& args) {
 //
 
 v8::Handle<v8::Value> radamn::v8_gl_restore(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     glPopMatrix();
+
+    VERBOSE << "end" << ENDL;
+
     return v8::True();
 }
 
@@ -583,6 +616,8 @@ v8::Handle<v8::Value> radamn::v8_gl_restore(const v8::Arguments& args) {
 //
 
 v8::Handle<v8::Value> radamn::v8_gl_translate(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     v8::HandleScope scope;
 
     V8_ARG_TO_NEWFLOAT(0, x)
@@ -590,6 +625,8 @@ v8::Handle<v8::Value> radamn::v8_gl_translate(const v8::Arguments& args) {
     V8_ARG_TO_NEWFLOAT(2, z)
 
     glTranslatef(x, y, z);
+
+    VERBOSE << "end" << ENDL;
 
     return v8::True();
 }
@@ -599,9 +636,13 @@ v8::Handle<v8::Value> radamn::v8_gl_translate(const v8::Arguments& args) {
 //
 
 v8::Handle<v8::Value> radamn::v8_gl_rotate(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     V8_ARG_TO_NEWFLOAT(0, angle);
 
     glRotatef(angle, 0.0f, 0.0f, 1.0f);
+
+    VERBOSE << "end" << ENDL;
 
     return v8::True();
 }
@@ -611,10 +652,110 @@ v8::Handle<v8::Value> radamn::v8_gl_rotate(const v8::Arguments& args) {
 //
 
 v8::Handle<v8::Value> radamn::v8_gl_scale(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     V8_ARG_TO_NEWFLOAT(0, x);
     V8_ARG_TO_NEWFLOAT(1, y);
 
     glScalef(x, y, 1.0f);
 
+    VERBOSE << "end" << ENDL;
+
     return v8::True();
+}
+
+
+bool gl::setup() {
+    return true;
+
+#ifdef _WIN32
+    GLenum err;
+    if (GLEW_OK != (err = glewInit())){
+        VERBOSE << "Could not init GLEW: " << glewGetErrorString(err) << ENDL;
+        return false;
+    }
+#endif
+
+    gl* gli = gl::singleton();
+
+    VERBOSE << "start!" << ENDL;
+
+//-----------------------------------------------------------------------------
+    char shErr[1024];
+    int errlen;
+    GLint res;
+
+    const char* vert_src =
+        "#version 110\n"
+        "in vec2 in_Position;\n"
+        "\n"
+        "void main(){\n"
+        "    gl_Position = vec4(in_Position, .0, 1.0);\n"
+        "}";
+    const char* frag_src =
+        "#version 110\n"
+        "out vec4 frag_Color;\n"
+        "\n"
+        "void main(){\n"
+        "    frag_Color = vec4(1.0, .0, .0, 1.0);\n"
+        "}";
+
+    VERBOSE << vert_src << ENDL;
+    VERBOSE << frag_src << ENDL;
+
+    VERBOSE << "Generate some IDs for our shader programs" << ENDL;
+    gli->g_shVert = glCreateShader(GL_VERTEX_SHADER);
+    gli->g_shFrag = glCreateShader(GL_FRAGMENT_SHADER);
+    gli->g_shProg = glCreateProgram();
+
+    VERBOSE << "Assign our above shader source code to these IDs" << ENDL;
+    glShaderSource(gli->g_shVert, 1, &vert_src, NULL);
+    glShaderSource(gli->g_shFrag, 1, &frag_src, NULL);
+
+    VERBOSE << "Attempt to compile the source code" << ENDL;
+    glCompileShader(gli->g_shVert);
+    glCompileShader(gli->g_shFrag);
+
+    VERBOSE << "check if compilation was successful" << ENDL;
+    glGetShaderiv(gli->g_shVert, GL_COMPILE_STATUS, &res);
+    if (GL_FALSE == res){
+        VERBOSE << "Failed to compile vertex shader" << ENDL;
+        glGetShaderInfoLog(gli->g_shVert, 1024, &errlen, shErr);
+        VERBOSE << shErr << ENDL;
+        return false;
+    }
+    glGetShaderiv(gli->g_shFrag, GL_COMPILE_STATUS, &res);
+    if (GL_FALSE == res){
+        VERBOSE << "Failed to compile fragment shader" << ENDL;
+        glGetShaderInfoLog(gli->g_shFrag, 1024, &errlen, shErr);
+        VERBOSE << shErr << ENDL;
+        return false;
+    }
+
+    // Attach these shaders to the shader program
+    glAttachShader(gli->g_shProg, gli->g_shVert);
+    glAttachShader(gli->g_shProg, gli->g_shFrag);
+    // flag the shaders to be deleted when the shader program is deleted
+    glDeleteShader(gli->g_shVert);
+    glDeleteShader(gli->g_shFrag);
+
+    // Link the shaders
+    glLinkProgram(gli->g_shProg);
+    glGetProgramiv(gli->g_shProg, GL_LINK_STATUS, &res);
+    if (GL_FALSE == res) {
+        VERBOSE << "Failed to link shader program" << ENDL;
+        return false;
+    }
+
+    glUseProgram(gli->g_shProg);
+
+    return true;
+}
+
+void gl::destroy() {
+    gl* gli = gl::singleton();
+
+    //glDeleteBuffers(1, &gli->g_vbo);
+    //glDeleteVertexArrays(1, &gli->g_vao);
+    delete gl::instance;
 }

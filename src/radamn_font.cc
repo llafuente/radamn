@@ -67,6 +67,8 @@ font* font::unwrap(v8::Local<v8::Value> handle) {
 //
 
 v8::Handle<v8::Value> radamn::v8_font_load(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     v8::HandleScope scope;
 
     VERBOSE << "v8_font_load(" << args.Length() << "@ " << args[0]->IsString() << "," << args[1]->IsNumber() << ")" << ENDL;
@@ -79,6 +81,9 @@ v8::Handle<v8::Value> radamn::v8_font_load(const v8::Arguments& args) {
     int ptsize = (args[1]->Int32Value());
 
     font* fnt = font_new(*file, ptsize);
+
+    VERBOSE << "end" << ENDL;
+
     return font::wrap(fnt);
 }
 
@@ -87,6 +92,8 @@ v8::Handle<v8::Value> radamn::v8_font_load(const v8::Arguments& args) {
 //
 
 v8::Handle<v8::Value> radamn::v8_font_text_to_image(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     v8::HandleScope scope;
 
     VERBOSE << "v8_font_text_to_image(" << args.Length() << "@ " << args[0]->IsObject() << "," << args[1]->IsString() << ")" << ENDL;
@@ -110,6 +117,8 @@ v8::Handle<v8::Value> radamn::v8_font_text_to_image(const v8::Arguments& args) {
     image* img = fnt->get_text_image(*text, fg_color);
     //free(uni);
 
+    VERBOSE << "end" << ENDL;
+
     return image::wrap(img);
 }
 
@@ -118,6 +127,8 @@ v8::Handle<v8::Value> radamn::v8_font_text_to_image(const v8::Arguments& args) {
 //
 
 v8::Handle<v8::Value> radamn::v8_font_destroy(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     v8::HandleScope scope;
 
     TTF_Font* font = 0;
@@ -127,6 +138,8 @@ v8::Handle<v8::Value> radamn::v8_font_destroy(const v8::Arguments& args) {
         TTF_CloseFont(font);
     }
 
+    VERBOSE << "end" << ENDL;
+
     return v8::True();
 }
 
@@ -135,6 +148,8 @@ v8::Handle<v8::Value> radamn::v8_font_destroy(const v8::Arguments& args) {
 //
 
 v8::Handle<v8::Value> radamn::v8_font_text_size(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     v8::HandleScope scope;
 
     font* fnt = font::unwrap(args, 0);
@@ -149,6 +164,8 @@ v8::Handle<v8::Value> radamn::v8_font_text_size(const v8::Arguments& args) {
     v8::Local<v8::Object> result = v8::Object::New();
     result->Set(v8::String::New("width"), v8::Number::New(rect.w));
     result->Set(v8::String::New("height"), v8::Number::New(rect.h));
+
+    VERBOSE << "end" << ENDL;
 
     return result;
 }
@@ -196,24 +213,11 @@ image* font::get_text_image(const char* text, SDL_Color fg_color) {
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
     //upload to opengl and return this is not efficiency so i maybe need to think another method...
 
-
-    //const SDL_VideoInfo *vi = SDL_GetVideoInfo ();
-
-    SDL_DisplayMode mode;
-    //SDL_GetDesktopDisplayMode(&mode);
-    //SDL_GetFullscreenDisplayMode(&mode);
-
-    SDL_GetCurrentDisplayMode(0, &mode);
-
-    Uint32 Rmask, Gmask, Bmask, Amask;
-    int bpp;
-    SDL_PixelFormatEnumToMasks(mode.format, &bpp, &Rmask, &Gmask, &Bmask, &Amask);
-
     /* Convert the rendered text to a known format */
     w = nextpoweroftwo((float) initial->w);
     h = nextpoweroftwo((float) initial->h);
     VERBOSE << "Expand texture to: [" << w << "," << h << "]" << ENDL;
-    scaled = SDL_CreateRGBSurface(0, w, h, bpp, Rmask, Gmask, Bmask, Amask);
+    scaled = SDL_CreateRGBSurface(0, w, h, radamn::window::bpp, radamn::window::rmask, radamn::window::gmask, radamn::window::bmask, radamn::window::amask);
     SDL_BlitSurface(initial, 0, scaled, 0);
     VERBOSE << "Expanded" << ENDL;
 
@@ -258,23 +262,11 @@ image* font::get_text_image(uint16_t* text, SDL_Color fg_color) {
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
     //upload to opengl and return this is not efficiency so i maybe need to think another method...
 
-    //const SDL_VideoInfo *vi = SDL_GetVideoInfo ();
-
-    SDL_DisplayMode mode;
-    //SDL_GetDesktopDisplayMode(&mode);
-    //SDL_GetFullscreenDisplayMode(&mode);
-
-    SDL_GetCurrentDisplayMode(0, &mode);
-
-    Uint32 Rmask, Gmask, Bmask, Amask;
-    int bpp;
-    SDL_PixelFormatEnumToMasks(mode.format, &bpp, &Rmask, &Gmask, &Bmask, &Amask);
-
     /* Convert the rendered text to a known format */
     w = nextpoweroftwo((float) initial->w);
     h = nextpoweroftwo((float) initial->h);
     VERBOSE << "Expand texture to: [" << w << "," << h << "]" << ENDL;
-    scaled = SDL_CreateRGBSurface(0, w, h,bpp, Rmask, Gmask, Bmask, Amask);
+    scaled = SDL_CreateRGBSurface(0, w, h, radamn::window::bpp, radamn::window::rmask, radamn::window::gmask, radamn::window::bmask, radamn::window::amask);
     SDL_BlitSurface(initial, 0, scaled, 0);
     VERBOSE << "Expanded" << ENDL;
 

@@ -24,7 +24,9 @@
 #include "gl.h"
 
 namespace radamn {
-    static unsigned int image_count = 0;
+    extern Uint32 image_count;
+
+    extern v8::Persistent<v8::ObjectTemplate> v8_image_pointers;
 
     /// from: http://blog.nobel-joergensen.com/2010/11/07/loading-a-png-as-texture-in-opengl-using-libpng/
     inline bool image_load_from_png(char *name, int &outWidth, int &outHeight, bool &outHasAlpha, GLubyte **outData);
@@ -103,8 +105,6 @@ namespace radamn {
 
         GLfloat* uv_from(SDL_Rect* rect);
     };
-
-    static v8::Persistent<v8::ObjectTemplate> v8_image_pointers;
 
     inline void image_free(image* img);
 

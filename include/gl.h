@@ -19,15 +19,20 @@ namespace radamn {
         public :
         gl_color_t background;
 
+        GLuint g_shVert;
+        GLuint g_shFrag;
+        GLuint g_shProg;
 
+        GLuint g_vao;
+        GLuint g_vbo;
 
         protected:
         static gl* instance;
 
         gl() {
-            background.r = 0;
-            background.g = 0;
-            background.b = 0;
+            background.r = 1;
+            background.g = 1;
+            background.b = 1;
             background.a = 1;
         }
 
@@ -35,6 +40,9 @@ namespace radamn {
         ~gl() { }
 
         static gl* singleton();
+        static void destroy();
+
+        static bool setup();
 
         static GLuint gen_texture_id();
 
@@ -64,7 +72,6 @@ namespace radamn {
 
         static void draw_quad(GLuint texture_id, GLfloat* uvs, SDL_Rect* dst, gl_operators_t composite);
     };
-
     /*
     //extra canvas
     v8::Handle<v8::Value> alpha(const v8::Arguments& args);

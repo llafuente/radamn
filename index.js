@@ -16,7 +16,7 @@
             "/node-class/lib/iterable.js",
             "/node-class/lib/eventmachine.js",
             "/node-class/lib/animate.js",
-            "/lib/cradamn.js",
+            "/lib/shim.cradamn.js",
             "/lib/radamn.math.js",
             "/lib/math/vec2.js",
             "/lib/math/line2.js",

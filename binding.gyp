@@ -46,17 +46,15 @@
         "src/v8_helper.cc",
         "src/gl.cc"
 
-        #"src/init.cc",
-
-        #"src/prerequisites.h",
-        #"src/radamn_loggin.h",
-        #"src/radamn.h",
-        #"src/c_helper.h",
-        #"src/radamn_font.h",
-        #"src/radamn_image.h",
-        #"src/radamn_window.h",
-        #"src/v8_helper.h",
-        #"src/gl.h",
+        #"include/prerequisites.h",
+        #"include/radamn_loggin.h",
+        #"include/radamn.h",
+        #"include/c_helper.h",
+        #"include/radamn_font.h",
+        #"include/radamn_image.h",
+        #"include/radamn_window.h",
+        #"include/v8_helper.h",
+        #"include/gl.h",
       ],
 
       "target_name": "<(target_name)",
@@ -89,15 +87,17 @@
       ],
 
       "include_dirs": [
-        "deps/node/src",
-        "deps/node/deps/v8/include",
-        "deps/node/deps/uv/include",
-        "deps/SDL2/include",
-        "deps",
-        "deps/libpng",
-        "deps/SDL_ttf",
-        "$(IncludePath)",
-        "src/"
+        "<(module_root_dir)/deps/node/src",
+        "<(module_root_dir)/deps/node/deps/v8/include",
+        "<(module_root_dir)/deps/node/deps/uv/include",
+        "<(module_root_dir)/deps/SDL2/include",
+        #"<(module_root_dir)/deps/glew/src",
+        #"<(module_root_dir)/deps/glew/include",
+        "<(module_root_dir)/deps/libpng",
+        "<(module_root_dir)/deps/SDL_ttf",
+        "<(module_root_dir)/src",
+        "<(module_root_dir)/include",
+        "$(IncludePath)"
       ],
 
       "conditions": [
@@ -112,7 +112,13 @@
           ],
           "libraries": [
              "-l opengl32.lib" ,
-          ]
+          ],
+          #"dependencies": [
+          #  './deps/glew/glew.gyp:glew'
+          #],
+          #'export_dependent_settings': [
+          #  './deps/glew/glew.gyp:glew'
+          #],
         }],
         [ "OS=='mac'", {
            #MAC Users don"t forget to comment out all line in node/tools/gyp/pylib/gyp/generator/make.py that contain append("-arch i386") (2 instances)

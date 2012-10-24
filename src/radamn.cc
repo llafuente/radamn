@@ -9,7 +9,7 @@
 
 #include <SDL_version.h>
 #include <SDL_ttf.h>
-#include <SDL_opengl.h>
+
 #include "gl.h"
 #include <node.h>
 #include <v8.h>
@@ -20,10 +20,10 @@ using namespace radamn;
 // ----------------------------------------------------------------------------------------------------
 //
 
-v8::Handle<v8::Value> radamn::init(const v8::Arguments& args) {
-    VERBOSE << "radamn::init" << ENDL;
+v8::Handle<v8::Value> radamn::v8_init(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
 
-    if (SDL_Init( SDL_INIT_EVERYTHING ) != 0)  {
+    if (SDL_Init( SDL_INIT_EVERYTHING ) < 0)  {
         return ThrowException(v8::Exception::Error(
             v8::String::Concat(
                 v8::String::New("Error initializing SDL: "),
@@ -43,6 +43,7 @@ v8::Handle<v8::Value> radamn::init(const v8::Arguments& args) {
 
     VERBOSE << "TTF inited" << ENDL;
 
+    VERBOSE << "end" << ENDL;
     return v8::Undefined();
 }
 
@@ -52,7 +53,7 @@ v8::Handle<v8::Value> radamn::init(const v8::Arguments& args) {
     void radamn::Creator::Init(v8::Handle<v8::Object> target)
 #endif
 {
-    VERBOSE << "create" << ENDL;
+    VERBOSE << "THIS IS NEVER CALL RIGHT!" << ENDL;
 }
 
 //
@@ -68,66 +69,55 @@ extern "C" {
     void init (v8::Handle<v8::Object> target)
 #endif
     {
-    v8::HandleScope scope;
-    /*
-    // set the constructor function
-    v8::Local<v8::FunctionTemplate> t = v8::FunctionTemplate::New(radamn::Creator::New);
+        v8::HandleScope scope;
 
-    radamn::Creator::s_ct = v8::Persistent<v8::FunctionTemplate>::New(t);
-    radamn::Creator::s_ct->InstanceTemplate()->SetInternalFieldCount(1);
-    radamn::Creator::s_ct->SetClassName(v8::String::NewSymbol("adauthftw"));
+        NODE_SET_METHOD(target, "init", radamn::v8_init);
 
-    v8::Local<v8::Object> target = v8::Object::New();
-    */
+        NODE_SET_METHOD(target, "quit", radamn::v8_quit);
 
-    NODE_SET_METHOD(target, "init", radamn::init);
+        NODE_SET_METHOD(target, "getVersion", radamn::v8_getVersion);
+        NODE_SET_METHOD(target, "createWindow", radamn::v8_createWindow);
+        NODE_SET_METHOD(target, "getJoysticks", radamn::v8_getJoysticks);
+        NODE_SET_METHOD(target, "pollEvent", radamn::v8_pollEvent);
 
-    NODE_SET_METHOD(target, "quit", radamn::quit);
+        v8::Local<v8::Object> Window = v8::Object::New();
+        target->Set(v8::String::New("Window"), Window);
 
-    NODE_SET_METHOD(target, "getVersion", radamn::getVersion);
-    NODE_SET_METHOD(target, "createWindow", radamn::createWindow);
-    NODE_SET_METHOD(target, "getJoysticks", radamn::getJoysticks);
-    NODE_SET_METHOD(target, "pollEvent", radamn::pollEvent);
-
-    v8::Local<v8::Object> Window = v8::Object::New();
-    target->Set(v8::String::New("Window"), Window);
-
-    NODE_SET_METHOD(Window, "screenshot",           radamn::window::screenshot);
+        NODE_SET_METHOD(Window, "screenshot",           radamn::window::v8_screenshot);
 
 
-    // new gl Object!
-    v8::Local<v8::Object> GL = v8::Object::New();
-    target->Set(v8::String::New("GL"), GL);
-    NODE_SET_METHOD(GL, "setBackgroundColor",   radamn::v8_gl_set_background_color);
-    NODE_SET_METHOD(GL, "clear",                radamn::v8_gl_clear);
-    NODE_SET_METHOD(GL, "flipBuffers",          radamn::v8_gl_flip_buffers);
-    NODE_SET_METHOD(GL, "transform",            radamn::v8_gl_transform);
-    NODE_SET_METHOD(GL, "setTransform",         radamn::v8_gl_set_transform);
-    NODE_SET_METHOD(GL, "stroke",               radamn::v8_gl_stroke);
-    NODE_SET_METHOD(GL, "fill",                 radamn::v8_gl_fill);
+        // new gl Object!
+        v8::Local<v8::Object> GL = v8::Object::New();
+        target->Set(v8::String::New("GL"), GL);
+        NODE_SET_METHOD(GL, "setBackgroundColor",   radamn::v8_gl_set_background_color);
+        NODE_SET_METHOD(GL, "clear",                radamn::v8_gl_clear);
+        NODE_SET_METHOD(GL, "flipBuffers",          radamn::v8_gl_flip_buffers);
+        NODE_SET_METHOD(GL, "transform",            radamn::v8_gl_transform);
+        NODE_SET_METHOD(GL, "setTransform",         radamn::v8_gl_set_transform);
+        NODE_SET_METHOD(GL, "stroke",               radamn::v8_gl_stroke);
+        NODE_SET_METHOD(GL, "fill",                 radamn::v8_gl_fill);
 
-    NODE_SET_METHOD(GL, "translate",            radamn::v8_gl_translate);
-    NODE_SET_METHOD(GL, "rotate",               radamn::v8_gl_rotate);
-    NODE_SET_METHOD(GL, "scale",                radamn::v8_gl_scale);
+        NODE_SET_METHOD(GL, "translate",            radamn::v8_gl_translate);
+        NODE_SET_METHOD(GL, "rotate",               radamn::v8_gl_rotate);
+        NODE_SET_METHOD(GL, "scale",                radamn::v8_gl_scale);
 
-    NODE_SET_METHOD(GL, "save",                 radamn::v8_gl_save);
-    NODE_SET_METHOD(GL, "restore",              radamn::v8_gl_restore);
+        NODE_SET_METHOD(GL, "save",                 radamn::v8_gl_save);
+        NODE_SET_METHOD(GL, "restore",              radamn::v8_gl_restore);
 
-    v8::Local<v8::Object> Image = v8::Object::New();
-    target->Set(v8::String::New("Image"), Image);
-    NODE_SET_METHOD(Image, "load", radamn::v8_image_load);
-    NODE_SET_METHOD(Image, "destroy", radamn::v8_image_destroy);
-    NODE_SET_METHOD(Image, "draw", radamn::v8_image_draw);
-    //NODE_SET_PROTOTYPE_METHOD(Image, "drawImageQuads", radamn::Image::drawImageQuads);
+        // this is not a real shim of image... this need to be 100% compat
+        v8::Local<v8::Object> Image = v8::Object::New();
+        target->Set(v8::String::New("Image"), Image);
+        NODE_SET_METHOD(Image, "load", radamn::v8_image_load);
+        NODE_SET_METHOD(Image, "destroy", radamn::v8_image_destroy);
+        NODE_SET_METHOD(Image, "draw", radamn::v8_image_draw);
+        //NODE_SET_PROTOTYPE_METHOD(Image, "drawImageQuads", radamn::Image::drawImageQuads);
 
-    v8::Local<v8::Object> Font = v8::Object::New();
-    target->Set(v8::String::New("Font"), Font);
-    NODE_SET_METHOD(Font, "load", radamn::v8_font_load);
-    NODE_SET_METHOD(Font, "getImage", radamn::v8_font_text_to_image);
-    NODE_SET_METHOD(Font, "destroy", radamn::v8_font_destroy);
-    NODE_SET_METHOD(Font, "measureText", radamn::v8_font_text_size);
-
-    //radamn::Creator::s_ct->Set("init", target);
+        v8::Local<v8::Object> Font = v8::Object::New();
+        target->Set(v8::String::New("Font"), Font);
+        NODE_SET_METHOD(Font, "load", radamn::v8_font_load);
+        NODE_SET_METHOD(Font, "getImage", radamn::v8_font_text_to_image);
+        NODE_SET_METHOD(Font, "destroy", radamn::v8_font_destroy);
+        NODE_SET_METHOD(Font, "measureText", radamn::v8_font_text_size);
 
     }
 
@@ -142,7 +132,9 @@ extern "C" {
 // ----------------------------------------------------------------------------------------------------
 //
 
-static v8::Handle<v8::Value> radamn::quit(const v8::Arguments& args) {
+static v8::Handle<v8::Value> radamn::v8_quit(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     v8::HandleScope scope;
 
     if (!(args.Length() == 0)) {
@@ -151,8 +143,20 @@ static v8::Handle<v8::Value> radamn::quit(const v8::Arguments& args) {
 
     TTF_Quit();
     VERBOSE << "TTF_Quit" << ENDL;
+
+    gl::destroy();
+
+    if(radamn::window::context) {
+        SDL_GL_DeleteContext(radamn::window::context);
+    }
+    if(radamn::window::win) {
+        SDL_DestroyWindow(radamn::window::win);
+    }
+
     SDL_Quit();
     VERBOSE << "SDL_Quit" << ENDL;
+
+    VERBOSE << "end" << ENDL;
 
     return v8::Undefined();
 }
@@ -162,7 +166,9 @@ static v8::Handle<v8::Value> radamn::quit(const v8::Arguments& args) {
 //
 
 // XXX opengl version / openglES
-static v8::Handle<v8::Value> radamn::getVersion(const v8::Arguments& args) {
+static v8::Handle<v8::Value> radamn::v8_getVersion(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     char buffer[256];
 
     //const SDL_VideoInfo* VideoInfo = SDL_GetVideoInfo();
@@ -175,39 +181,8 @@ static v8::Handle<v8::Value> radamn::getVersion(const v8::Arguments& args) {
         glGetString(GL_VERSION),
         glGetString(GL_EXTENSIONS)
     );
-/*
 
-    VideoInfo->hw_available,
-    VideoInfo->wm_available,
-    VideoInfo->blit_hw,
-    VideoInfo->blit_hw_CC,
-    VideoInfo->blit_hw_A,
-    VideoInfo->blit_sw,
-    VideoInfo->blit_sw_CC,
-    VideoInfo->blit_sw_A,
-    VideoInfo->blit_fill,
-    VideoInfo->video_mem,
-
-VideoInfo->vfmt->BitsPerPixel;
-VideoInfo->vfmt->BytesPerPixel;
-VideoInfo->vfmt->Rloss,
-VideoInfo->vfmt->Gloss,
-VideoInfo->vfmt->Bloss,
-VideoInfo->vfmt->Aloss;
-VideoInfo->vfmt->Rshift,
-VideoInfo->vfmt->Gshift,
-VideoInfo->vfmt->Bshift,
-VideoInfo->vfmt->Ashift;
-VideoInfo->vfmt->Rmask,
-VideoInfo->vfmt->Gmask,
-VideoInfo->vfmt->Bmask,
-VideoInfo->vfmt->Amask;
-VideoInfo->vfmt->colorkey;
-VideoInfo->vfmt->alpha;
-
-    VideoInfo->current_w,
-    VideoInfo->current_h,
-*/
+    VERBOSE << "end" << ENDL;
 
     return v8::String::New( buffer );
 }
@@ -218,7 +193,9 @@ VideoInfo->vfmt->alpha;
 
 // for multiple display support check: http://wiki.libsdl.org/moin.cgi/SDL_CreateRenderer
 
-static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
+static v8::Handle<v8::Value> radamn::v8_createWindow(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     v8::HandleScope scope;
 
     if (!(args.Length() == 2 && args[0]->IsNumber() && args[1]->IsNumber())) {
@@ -234,15 +211,18 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
 
 
 
-    VERBOSE << "SDL_GL_RED_SIZE     " << SDL_GL_SetAttribute(SDL_GL_RED_SIZE,           5) << ENDL;
-    VERBOSE << "SDL_GL_GREEN_SIZE   " << SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,         5) << ENDL;
-    VERBOSE << "SDL_GL_BLUE_SIZE    " << SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,          5) << ENDL;
-    VERBOSE << "SDL_GL_ALPHA_SIZE   " << SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,         1) << ENDL;
-    VERBOSE << "SDL_GL_BUFFER_SIZE  " << SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,        16) << ENDL;
+    VERBOSE << "SDL_GL_RED_SIZE     " << SDL_GL_SetAttribute(SDL_GL_RED_SIZE,           8) << ENDL;
+    VERBOSE << "SDL_GL_GREEN_SIZE   " << SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,         8) << ENDL;
+    VERBOSE << "SDL_GL_BLUE_SIZE    " << SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,          8) << ENDL;
+    VERBOSE << "SDL_GL_ALPHA_SIZE   " << SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,         8) << ENDL;
+    //VERBOSE << "SDL_GL_BUFFER_SIZE  " << SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,        16) << ENDL;
     VERBOSE << "SDL_GL_DOUBLEBUFFER " << SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,       1) << ENDL;
-    VERBOSE << "SDL_GL_DEPTH_SIZE   " << SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,         16) << ENDL;
+    VERBOSE << "SDL_GL_DEPTH_SIZE   " << SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,         32) << ENDL;
 
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
+/*
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,       0);
     SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,     0);
     SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE,   0);
@@ -252,10 +232,7 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0); // 1
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0); // 2
     //deprecated: SDL_GL_SetAttribute(SDL_GL_RETAINED_BACKING,   1);
-
-    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+*/
 
     VERBOSE << "SDL_GL_ACCELERATED_VISUAL " << SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1) << ENDL;
 
@@ -286,40 +263,23 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
         return ThrowException(v8::Exception::TypeError(v8::String::New("SDL_CreateWindow error")));
     }
 
-    n = SDL_GetNumRenderDrivers();
-    SDL_RendererInfo info;
-    int renderer_id = -1;
-    for (int i = 0; i < n; ++i) {
-        SDL_GetRenderDriverInfo(i, &info);
-        VERBOSE << "RenderDriver[" << i << "] " << info.name << ENDL;
-        if(SDL_strcasecmp(info.name, "opengl") == 0) {
-            renderer_id = i;
-        }
-    }
-/*
-    if(renderer_id == -1) {
-        return ThrowException(v8::Exception::TypeError(v8::String::New("cannot find opengl renderer")));
-    }
+#ifdef ANDROID || IOS
+    SDL_SetWindowFullscreen(mainwindow, SDL_TRUE);
+#endif
 
-    VERBOSE << "Creating renderer [" << renderer_id << "]" << ENDL;
-    // - SDL_RENDERER_PRESENTVSYNC
-    // - SDL_RENDERER_TARGETTEXTURE
-    radamn::window::renderer = SDL_CreateRenderer(radamn::window::win, renderer_id, SDL_RENDERER_ACCELERATED);
-*/
+    radamn::window::context = SDL_GL_CreateContext(radamn::window::win);
 
-
-    SDL_GLContext context = SDL_GL_CreateContext(radamn::window::win);
-    if(context == NULL) {
+    if(radamn::window::context == NULL) {
         VERBOSE << "SDL_GL_CreateContext: " << SDL_GetError() << ENDL;
         return ThrowException(v8::Exception::TypeError(v8::String::New("cannot create gl context")));
     }
 
-    int ret = 0;
-    if (SDL_GL_SetSwapInterval(-1) == -1) {
-        ret = SDL_GL_SetSwapInterval(1);
-    }
+    //vsync ?
+    SDL_GL_SetSwapInterval(1);
 
     SDL_GetWindowSize(radamn::window::win, &radamn::window::width, &radamn::window::height);
+
+    VERBOSE << "WIN ADDR = " << (long int) radamn::window::win << ENDL;
 
     glClearDepth(1.0f);
     glViewport(0, 0, radamn::window::width, radamn::window::height);
@@ -338,11 +298,12 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
     glDisable(GL_DEPTH_TEST);
     glShadeModel(GL_FLAT); // GL_SMOOTH
 
-    glClearColor(0, 0, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(1, 1, 1, 1);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    SDL_GL_SwapWindow(radamn::window::win);
 
-    VERBOSE << "window width: " << radamn::window::width << ENDL;
-    VERBOSE << "window height: " << radamn::window::height << ENDL;
+    VERBOSE << "window width: " << radamn::window::width << "px"<< ENDL;
+    VERBOSE << "window height: " << radamn::window::height << "px" << ENDL;
 
     SDL_DisplayMode mode;
     SDL_GetCurrentDisplayMode(0, &mode);
@@ -380,6 +341,12 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
     } else {
         VERBOSE << "Failed to get SDL_GL_BLUE_SIZE: " << SDL_GetError() << ENDL;
     }
+    status = SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &value);
+    if (!status) {
+        VERBOSE << "SDL_GL_ALPHA_SIZE: requested 5, got " << value << ENDL;
+    } else {
+        VERBOSE << "Failed to get SDL_GL_ALPHA_SIZE: " << SDL_GetError() << ENDL;
+    }
     status = SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &value);
     if (!status) {
         VERBOSE << "SDL_GL_DEPTH_SIZE: requested 16, got " << value << ENDL;
@@ -405,12 +372,33 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
         VERBOSE << "Failed to get SDL_GL_ACCELERATED_VISUAL: " << SDL_GetError() << ENDL;
     }
 
+    status = SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &value);
+    if (!status) {
+        VERBOSE << "SDL_GL_CONTEXT_MAJOR_VERSION: requested 3, got " << value << ENDL;
+    } else {
+        VERBOSE << "Failed to get SDL_GL_CONTEXT_MAJOR_VERSION: " << SDL_GetError() << ENDL;
+    }
+
+    status = SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &value);
+    if (!status) {
+        VERBOSE << "SDL_GL_CONTEXT_MINOR_VERSION: requested 2, got " << value << ENDL;
+    } else {
+        VERBOSE << "Failed to get SDL_GL_CONTEXT_MINOR_VERSION: " << SDL_GetError() << ENDL;
+    }
+
+
+
+
+
+    if(!gl::setup()) {
+        return ThrowException(v8::Exception::TypeError(v8::String::New("gl::setup failed")));
+    }
 
 #elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
     return ThrowException(v8::Exception::TypeError(v8::String::New("OPENGLES is not supported atm")));
 #endif
 
-    VERBOSE << "done!" << ENDL;
+    VERBOSE << "end" << ENDL;
 
     return v8::True();
 }
@@ -419,17 +407,10 @@ static v8::Handle<v8::Value> radamn::createWindow(const v8::Arguments& args) {
 // ----------------------------------------------------------------------------------------------------
 //
 
-// XXX TODO!
-static v8::Handle<v8::Value> radamn::getWindow(const v8::Arguments& args) {
-    return v8::Undefined();
-}
-
-//
-// ----------------------------------------------------------------------------------------------------
-//
-
 // return a proper structure with all data needed!
-v8::Handle<v8::Value> radamn::getJoysticks(const v8::Arguments& args) {
+v8::Handle<v8::Value> radamn::v8_getJoysticks(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     v8::HandleScope scope;
     if (!(args.Length() == 0)) {
         return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected getJoystricks()")));
@@ -442,6 +423,8 @@ v8::Handle<v8::Value> radamn::getJoysticks(const v8::Arguments& args) {
     for( i=0; i < max; i++ ) {
         joystick = SDL_JoystickOpen(0);
     }
+
+    VERBOSE << "end" << ENDL;
 
     return v8::False(); //atm!
 }
@@ -518,7 +501,9 @@ v8::Handle<v8::Value> radamn::getJoysticks(const v8::Arguments& args) {
 // https://developer.mozilla.org/en/DOM/KeyboardEvent
 // http://www.w3.org/TR/DOM-Level-3-Events/#events-KeyboardEvent
 // touch events: https://dvcs.w3.org/hg/webevents/raw-file/tip/touchevents.html
-v8::Handle<v8::Value> radamn::pollEvent(const v8::Arguments& args) {
+v8::Handle<v8::Value> radamn::v8_pollEvent(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     v8::HandleScope scope;
 
     if (!(args.Length() == 0)) {
@@ -647,6 +632,8 @@ v8::Handle<v8::Value> radamn::pollEvent(const v8::Arguments& args) {
         evt->Set(v8::String::New("typeCode"),  v8::Number::New(event.type));
         break;
     }
+
+    VERBOSE << "end" << ENDL;
 
     return scope.Close(evt);
 }

@@ -22,13 +22,13 @@
 #define RADAMN_RENDERER RADAMN_RENDERER_OPENGL
 
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
-    // on centos: yum install mesa-libGL mesa-libGL-devel mesa-libGLU mesa-libGLU-devel
-    #include <SDL_opengl.h>
-    #include <GL/gl.h>
-    #include <GL/glu.h>
-    //#include <GL/glaux.h>
-#elif RADAMN_RENDERER == RADAMN_RENDERER_OPENGLES
-    // include the proper libs
+#ifdef _WIN32
+#    define GLEW_STATIC 1
+#    include "GL/glew.h"
+#else
+#    define GL_GLEXT_PROTOTYPES
+#    include "SDL/SDL_opengl.h"
+#endif
 #endif
 
 // declare namespaces!

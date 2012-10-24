@@ -11,10 +11,14 @@
 
 #include <assert.h>
 
-using namespace radamn;
+Uint32 radamn::image_count = 0;
+v8::Persistent<v8::ObjectTemplate> radamn::v8_image_pointers;
 
+//
+// ----------------------------------------------------------------------------------------------------
+//
 
-v8::Handle<v8::Value> image::wrap(image* img) {
+v8::Handle<v8::Value> radamn::image::wrap(image* img) {
     if (v8_image_pointers.IsEmpty()) {
         VERBOSE << "create the image pointer template" << ENDL;
         v8::HandleScope handle_scope2;
@@ -58,11 +62,19 @@ v8::Handle<v8::Value> image::wrap(image* img) {
     return v8_image_ptr;
 }
 
-image* image::unwrap(const v8::Arguments& args, int position) {
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+image* radamn::image::unwrap(const v8::Arguments& args, int position) {
     return image::unwrap(args[position]);
 }
 
-image* image::unwrap(v8::Local<v8::Value> handle) {
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+image* radamn::image::unwrap(v8::Local<v8::Value> handle) {
     v8::Handle<v8::External> v8_aux_field = v8::Handle<v8::External>::Cast(handle->ToObject()->GetInternalField(0));
     void* v8_aux_ptr = v8_aux_field->Value();
     image* img =  static_cast<image*>(v8_aux_ptr);
@@ -72,7 +84,11 @@ image* image::unwrap(v8::Local<v8::Value> handle) {
     return img;
 }
 
-GLfloat* image::uv_from(SDL_Rect* rect) {
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+GLfloat* radamn::image::uv_from(SDL_Rect* rect) {
     GLfloat* uvs = (GLfloat*) malloc(4*sizeof(GLfloat));
 
     uvs[0] = ((GLfloat)rect->x) / this->width;
@@ -94,7 +110,11 @@ GLfloat* image::uv_from(SDL_Rect* rect) {
     return uvs;
 }
 
-bool image::load_from_surface(SDL_Surface* surface, bool bind, bool generate_mask) {
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+bool radamn::image::load_from_surface(SDL_Surface* surface, bool bind, bool generate_mask) {
     bool hasAlpha = true;
 
     unsigned int memory_allocated;
@@ -127,7 +147,11 @@ bool image::load_from_surface(SDL_Surface* surface, bool bind, bool generate_mas
     return true;
 }
 
-bool image::load_from_file(char* name, bool bind, bool generate_mask) {
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+bool radamn::image::load_from_file(char* name, bool bind, bool generate_mask) {
     bool hasAlpha = true;
     if(!image_load_from_png(name, this->width, this->height, hasAlpha,  &this->pixels)) {
         THROW("error: invalid image", name);
@@ -168,7 +192,11 @@ bool image::load_from_file(char* name, bool bind, bool generate_mask) {
     return true;
 }
 
-bool image::unbind() {
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+bool radamn::image::unbind() {
     if(!this->is(image::GL_READY)) {
         return false;
     }
@@ -177,7 +205,11 @@ bool image::unbind() {
     return true;
 }
 
-bool image::bind() {
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+bool radamn::image::bind() {
     if(this->is(image::GL_READY)) {
         VERBOSE << "glBindTexture" << ENDL;
         glBindTexture( GL_TEXTURE_2D, this->texture_id );
@@ -205,7 +237,11 @@ bool image::bind() {
     return true;
 }
 
-SDL_Rect* image::getRect() {
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+SDL_Rect* radamn::image::getRect() {
     SDL_Rect* output = (SDL_Rect *) SDL_malloc(sizeof(SDL_Rect));
 
     output->x = 0;
@@ -216,22 +252,34 @@ SDL_Rect* image::getRect() {
     return output;
 }
 
-
+//
+// ----------------------------------------------------------------------------------------------------
+//
 
 void radamn::image_free(image* img) {
-    --image_count;
+    --radamn::image_count;
     delete img;
 }
 
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
 image* radamn::image_new(char* filename, bool generate_mask) {
-    ++image_count;
+    ++radamn::image_count;
 
     image* img = new radamn::image();
     img->load_from_file(filename, true, generate_mask);
     return img;
 }
 
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
 v8::Handle<v8::Value> radamn::v8_image_load(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     v8::HandleScope scope;
 
     if (!(args.Length() == 2 && args[0]->IsString() && args[1]->IsBoolean())) {
@@ -248,9 +296,18 @@ v8::Handle<v8::Value> radamn::v8_image_load(const v8::Arguments& args) {
       THROW("v8_image_load cannot load the given image");
     }
 
+    VERBOSE << "end" << ENDL;
+
     return scope.Close(image::wrap(img));
 }
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
 v8::Handle<v8::Value> radamn::v8_image_draw(const v8::Arguments& args) {
+    VERBOSE << "start" << ENDL;
+
     v8::HandleScope scope;
 
     VERBOSE << args.Length() << "("
@@ -336,10 +393,18 @@ v8::Handle<v8::Value> radamn::v8_image_draw(const v8::Arguments& args) {
     return v8::True();
 }
 
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
 v8::Handle<v8::Value> radamn::v8_image_batch_draw(const v8::Arguments& args) {
     THROW("not supported atm!");
     return v8::Undefined();
 }
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
 
 v8::Handle<v8::Value> radamn::v8_image_destroy(const v8::Arguments& args) {
     v8::HandleScope scope;
@@ -356,11 +421,14 @@ v8::Handle<v8::Value> radamn::v8_image_destroy(const v8::Arguments& args) {
     image_free(img);
 #endif
 
-    VERBOSE << "destroyed" << ENDL;
+    VERBOSE << "end" << ENDL;
 
     return v8::True();
 }
 
+//
+// ----------------------------------------------------------------------------------------------------
+//
 
 /// from: http://blog.nobel-joergensen.com/2010/11/07/loading-a-png-as-texture-in-opengl-using-libpng/
 inline bool radamn::image_load_from_png(char *name, int &outWidth, int &outHeight, bool &outHasAlpha, GLubyte **outData) {

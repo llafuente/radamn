@@ -58,18 +58,16 @@ namespace radamn {
 
     static bool isOpenGL = false;
 
-    static v8::Handle<v8::Value> init(const v8::Arguments& args);
-    static v8::Handle<v8::Value> quit(const v8::Arguments& args);
+    static v8::Handle<v8::Value> v8_init(const v8::Arguments& args);
+    static v8::Handle<v8::Value> v8_quit(const v8::Arguments& args);
 
-    static v8::Handle<v8::Value> getVersion(const v8::Arguments& args);
+    static v8::Handle<v8::Value> v8_getVersion(const v8::Arguments& args);
 
-    static v8::Handle<v8::Value> getVideoModes(const v8::Arguments& args);
-    static v8::Handle<v8::Value> createWindow(const v8::Arguments& args);
+    static v8::Handle<v8::Value> v8_getVideoModes(const v8::Arguments& args);
+    static v8::Handle<v8::Value> v8_createWindow(const v8::Arguments& args);
 
-    static v8::Handle<v8::Value> getWindow(const v8::Arguments& args);
-
-    static v8::Handle<v8::Value> pollEvent(const v8::Arguments& args);
-    static v8::Handle<v8::Value> getJoysticks(const v8::Arguments& args);
+    static v8::Handle<v8::Value> v8_pollEvent(const v8::Arguments& args);
+    static v8::Handle<v8::Value> v8_getJoysticks(const v8::Arguments& args);
 }
 
 #endif
