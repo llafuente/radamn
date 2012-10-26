@@ -49,7 +49,6 @@
         win.render();
     };
 
-    Radamn.listenInput(50);
     Radamn.start(50);
 
 }(typeof module == "undefined" ? window : module.exports, typeof module == "undefined"));

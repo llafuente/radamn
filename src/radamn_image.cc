@@ -289,6 +289,8 @@ v8::Handle<v8::Value> radamn::v8_image_load(const v8::Arguments& args) {
     v8::String::Utf8Value file(args[0]);
     bool generate_mask = args[1]->BooleanValue();
 
+    VERBOSE << "loading image" << *file << ENDL;
+
     VERBOSE << (generate_mask ? "generate mask!" : "ignore mask") << ENDL;
 
     image* img = image_new(*file, generate_mask);
@@ -314,8 +316,7 @@ v8::Handle<v8::Value> radamn::v8_image_draw(const v8::Arguments& args) {
         << args[0]->IsObject() << ","
         << args[1]->IsString() << ","
         << args[2]->IsNumber() << ","
-        << args[3]->IsNumber() << ","
-    << ")" << ENDL;
+        << args[3]->IsNumber() << ")" << ENDL;
 
     // 3 args! <image>,<image>,<number>,<number>
 
@@ -334,7 +335,13 @@ v8::Handle<v8::Value> radamn::v8_image_draw(const v8::Arguments& args) {
         THROW("Invalid argument count [4,6,10]");
     }
 
-    image* img = image::unwrap(args, 0);
+    v8::Local<v8::Object> html_image =  args[0]->ToObject();
+    if(!html_image->Has(v8::String::New("__pointer"))) {
+        TO_CONSOLE("Image argument = ", args[0]);
+        THROW("Image argument dont have __pointer");
+    }
+
+    image* img = image::unwrap(html_image->Get(v8::String::New("__pointer")));
 
     v8::String::Utf8Value mode(args[1]);
     VERBOSE << "mode: " << *mode << ENDL;

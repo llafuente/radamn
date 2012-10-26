@@ -143,5 +143,4 @@ win.onRequestFrame = function(delta) {
     canvas.restore();
 };
 
-Radamn.listenInput(50);
 Radamn.start(50);

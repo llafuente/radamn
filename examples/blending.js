@@ -57,7 +57,6 @@
 
     };
 
-    Radamn.listenInput(50);
     Radamn.start(50);
 
     setInterval(function() {}, 500);

@@ -53,21 +53,25 @@ exports.demoWindow = function(width, height, caption, grid) {
     grid = grid || false;
     // visual test
     __info("[demo] create window");
-    var win = Radamn.createWindow(width, height);
+    var canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+
+    var ctx = canvas.getContext("2d");
 
     __info("[demo] attaching ESC/F5/Close window:");
-    exports.attachEscapeInputs(win);
+    exports.attachEscapeInputs(ctx.__win);
 
     if(grid) {
         __info("[demo] display grid");
-        exports.attachGrid(win, grid);
+        exports.attachGrid(ctx.__win, grid);
     }
 
     if(fps) {
-        exports.attachFPSCounter(win, 480, 0);
+        exports.attachFPSCounter(ctx.__win, 480, 0);
     }
 
-    return win;
+    return ctx.__win;
 }
 
 })(typeof exports === "undefined" ? (this.demo = {}) : exports, typeof exports === "undefined");

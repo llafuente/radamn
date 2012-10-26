@@ -2,7 +2,7 @@
     "use strict";
 
     if(!browser) {
-        require('./../lib/radamn');
+        require('./../lib/radamn.js');
     }
 
     var __debug = browser ? $.debug : require("node-class").debug,
@@ -65,7 +65,6 @@
         draw(canvas);
     };
 
-    Radamn.listenInput(50);
     Radamn.start(1000/50);
 
 }(typeof module == "undefined" ? window : module.exports, typeof module == "undefined"));

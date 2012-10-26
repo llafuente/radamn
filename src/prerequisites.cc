@@ -15,26 +15,36 @@ using namespace radamn;
 // declare here all needed pointers!
 
 void radamn::THROW(const char* CHAR_STRING) {
-	ThrowException(v8::Exception::Error(v8::String::New(CHAR_STRING)));
+    ThrowException(v8::Exception::Error(v8::String::New(CHAR_STRING)));
 }
 void radamn::THROW(const char* CHAR_STRING, const char* CHAR_STRING2) {
-	ThrowException(v8::Exception::Error(
-		v8::String::Concat(
-			v8::String::New(CHAR_STRING),
-			v8::String::New(CHAR_STRING2)
-		)
-	));
+    ThrowException(v8::Exception::Error(
+        v8::String::Concat(
+            v8::String::New(CHAR_STRING),
+            v8::String::New(CHAR_STRING2)
+        )
+    ));
 }
 void radamn::THROW(const char* CHAR_STRING, const char* CHAR_STRING2, const char* CHAR_STRING3) {
-	ThrowException(v8::Exception::Error(
-		v8::String::Concat(
-			v8::String::Concat(
-				v8::String::New(CHAR_STRING),
-				v8::String::New(CHAR_STRING2)
-			),
-			v8::String::New(CHAR_STRING3)
-		)
-	));
+    ThrowException(v8::Exception::Error(
+        v8::String::Concat(
+            v8::String::Concat(
+                v8::String::New(CHAR_STRING),
+                v8::String::New(CHAR_STRING2)
+            ),
+            v8::String::New(CHAR_STRING3)
+        )
+    ));
+}
+
+void radamn::TO_CONSOLE(const char* CHAR_STRING, v8::Local<v8::Value> hndl) {
+    v8::Handle<v8::String> console = v8::String::New("console");
+    v8::Handle<v8::String> log = v8::String::New("log");
+    v8::Handle<v8::Function> console_log = v8::Handle<v8::Function>::Cast( v8::Context::GetCurrent()->Global()->Get(console)->ToObject()->Get(log) );
+
+    const unsigned argc = 2;
+    v8::Local<v8::Value> argv[argc] = {v8::String::New(CHAR_STRING), hndl};
+    console_log->Call(v8::Context::GetCurrent()->Global(), argc, argv);
 }
 
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL

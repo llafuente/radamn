@@ -281,11 +281,8 @@
         });
     };
 
-
     var canvas = win.getContext();
 
-
-    Radamn.listenInput(50);
     Radamn.start(50);
 
 

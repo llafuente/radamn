@@ -667,7 +667,7 @@ v8::Handle<v8::Value> radamn::v8_gl_scale(const v8::Arguments& args) {
 
 bool gl::setup() {
     return true;
-
+/*
 #ifdef _WIN32
     GLenum err;
     if (GLEW_OK != (err = glewInit())){
@@ -748,7 +748,7 @@ bool gl::setup() {
     }
 
     glUseProgram(gli->g_shProg);
-
+*/
     return true;
 }
 

@@ -22,6 +22,7 @@
 #define RADAMN_RENDERER RADAMN_RENDERER_OPENGL
 
 #if RADAMN_RENDERER == RADAMN_RENDERER_OPENGL
+/*
 #ifdef _WIN32
 #    define GLEW_STATIC 1
 #    include "GL/glew.h"
@@ -29,6 +30,8 @@
 #    define GL_GLEXT_PROTOTYPES
 #    include "SDL/SDL_opengl.h"
 #endif
+*/
+#    include "SDL_opengl.h"
 #endif
 
 // declare namespaces!
@@ -119,6 +122,7 @@ namespace radamn {
     void THROW(const char* CHAR_STRING);
     void THROW(const char* CHAR_STRING, const char* CHAR_STRING2);
     void THROW(const char* CHAR_STRING, const char* CHAR_STRING2, const char* CHAR_STRING3);
+    void TO_CONSOLE(const char* CHAR_STRING, v8::Local<v8::Value> hndl);
 }
 
 typedef struct OGL_DrawBufferTextured {

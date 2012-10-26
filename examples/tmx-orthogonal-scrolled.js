@@ -10,10 +10,10 @@ var win = demo.demoWindow(640, 480, "TMX");
 var canvas = win.getContext();
 
 var TMX = new Radamn.TMX("./resources/tmx/tmx-orthogonal-scrolled.tmx", {
-	resource_path: {
-		regex: /..\//,
-		replace: "../examples/resources/"
-	}
+    resource_path: {
+        regex: /..\//,
+        replace: "../examples/resources/"
+    }
 });
 
 var tmxnode = new Radamn.Node();
@@ -39,5 +39,4 @@ win.onRequestFrame = function(delta) {
     tmxnode.matrix.translate(-(delta / 1000) * 100, false);
 };
 
-Radamn.listenInput(50);
 Radamn.start(50);
