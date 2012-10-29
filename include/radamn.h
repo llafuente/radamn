@@ -61,6 +61,9 @@ namespace radamn {
     static v8::Handle<v8::Value> v8_init(const v8::Arguments& args);
     static v8::Handle<v8::Value> v8_quit(const v8::Arguments& args);
 
+    // high resolution timer
+    static v8::Handle<v8::Value> v8_time(const v8::Arguments& args);
+
     static v8::Handle<v8::Value> v8_getVersion(const v8::Arguments& args);
 
     static v8::Handle<v8::Value> v8_getVideoModes(const v8::Arguments& args);

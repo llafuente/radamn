@@ -545,16 +545,13 @@ v8::Handle<v8::Value> radamn::v8_gl_fill(const v8::Arguments& args) {
 /// TODO composite!
 v8::Handle<v8::Value> radamn::v8_gl_stroke(const v8::Arguments& args) {
     VERBOSE << "start" << ENDL;
+    VERBOSE << "stroke width: " << args[1]->NumberValue() << " color " << *(args[2]->ToString()) << std::endl;
 
     V8_ARG_TO_NEWARRAY(0, coords);
     V8_ARG_TO_NEWFLOAT(1, width);
     V8_ARG_TO_SDL_NEWCOLOR(2, color_src);
-    gl_color_t color = gl_color_from(color_src);
 
-    VERBOSE << "stroking"  <<
-    " w:" << width <<
-    "color rgb(" << (int)color.r << "," << (int)color.g << "," << (int)color.b << ")"
-    << "COORDS" << coords->Length() << std::endl;
+    gl_color_t color = gl_color_from(color_src);
 
     unsigned int i = 0,
         max = coords->Length(),

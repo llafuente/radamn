@@ -75,6 +75,8 @@ extern "C" {
 
         NODE_SET_METHOD(target, "quit", radamn::v8_quit);
 
+        NODE_SET_METHOD(target, "time", radamn::v8_time);
+
         NODE_SET_METHOD(target, "getVersion", radamn::v8_getVersion);
         NODE_SET_METHOD(target, "createWindow", radamn::v8_createWindow);
         NODE_SET_METHOD(target, "getJoysticks", radamn::v8_getJoysticks);
@@ -636,6 +638,18 @@ v8::Handle<v8::Value> radamn::v8_pollEvent(const v8::Arguments& args) {
     VERBOSE << "end" << ENDL;
 
     return scope.Close(evt);
+}
+
+//
+// ----------------------------------------------------------------------------------------------------
+//
+
+
+v8::Handle<v8::Value> radamn::v8_time(const v8::Arguments& args) {
+
+    v8::HandleScope scope;
+
+    return scope.Close(v8::Number::New(SDL_GetTicks()));
 }
 
 //
