@@ -70,9 +70,6 @@ v8::Handle<v8::Value> radamn::v8_font_load(const v8::Arguments& args) {
     VERBOSE << "start" << ENDL;
 
     v8::HandleScope scope;
-
-    VERBOSE << "v8_font_load(" << args.Length() << "@ " << args[0]->IsString() << "," << args[1]->IsNumber() << ")" << ENDL;
-
     if (!(args.Length() == 2 && args[0]->IsString() && args[1]->IsNumber())) {
         return ThrowException(v8::Exception::TypeError(v8::String::New("Invalid arguments: Expected TTF::OpenFont(String, Number)")));
     }
@@ -80,8 +77,11 @@ v8::Handle<v8::Value> radamn::v8_font_load(const v8::Arguments& args) {
     v8::String::Utf8Value file(args[0]);
     int ptsize = (args[1]->Int32Value());
 
+    VERBOSE << "file: " << *file << " size:" << ptsize << ENDL;
+
     font* fnt = font_new(*file, ptsize);
 
+    VERBOSE << "font loaded: " << (long int) fnt << ENDL;
     VERBOSE << "end" << ENDL;
 
     return font::wrap(fnt);
@@ -205,8 +205,10 @@ image* font::get_text_image(const char* text, SDL_Color fg_color) {
     GLuint texture;
 
     /* Use SDL_TTF to render our text */
-    VERBOSE << *text << ENDL;
+    VERBOSE << text << ENDL;
+    VERBOSE << "font ptr " << (long int) this->mfont << ENDL;
     initial = TTF_RenderUTF8_Blended(this->mfont, text, fg_color);
+    VERBOSE << "not pow2 surface " << (long int) initial << ENDL;
     //TODO SDL_DisplayFormatAlpha ?? instead of hack GL_ONE,GL_ONE
     //initial = TTF_RenderText_Solid(font, *text, fg_color);
 

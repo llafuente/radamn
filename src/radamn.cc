@@ -539,11 +539,11 @@ v8::Handle<v8::Value> radamn::v8_pollEvent(const v8::Arguments& args) {
         break;
     case SDL_KEYDOWN:
     case SDL_KEYUP:
-        PrintKeyInfo(&event.key);
+        // PrintKeyInfo(&event.key);
         // TODO: support keypress ?
         evt->Set(v8::String::New("type"), v8::String::New(event.type == SDL_KEYDOWN ? "keydown" : "keyup"));
 
-        std::cout << (int) event.key.keysym.sym << ENDL;
+        std::cout << "key" << (int) event.key.keysym.sym << ENDL;
         // do ui have to mach every key from-sdl-to-w3c... :***
         evt->Set(v8::String::New("key"),     v8::Number::New(event.key.keysym.sym));
 
