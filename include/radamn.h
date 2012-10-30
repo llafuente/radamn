@@ -37,6 +37,10 @@ opengl 2s vs opengl 1.5: http://doc.trolltech.com/4.4/opengl-hellogl-es.html#por
 #include <v8.h>
 
 namespace radamn {
+    namespace input {
+        extern unsigned int mouse_buttons;
+    }
+
 
     class Creator : node::ObjectWrap {
     public:

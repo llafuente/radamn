@@ -41,9 +41,9 @@ exports.attachEscapeInputs = function(window) {
     });
 
     Radamn.on("keydown", function(e) {
-        if (e.char == "F5") {
+        if (e.char == "f5") {
             window.screenshot();
-        } else if (e.char == "Escape") {
+        } else if (e.char == "escape") {
             Radamn.quit();
         }
     });

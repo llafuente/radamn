@@ -13,8 +13,11 @@
 #include "gl.h"
 #include <node.h>
 #include <v8.h>
+#include <ctime>
 
 using namespace radamn;
+
+unsigned int radamn::input::mouse_buttons = 0;
 
 //
 // ----------------------------------------------------------------------------------------------------
@@ -524,10 +527,18 @@ v8::Handle<v8::Value> radamn::v8_pollEvent(const v8::Arguments& args) {
     // modifiers
     // TODO: what to di with [Numlock, Capslock]
     // windows - command key ?!
-    evt->Set(v8::String::New("metaKey"),  v8::Boolean::New( false ));
-    evt->Set(v8::String::New("altKey"),   v8::Boolean::New( KMOD_ALT == (KMOD_ALT & event.key.keysym.mod) ));
-    evt->Set(v8::String::New("ctrlKey"),  v8::Boolean::New( KMOD_CTRL == (KMOD_CTRL & event.key.keysym.mod) ));
-    evt->Set(v8::String::New("shiftKey"), v8::Boolean::New( KMOD_SHIFT == (KMOD_SHIFT & event.key.keysym.mod) ));
+
+
+
+    evt->Set(v8::String::New("CAPTURING_PHASE"),  v8::Number::New(1), v8::ReadOnly);
+    evt->Set(v8::String::New("AT_TARGET"),        v8::Number::New(2), v8::ReadOnly);
+    evt->Set(v8::String::New("BUBBLING_PHASE"),   v8::Number::New(3), v8::ReadOnly);
+
+    evt->Set(v8::String::New("target"),           v8::Null(), v8::ReadOnly);
+    evt->Set(v8::String::New("currentTarget"),    v8::Null(), v8::ReadOnly);
+    //evt->Set(v8::String::New("eventPhase"),       3, v8::ReadOnly);
+    evt->Set(v8::String::New("bubbles"),          v8::Boolean::New(true), v8::ReadOnly);
+    evt->Set(v8::String::New("timeStamp"),        v8::Number::New(time(0)), v8::ReadOnly);
 
     switch (event.type) {
     case SDL_WINDOWEVENT:
@@ -541,97 +552,161 @@ v8::Handle<v8::Value> radamn::v8_pollEvent(const v8::Arguments& args) {
     case SDL_KEYUP:
         // PrintKeyInfo(&event.key);
         // TODO: support keypress ?
-        evt->Set(v8::String::New("type"), v8::String::New(event.type == SDL_KEYDOWN ? "keydown" : "keyup"));
+        evt->Set(v8::String::New("type"), v8::String::New(event.type == SDL_KEYDOWN ? "keydown" : "keyup"), v8::ReadOnly);
+        evt->Set(v8::String::New("cancelable"),       v8::Boolean::New(true), v8::ReadOnly);
 
-        std::cout << "key" << (int) event.key.keysym.sym << ENDL;
         // do ui have to mach every key from-sdl-to-w3c... :***
-        evt->Set(v8::String::New("key"),     v8::Number::New(event.key.keysym.sym));
+        evt->Set(v8::String::New("key"),     v8::Number::New(event.key.keysym.sym), v8::ReadOnly);
 
-        // it works at home, dont work at work... nice dilema
-        evt->Set(v8::String::New("char"),    v8::String::New(SDL_GetKeyName(event.key.keysym.sym)));
+        {
+            const char* key_char = SDL_GetKeyName(event.key.keysym.sym);
+            char* key_char_cpy;
+            key_char_cpy = (char*) malloc(strlen(key_char) +1);
+            int i;
+            for(i = 0; key_char[ i ]; ++i) {
+                key_char_cpy[i] = tolower(key_char[ i ]);
+            }
+            key_char_cpy[i] = '\0';
+            evt->Set(v8::String::New("char"),    v8::String::New(key_char_cpy), v8::ReadOnly);
+            free(key_char_cpy);
+        } // this is needed, I know... funny!
 
         evt->Set(v8::String::New("keyCode"), v8::Number::New((int)event.key.keysym.sym));
 
-        // has anyone use this ever ?!
-        //evt->Set(String::New("locale"), null);
-        //evt->Set(String::New("location"), null);
-        //evt->Set(String::New("repeat"), False());
+        evt->Set(v8::String::New("locale"), v8::String::New(""));
+
+        evt->Set(v8::String::New("repeat"), v8::Number::New(0));
+
+        evt->Set(v8::String::New("metaKey"),  v8::Boolean::New( false ), v8::ReadOnly);
+        evt->Set(v8::String::New("altKey"),   v8::Boolean::New( KMOD_ALT == (KMOD_ALT & event.key.keysym.mod) ), v8::ReadOnly);
+        evt->Set(v8::String::New("ctrlKey"),  v8::Boolean::New( KMOD_CTRL == (KMOD_CTRL & event.key.keysym.mod) ), v8::ReadOnly);
+        evt->Set(v8::String::New("shiftKey"), v8::Boolean::New( KMOD_SHIFT == (KMOD_SHIFT & event.key.keysym.mod) ), v8::ReadOnly);
 
         break;
     case SDL_MOUSEMOTION:
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
     case SDL_MOUSEWHEEL:
-        //evt->Set(String::New("which"), Number::New(event.motion.which));
-        evt->Set(v8::String::New("state"),   v8::Number::New(event.motion.state));
-
-        evt->Set(v8::String::New("x"),       v8::Number::New(event.motion.x));
-        evt->Set(v8::String::New("y"),       v8::Number::New(event.motion.y));
-
-        evt->Set(v8::String::New("clientX"), v8::Number::New(event.motion.x));
-        evt->Set(v8::String::New("clientY"), v8::Number::New(event.motion.y));
+        // TODO: detail, click count
+        evt->Set(v8::String::New("cancelable"),       v8::Boolean::New(true), v8::ReadOnly);
 
         evt->Set(v8::String::New("screenX"), v8::Number::New(event.motion.xrel));
         evt->Set(v8::String::New("screenY"), v8::Number::New(event.motion.yrel));
 
+        evt->Set(v8::String::New("clientX"), v8::Number::New(event.motion.x), v8::ReadOnly);
+        evt->Set(v8::String::New("clientY"), v8::Number::New(event.motion.y), v8::ReadOnly);
+
+        evt->Set(v8::String::New("metaKey"),  v8::Boolean::New( false ), v8::ReadOnly);
+        evt->Set(v8::String::New("altKey"),   v8::Boolean::New( KMOD_ALT == (KMOD_ALT & event.key.keysym.mod) ), v8::ReadOnly);
+        evt->Set(v8::String::New("ctrlKey"),  v8::Boolean::New( KMOD_CTRL == (KMOD_CTRL & event.key.keysym.mod) ), v8::ReadOnly);
+        evt->Set(v8::String::New("shiftKey"), v8::Boolean::New( KMOD_SHIFT == (KMOD_SHIFT & event.key.keysym.mod) ), v8::ReadOnly);
+
+        //evt->Set(String::New("which"), Number::New(event.motion.which));
+        evt->Set(v8::String::New("state"),   v8::Number::New(event.motion.state), v8::ReadOnly);
+
+        evt->Set(v8::String::New("x"),       v8::Number::New(event.motion.x), v8::ReadOnly);
+        evt->Set(v8::String::New("y"),       v8::Number::New(event.motion.y), v8::ReadOnly);
+
+        // 0 must indicates no button is currently active.
+        // 1 must indicate the primary button of the device (in general, the left button or the only button on single-button devices, used to activate a user interface control or select text).
+        // 2 must indicate the secondary button (in general, the right button, often used to display a context menu), if present.
+        // 4 must indicate the auxiliary button (in general, the middle button, often combined with a mouse wheel).
+
+
         switch(event.type) {
         case SDL_MOUSEWHEEL :
-            evt->Set(v8::String::New("type"),   v8::String::New("wheel"));
-            evt->Set(v8::String::New("deltaX"), v8::Number::New(event.wheel.x));
-            evt->Set(v8::String::New("deltaY"), v8::Number::New(event.wheel.y));
+            evt->Set(v8::String::New("type"),   v8::String::New("wheel"), v8::ReadOnly);
+            evt->Set(v8::String::New("deltaX"), v8::Number::New(event.wheel.x), v8::ReadOnly);
+            evt->Set(v8::String::New("deltaY"), v8::Number::New(event.wheel.y), v8::ReadOnly);
+            //evt->Set(v8::String::New("deltaZ"), v8::Number::New(event.wheel.z * 50), v8::ReadOnly);
+            evt->Set(v8::String::New("deltaMode"), v8::String::New("pixels"), v8::ReadOnly);
             break;
         case SDL_MOUSEMOTION :
-            evt->Set(v8::String::New("type"),    v8::String::New("mousemove"));
+            evt->Set(v8::String::New("type"),    v8::String::New("mousemove"), v8::ReadOnly);
             evt->Set(v8::String::New("button"),  v8::Number::New(event.button.button));
             break;
         case SDL_MOUSEBUTTONDOWN :
-            evt->Set(v8::String::New("type"),   v8::String::New("mousedown"));
+            evt->Set(v8::String::New("type"),   v8::String::New("mousedown"), v8::ReadOnly);
             evt->Set(v8::String::New("button"), v8::Number::New(event.button.button));
+
+            switch(event.button.button) {
+                case 1 : //middle
+                    radamn::input::mouse_buttons = radamn::input::mouse_buttons | 4;
+                    break;
+                case 2 : //left
+                    radamn::input::mouse_buttons = radamn::input::mouse_buttons | 1;
+                    break;
+                case 3 : //right
+                    radamn::input::mouse_buttons = radamn::input::mouse_buttons | 2;
+                    break;
+            }
+
             break;
         case SDL_MOUSEBUTTONUP :
-            evt->Set(v8::String::New("type"),   v8::String::New("mouseup"));
+            evt->Set(v8::String::New("type"),   v8::String::New("mouseup"), v8::ReadOnly);
             evt->Set(v8::String::New("button"), v8::Number::New(event.button.button));
+
+            switch(event.button.button) {
+                case 1 : //middle
+                    radamn::input::mouse_buttons = radamn::input::mouse_buttons & ~4;
+                    break;
+                case 2 : //left
+                    radamn::input::mouse_buttons = radamn::input::mouse_buttons & ~1;
+                    break;
+                case 3 : //right
+                    radamn::input::mouse_buttons = radamn::input::mouse_buttons & ~2;
+                    break;
+            }
+
             break;
         }
 
-        // what to do with click ?
-        //evt->Set(String::New("type"), String::New("click"));
+        evt->Set(v8::String::New("buttons"),       v8::Number::New(radamn::input::mouse_buttons), v8::ReadOnly);
+
     break;
 
     // my own DOMJoystickEvent based on mozilla: MozJoyAxisMove, MozJoyButtonUp, MozJoyButtonDown
     case SDL_JOYAXISMOTION:
-        evt->Set(v8::String::New("type"),  v8::String::New("joyaxismove"));
+        evt->Set(v8::String::New("type"),  v8::String::New("joyaxismove"), v8::ReadOnly);
+        evt->Set(v8::String::New("cancelable"),       v8::Boolean::New(true), v8::ReadOnly);
 
         evt->Set(v8::String::New("which"), v8::Number::New(event.jaxis.which));
         evt->Set(v8::String::New("axis"),  v8::Number::New(event.jaxis.axis));
         evt->Set(v8::String::New("value"), v8::Number::New(event.jaxis.value));
         break;
     case SDL_JOYBALLMOTION:
-        evt->Set(v8::String::New("type"),   v8::String::New("joyballmove"));
+        evt->Set(v8::String::New("type"),   v8::String::New("joyballmove"), v8::ReadOnly);
+        evt->Set(v8::String::New("cancelable"),       v8::Boolean::New(true), v8::ReadOnly);
+
         evt->Set(v8::String::New("button"), v8::Number::New(event.jball.which));
         evt->Set(v8::String::New("ball"),   v8::Number::New(event.jball.ball));
         evt->Set(v8::String::New("deltaX"), v8::Number::New(event.jball.xrel));
         evt->Set(v8::String::New("deltaY"), v8::Number::New(event.jball.yrel));
         break;
     case SDL_JOYHATMOTION:
-        evt->Set(v8::String::New("type"),   v8::String::New("joyhatmove"));
+        evt->Set(v8::String::New("type"),   v8::String::New("joyhatmove"), v8::ReadOnly);
+        evt->Set(v8::String::New("cancelable"),       v8::Boolean::New(true), v8::ReadOnly);
+
         evt->Set(v8::String::New("button"), v8::Number::New(event.jhat.which));
         evt->Set(v8::String::New("hat"),    v8::Number::New(event.jhat.hat));
         evt->Set(v8::String::New("value"),  v8::Number::New(event.jhat.value));
         break;
     case SDL_JOYBUTTONDOWN:
     case SDL_JOYBUTTONUP:
-        evt->Set(v8::String::New("type"),   v8::String::New(event.type == SDL_JOYBUTTONDOWN ? "joybuttondown" : "joybuttonup"));
+        evt->Set(v8::String::New("type"),   v8::String::New(event.type == SDL_JOYBUTTONDOWN ? "joybuttondown" : "joybuttonup"), v8::ReadOnly);
+        evt->Set(v8::String::New("cancelable"),       v8::Boolean::New(true), v8::ReadOnly);
+
         //evt->Set(String::New("which"), Number::New(event.jbutton.which));
         evt->Set(v8::String::New("button"), v8::Number::New(event.jbutton.button));
         break;
     case SDL_QUIT:
-        evt->Set(v8::String::New("type"),      v8::String::New("quit"));
+        evt->Set(v8::String::New("type"),      v8::String::New("quit"), v8::ReadOnly);
+        evt->Set(v8::String::New("cancelable"),v8::Boolean::New(false), v8::ReadOnly);
         break;
     default:
-        return v8::False();
-        evt->Set(v8::String::New("type"),      v8::String::New("not-supported"));
+        evt->Set(v8::String::New("type"),      v8::String::New("not-supported"), v8::ReadOnly);
         evt->Set(v8::String::New("typeCode"),  v8::Number::New(event.type));
+        evt->Set(v8::String::New("cancelable"),v8::Boolean::New(false), v8::ReadOnly);
         break;
     }
 
