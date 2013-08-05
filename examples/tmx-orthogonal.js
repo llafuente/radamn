@@ -1,7 +1,7 @@
 require('./../lib/radamn');
 
 var demo = require('./plugins/demo.js');
-var __debug = browser ? $.debug : require("node-class").debug,
+var __debug = browser ? NodeClass.debug : require("node-class").debug,
 
 
 /**

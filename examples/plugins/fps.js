@@ -1,7 +1,6 @@
 (function(exports, browser) {
-    var Class = browser ? $.Class : require("node-class").Class,
-        Events = browser ? $.Events : require("node-class").Events,
-        typeOf = browser ? $.typeof : require("node-class").typeof;
+    var Class = browser ? NodeClass.Class : require("node-class").Class,
+        Events = browser ? NodeClass.Events : require("node-class").Events;
 
     module.exports = new Class("PluginFPS", {
         /**
@@ -16,7 +15,7 @@
         y: 0
     });
 
-    module.exports.implements({
+    module.exports.Implements({
         __construct: function(options) {
             this.font = Radamn.Assets.getFont(this.font, this.size);
         },

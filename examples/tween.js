@@ -6,8 +6,8 @@
     }
 
     var idemo = browser ? demo : require("./plugins/demo.js"),
-        __debug = browser ? $.debug : require("node-class").debug,
-        Animate = browser ? $.Animate : require("node-class").Animate,
+        __debug = browser ? NodeClass.debug : require("node-class").debug,
+        Animate = browser ? NodeClass.Animate : require("node-class").Animate,
         /**
         * @type Window
         */

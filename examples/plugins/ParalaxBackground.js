@@ -1,7 +1,7 @@
 (function(exports, browser) {
-    var Class = browser ? $.Class : require("node-class").Class,
-        Events = browser ? $.Events : require("node-class").Events,
-        typeOf = browser ? $.typeof : require("node-class").typeof;
+    var Class = browser ? NodeClass.Class : require("node-class").Class,
+        Events = browser ? NodeClass.Events : require("node-class").Events,
+        __typeof = browser ? NodeClass.Typeof : require("node-class").Typeof;
 
     module.exports = new Class("ParalaxBackground", {
         Extends: ,
@@ -10,9 +10,9 @@
         config: [],
     });
 
-    module.exports.extends(Radamn.RendereableResource);
+    module.exports.Extends(Radamn.RendereableResource);
 
-    module.exports.implements({
+    module.exports.Implements({
         __construct: function(reference_node) {
             this.referenceNode = reference_node;
         },

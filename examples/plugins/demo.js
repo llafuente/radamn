@@ -2,7 +2,7 @@
 
     var fps,
         grid,
-        __info = browser ? $.debug : require("node-class").debug;
+        __info = browser ? NodeClass.debug : require("node-class").debug;
 
     //var fps = require('./fps');
     //var grid = require('./grid');
@@ -53,25 +53,24 @@ exports.demoWindow = function(width, height, caption, grid) {
     grid = grid || false;
     // visual test
     __info("[demo] create window");
-    var canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
 
-    var ctx = canvas.getContext("2d");
+    var win = Radamn.createWindow(width, height);
 
     __info("[demo] attaching ESC/F5/Close window:");
-    exports.attachEscapeInputs(ctx.__win);
+    exports.attachEscapeInputs(win);
 
     if(grid) {
         __info("[demo] display grid");
-        exports.attachGrid(ctx.__win, grid);
+        exports.attachGrid(win, grid);
     }
 
     if(fps) {
-        exports.attachFPSCounter(ctx.__win, 480, 0);
+        exports.attachFPSCounter(win, 480, 0);
     }
 
-    return ctx.__win;
+    console.log(win);
+
+    return win;
 }
 
 })(typeof exports === "undefined" ? (this.demo = {}) : exports, typeof exports === "undefined");

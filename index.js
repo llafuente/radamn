@@ -7,7 +7,8 @@
         [
             "/lib/sax.js",
             "/lib/assert.js",
-            "/node-class/lib/tempus.js",
+            "/function-enhancements/lib/function-enhancements.js",
+            "/node-class/index.js",
             "/node-class/lib/sugar.js",
             "/node-class/lib/class.js",
             "/node-class/lib/events.js",

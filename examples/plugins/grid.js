@@ -1,7 +1,6 @@
 (function(exports, browser) {
-    var Class = browser ? $.Class : require("node-class").Class,
-        Events = browser ? $.Events : require("node-class").Events,
-        typeOf = browser ? $.typeof : require("node-class").typeof;
+    var Class = browser ? NodeClass.Class : require("node-class").Class,
+        Events = browser ? NodeClass.Events : require("node-class").Events;
 
     module.exports = new Class("PluginGrid", {
         size: 16,
@@ -9,7 +8,7 @@
         width: 0.25
     });
 
-    module.exports.implements({
+    module.exports.Implements({
         __construct: function(options) {
         },
         draw: function(ctx, delta) {
