@@ -1,8 +1,7 @@
 var path = require("path"),
     tap = require("tap"),
-    test = tap.test;
-
-require(path.resolve(__dirname, "../lib/radamn.js"));
+    test = tap.test,
+    Radamn = require(path.resolve(__dirname, "../index.js"));
 
 function near(a, b) {
     return a > b - Math.EPS && a < b + Math.EPS;
@@ -71,4 +70,7 @@ test("fast_distance_vec2_vs_vec2", function(t) {
 
     t.equal(near(Math.fast_distance_vec2_vs_vec2(v1, v2), 8), true, "Vec2 Vec2 distance (squared)"); // should be: 3.328
     t.end();
+    setTimeout(function() {
+        process.exit();
+    },0);
 });

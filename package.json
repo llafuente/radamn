@@ -11,6 +11,11 @@
   "engines": {
     "node": "0.8.12"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "node-class" :"*",
+    "winston-express" :"*"
+  },
+  "devDependencies": {
+    "tap" :"*"
+  }
 }

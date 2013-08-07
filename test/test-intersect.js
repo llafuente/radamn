@@ -173,13 +173,8 @@ test("intersection_segment2_vs_vec2", function(t) {
         "intersection_segment2_vs_vec2 parallel");
 
     t.end();
+
+    setTimeout(function() {
+        process.exit();
+    },0);
 });
-
-/*
-        ,
-        ,
-        ,
-        ;
-
-
-*/
