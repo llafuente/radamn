@@ -129,7 +129,7 @@
             );
         }, function () {
         });
-        win.getRootNode().matrix.translate(-(delta / 1000) * 10, false);
+        win.getRootNode().translate(-(delta / 1000) * 10, false);
     };
 
     Radamn.start(50);

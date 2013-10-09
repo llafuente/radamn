@@ -56,8 +56,8 @@ childnode1.appendEntity(image);
 childnode2.appendEntity(image);
 
 
-childnode1.matrix.gTranslate(32, 0);
-childnode2.matrix.translate(32, 32);
+childnode1.gTranslate(32, 0);
+childnode2.translate(32, 32);
 
 node.appendChild(childnode1);
 node.appendChild(childnode2);
@@ -66,7 +66,7 @@ var counter = 0;
 win.onRequestFrame = function(delta) {
     ++counter;
 
-    childnode2.matrix.translate(1, 1);
+    childnode2.translate(1, 1);
 
     win.render(delta);
 

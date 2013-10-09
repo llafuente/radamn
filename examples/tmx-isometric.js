@@ -26,7 +26,7 @@
     var tmxnode = new Radamn.Node();
 
     tmxnode.appendEntity(TMX);
-    tmxnode.matrix.translate(250, 0);
+    tmxnode.translate(250, 0);
     win.getRootNode().appendChild(tmxnode);
 
     /*

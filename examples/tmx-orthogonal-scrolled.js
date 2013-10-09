@@ -29,14 +29,14 @@ tmxnode.appendEntity(ParalaxBackground);
 tmxnode.appendEntity(TMX);
 win.getRootNode().appendChild(tmxnode);
 
-//tmxnode.matrix.translate(-256, false);
+//tmxnode.translate(-256, false);
 
 var counter = 0;
 win.onRequestFrame = function(delta) {
     ++counter;
 
     win.render(delta);
-    tmxnode.matrix.translate(-(delta / 1000) * 100, false);
+    tmxnode.translate(-(delta / 1000) * 100, false);
 };
 
 Radamn.start(50);
