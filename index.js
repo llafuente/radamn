@@ -29,8 +29,9 @@
             "/lib/math/beizer.js",
             "/lib/radamn.js",
             "/lib/radamn.$.js",
+            "/lib/radamn.node.js",
             "/lib/radamn.camera.js",
-            "/lib/radamn.window.js",
+            "/lib/radamn.scene.js",
             "/lib/radamn.assets.js",
             "/lib/radamn.request.js",
             "/lib/radamn.resource.js",
@@ -38,8 +39,7 @@
             "/lib/radamn.image.js",
             "/lib/radamn.font.js",
             "/lib/radamn.animation.js",
-            "/lib/radamn.tmx.js",
-            "/lib/radamn.node.js"
+            "/lib/radamn.tmx.js"
         ].forEach(function (f, k) {
             var script = document.createElement('script');
             script.type = 'text/javascript';
