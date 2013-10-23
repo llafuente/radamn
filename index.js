@@ -54,6 +54,8 @@
             "/lib/radamn.js",
             "/lib/radamn.$.js",
             "/lib/radamn.node.js",
+            "/lib/radamn.rootnode.js",
+            "/lib/radamn.layer.js",
             "/lib/radamn.camera.js",
             "/lib/radamn.scene.js",
             "/lib/radamn.assets.js",
