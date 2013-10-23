@@ -9,14 +9,13 @@
         /**
         * @type Window
         */
-        win = idemo.demoWindow(640, 480, "Line Rendering"),
-        canvas = win.getContext(),
+        scene = idemo.demoWindow(640, 480, "Line Rendering"),
+        canvas = scene.getContext(),
         counter = 0;
 
-    win.onRequestFrame = function(delta) {
-        ++counter;
+    scene.on("render:end", function(delta) {
 
-        win.render(delta);
+        ++counter;
 
         //from: https://developer.mozilla.org/en/Canvas_tutorial/Drawing_shapes
 
@@ -207,7 +206,7 @@
 
         canvas.restore();
 
-    };
+    });
 
     Radamn.start(1);
 

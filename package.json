@@ -21,6 +21,9 @@
   "dependencies": {
     "node-class" :"*",
     "js-2dmath" :"*",
+    "function-enhancements" :"*",
+    "array-enhancements" :"*",
+    "object-enhancements" :"*",
     "winston-express" :"*"
   },
   "devDependencies": {

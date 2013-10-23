@@ -54,7 +54,7 @@ exports.demoWindow = function(width, height, caption, grid) {
     // visual test
     __info("[demo] create window");
 
-    var win = Radamn.createWindow(width, height);
+    var win = Radamn.createScene(width, height);
 
     __info("[demo] attaching ESC/F5/Close window:");
     exports.attachEscapeInputs(win);

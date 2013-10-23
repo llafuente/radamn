@@ -60,12 +60,6 @@
         });
     });
 
-    win.onRequestFrame = function (delta) {
-        ++counter;
-
-        win.render(delta);
-    };
-
     Radamn.start(1000 / 50);
 
 }(typeof module == "undefined" ? window : module.exports, typeof module == "undefined"));

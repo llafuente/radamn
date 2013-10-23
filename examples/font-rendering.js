@@ -10,8 +10,8 @@
         /**
         * @type Window
         */
-        win = idemo.demoWindow(640, 480, "Font rendering"),
-        canvas = win.getContext();
+        scene = idemo.demoWindow(640, 480, "Font rendering"),
+        canvas = scene.getContext();
 
     // code from http://pigs.sourceforge.jp/blog/200811140144/uupaa-canvas.js/demo/8_5_canvas_fontSize_fillText.html
     // modified the fillStyle-> blue and font ->
@@ -60,10 +60,9 @@
         }
     }
 
-    win.onRequestFrame = function(delta) {
-        win.render(delta);
+    scene.on("render:end", function(delta) {
         draw(canvas);
-    };
+    });
 
     Radamn.start(1000/50);
 
