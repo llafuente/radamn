@@ -53,6 +53,7 @@
             "/lib/radamn.math.js",
             "/lib/radamn.js",
             "/lib/radamn.$.js",
+            "/lib/radamn.movable.js",
             "/lib/radamn.node.js",
             "/lib/radamn.rootnode.js",
             "/lib/radamn.layer.js",
