@@ -54,23 +54,25 @@ exports.demoWindow = function(width, height, caption, grid) {
     // visual test
     __info("[demo] create window");
 
-    var win = Radamn.createScene(width, height);
+    var scene = Radamn.createScene(width, height);
+
+    scene.createLayer("top", Radamn.Layer.CAMERA, [width, height]);
 
     __info("[demo] attaching ESC/F5/Close window:");
-    exports.attachEscapeInputs(win);
+    exports.attachEscapeInputs(scene);
 
     if(grid) {
         __info("[demo] display grid");
-        exports.attachGrid(win, grid);
+        exports.attachGrid(scene, grid);
     }
 
     if(fps) {
-        exports.attachFPSCounter(win, 480, 0);
+        exports.attachFPSCounter(scene, 480, 0);
     }
 
-    console.log(win);
+    console.log(scene);
 
-    return win;
+    return scene;
 }
 
 })(typeof exports === "undefined" ? (this.demo = {}) : exports, typeof exports === "undefined");

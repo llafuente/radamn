@@ -32,6 +32,7 @@
             "/node_modules/js-2dmath/lib/beizer.js",
             "/node_modules/js-2dmath/lib/distance.js",
             "/node_modules/js-2dmath/lib/intersection.js",
+            "/node_modules/js-2dmath/lib/boundingbox2.js",
 
             "/node_modules/function-enhancements/lib/functions.js",
             "/node_modules/object-enhancements/lib/objects.js",

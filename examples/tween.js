@@ -11,13 +11,13 @@
         /**
         * @type Window
         */
-        win = idemo.demoWindow(640, 480, "math"),
-        canvas = win.getContext(),
+        scene = idemo.demoWindow(640, 480, "math"),
+        canvas = scene.getContext(),
         /**
         * @type Image
         */
         image = Radamn.Assets.getImage("./resources/images/rock.png"),
-        node = win.getRootNode(),
+        node = scene.getLayer("top").rootNode,
         childnode1 = new Radamn.Node(),
         counter = 0,
         animation_properties = {
