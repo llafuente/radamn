@@ -1,0 +1,349 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" >
+<title>Untitled Document</title>
+<style>
+
+</style>
+<script src="../node_modules/js-2dmath/lib/math.js" type="text/javascript" ></script>
+<script src="../node_modules/js-2dmath/lib/vec2.js" type="text/javascript" ></script>
+<script src="../node_modules/js-2dmath/lib/line2.js" type="text/javascript" ></script>
+<script src="../node_modules/js-2dmath/lib/segment2.js" type="text/javascript" ></script>
+<script src="../node_modules/js-2dmath/lib/circle.js" type="text/javascript" ></script>
+<script src="file:///C:/noboxout/js-2dmath/lib/rectangle.js" type="text/javascript" ></script>
+<script src="../node_modules/js-2dmath/lib/polygon.js" type="text/javascript" ></script>
+<script src="../node_modules/js-2dmath/lib/matrix2d.js" type="text/javascript" ></script>
+<script src="../node_modules/js-2dmath/lib/beizer.js" type="text/javascript" ></script>
+<script src="../node_modules/js-2dmath/lib/distance.js" type="text/javascript" ></script>
+<script src="file:///C:/noboxout/js-2dmath/lib/intersection.js" type="text/javascript" ></script>
+<script src="../node_modules/js-2dmath/lib/boundingbox2.js" type="text/javascript" ></script>
+
+<script src="../node_modules/function-enhancements/lib/functions.js" type="text/javascript" ></script>
+<script src="../node_modules/object-enhancements/lib/objects.js" type="text/javascript" ></script>
+<script src="../node_modules/array-enhancements/lib/arrays.js" type="text/javascript" ></script>
+
+<script src="../node_modules/node-class/index.js" type="text/javascript" ></script>
+<script src="../node_modules/node-class/lib/sugar.js" type="text/javascript" ></script>
+<script src="../node_modules/node-class/lib/class.js" type="text/javascript" ></script>
+<script src="../node_modules/node-class/lib/eventmachine.js" type="text/javascript" ></script>
+<script src="../node_modules/node-class/lib/eventize.js" type="text/javascript" ></script>
+<script src="../node_modules/node-class/lib/events.js" type="text/javascript" ></script>
+<script src="../node_modules/node-class/lib/sequence.js" type="text/javascript" ></script>
+<script src="../node_modules/node-class/lib/animate.js" type="text/javascript" ></script>
+<script src="../node_modules/node-class/lib/iterable.js" type="text/javascript" ></script>
+
+<script src="../lib/sax.js" type="text/javascript" ></script>
+<script src="../lib/assert.js" type="text/javascript" ></script>
+<script src="../lib/shim.cradamn.js" type="text/javascript" ></script>
+<script src="../lib/radamn.math.js" type="text/javascript" ></script>
+<script src="../lib/radamn.js" type="text/javascript" ></script>
+<script src="../lib/radamn.$.js" type="text/javascript" ></script>
+<script src="../lib/radamn.movable.js" type="text/javascript" ></script>
+<script src="../lib/radamn.node.js" type="text/javascript" ></script>
+<script src="../lib/radamn.rootnode.js" type="text/javascript" ></script>
+<script src="../lib/radamn.layer.js" type="text/javascript" ></script>
+<script src="../lib/radamn.camera.js" type="text/javascript" ></script>
+<script src="../lib/radamn.scene.js" type="text/javascript" ></script>
+<script src="../lib/radamn.assets.js" type="text/javascript" ></script>
+<script src="../lib/radamn.request.js" type="text/javascript" ></script>
+<script src="../lib/radamn.resource.js" type="text/javascript" ></script>
+<script src="../lib/radamn.resource.rendereable.js" type="text/javascript" ></script>
+<script src="../lib/radamn.image.js" type="text/javascript" ></script>
+<script src="../lib/radamn.font.js" type="text/javascript" ></script>
+<script src="../lib/radamn.animation.js" type="text/javascript" ></script>
+
+<script src="../lib/pointerapi.js" type="text/javascript" ></script>
+
+<script>
+Radamn.on("ready", function () {
+    "use strict";
+
+    function increment_and_range(val, increment, range) {
+        if (increment > 0) {
+            return Math.min(range[1], val + increment);
+        }
+        return Math.max(range[0], val + increment);
+    }
+
+    var size = [window.innerWidth, window.innerHeight],
+        scene = Radamn.createScene(size[0], size[1], document.getElementById("canvas")),
+        background = scene.createLayer({id: "background", origin: Radamn.Layer.CAMERA, ignoreRay: true}),
+        foreground = scene.createLayer({id: "foreground", origin: Radamn.Layer.CAMERA, ignoreRay: true}),
+
+        //options
+        bar_size = [20, 80],
+        DEFSPEED = [size[0] * 0.1, 0],
+        SPEED = [DEFSPEED[0], DEFSPEED[1]], //clone or suffer the consecuences
+        deAccelY = 2,
+
+        //cache
+        abs = Math.abs,
+        p1_is_human = true,
+        p2_is_human = true,
+
+        box,
+        p1,
+        box2,
+        p2,
+        ball,
+        ball_body,
+        ballnode,
+        score = [0, 0],
+        gui,
+        score_node;
+
+    document.getElementById("canvas").width = size[0];
+    document.getElementById("canvas").height = size[1];
+    scene.culling = false;
+
+    gui = Radamn.createRenderable(function (ctx, delta) {
+        //custom gui
+        ctx.fillStyle = "black";
+        ctx.font = "10pt Arial";
+
+        ctx.fillText("accelerations: " + p1.accelY.toFixed(2) + " vs " + p2.accelY.toFixed(2), 250, 20);
+        ctx.fillText("ball speed: " + SPEED[0].toFixed(2) + " vs " + SPEED[1].toFixed(2), 250, 35);
+    });
+    foreground.rootNode.createNode("gui").appendEntity(gui);
+
+
+    score_node = foreground.rootNode.createNode("score_node").appendEntity(gui);
+    score_node.appendEntity(
+        Radamn.createRenderable(function (ctx, delta) {
+            ctx.fillStyle = "black";
+            ctx.font = "10pt Arial";
+
+            var txt = (p1_is_human ? "(HUMAN) " : "(CPU) ")
+                + score[0]
+                + "   -vs-   "
+                + score[1]
+            + (p2_is_human ? " (HUMAN)" : "(CPU)");
+
+            ctx.fillText(txt, 10, 20);
+        })
+    );
+    score_node.behavior("clickable");
+    score_node.on("click", function (event) {
+        console.log(event);
+        if (event.x < 80) {
+            p1_is_human = !p1_is_human;
+        } else {
+            p2_is_human = !p2_is_human;
+        }
+    });
+    score_node.addToBody(Rectangle.create(0, 0, 300, 50));
+
+
+
+
+    // player 1 box
+    box = Radamn.createRenderable(function (ctx, delta) {
+        ctx.fillStyle = "blue";
+        ctx.fillRect(0, 0, bar_size[0], bar_size[1]);
+    });
+
+    box.getBoundingBox = function () { return [0, 0, bar_size[0], bar_size[1]]; };
+
+    // player 2 box
+    box2 = Radamn.createRenderable(function (ctx, delta) {
+        ctx.fillStyle = "red";
+        ctx.fillRect(0, 0, bar_size[0], bar_size[1]);
+    });
+
+    box2.getBoundingBox = function () { return [0, 0, bar_size[0], bar_size[1], false]; };
+
+
+    // init paddles
+    p1 = foreground.rootNode.createNode("player-1");
+    p1.appendEntity(box);
+    p2 = foreground.rootNode.createNode("player-2");
+    p2.appendEntity(box2);
+
+    // common
+    [p1, p2].forEach(function (player, id) {
+        player.behavior("draggable", {x: false, y: true, click: true});
+        player.addToBody(Rectangle.create(0, 0, bar_size[0], bar_size[1]));
+        player.on("drag", function (amount) {
+            player.accelY = increment_and_range(player.accelY, amount[1], [-6, 6]);
+        });
+
+    });
+
+    // init the ball
+    ball = Radamn.createRenderable(function (ctx, delta) {
+        ctx.fillStyle = "green";
+
+        ctx.beginPath();
+        ctx.arc(0, 0, 20, 0, 2 * Math.PI, false);
+        ctx.stroke();
+    });
+    ball.getBoundingBox = function () { return [-20, -20, 20, 20, false]; };
+
+    ball_body = Circle.create(0, 0, 20);
+
+    ballnode = foreground.rootNode.createNode("ball-node");
+    ballnode.appendEntity(ball);
+
+
+    // reset default positions
+    function reset(who_starts) {
+        ballnode.position(size[0] * 0.5, size[1] * 0.5);
+        if (who_starts === 1) {
+            SPEED = [DEFSPEED[0], DEFSPEED[1]];
+        } else {
+            SPEED = [-DEFSPEED[0], -DEFSPEED[1]];
+        }
+
+        p1.position(30, 35);
+        p1.accelY = 0;
+
+        p2.position(size[0] - 50, 35);
+        p2.accelY = 0;
+    }
+
+    // every ball update/frame
+    function on_ball_tick(delta) {
+        //check collisions
+        var ball_pos = ballnode.getPosition(),
+            p1_body = p1.getWorldBoundingBox(),
+            p2_body = p2.getWorldBoundingBox(),
+            off,
+            collision,
+            idelta = delta / 1000,
+            deAccelYFactor = deAccelY * idelta;
+
+        ball_body[0] = ball_pos;
+
+        if (!p1_is_human) {
+            off = p1.getPosition();
+            p1.emit("drag", [[0, ball_pos[1] - off[1]]]);
+            p1.position(30, ball_pos[1] - 50);
+        }
+
+        if (!p2_is_human) {
+            off = p2.getPosition();
+            p2.emit("drag", [[0, ball_pos[1] - off[1]]]);
+            p2.position(size[0] - 50, ball_pos[1] - 50);
+        }
+
+        if (SPEED[0] < 0) {
+            collision = Intersection.circle_bb2(ball_body, p1_body, true, true);
+
+            if (collision.reason >= Intersection.COLLIDE) {
+                SPEED[0] = abs(SPEED[0]) + 3;
+
+                SPEED[1] = increment_and_range(SPEED[1], p1.accelY, [-12, 12]);
+            }
+        }
+
+        if (SPEED[0] > 0) {
+            collision = Intersection.circle_bb2(ball_body, p2_body, true, true);
+            if (collision.reason >= Intersection.COLLIDE) {
+                SPEED[0] = -1 * (abs(SPEED[0]) + 3);
+
+                SPEED[1] = increment_and_range(SPEED[1], p2.accelY, [-12, 12]);
+            }
+        }
+        if (ball_pos[1] > size[1] - 20 || ball_pos[1] < 20) {
+            SPEED[1] = -SPEED[1];
+        }
+
+        //score ?
+        if (ball_pos[0] < 45) { // should be 50, leave 5 as "playable error"
+            score[0] += 1;
+            reset(1);
+        }
+
+        if (ball_pos[0] > size[0] - 45) {
+            score[1] += 1;
+            reset(2);
+        }
+
+        ballnode.translate(SPEED[0] * idelta, SPEED[1]);
+
+        // p1 & p2 accel decrease
+
+        if (p1.accelY > 0) {
+            p1.accelY = Math.max(0, p1.accelY - deAccelYFactor);
+        } else if (p1.accelY < 0) {
+            p1.accelY = Math.min(0, p1.accelY + deAccelYFactor);
+        }
+
+        if (p2.accelY > 0) {
+            p2.accelY = Math.max(0, p2.accelY - deAccelYFactor);
+        } else if (p2.accelY < 0) {
+            p2.accelY = Math.min(0, p2.accelY + deAccelYFactor);
+        }
+
+
+    }
+
+    ball.on("tick", on_ball_tick);
+
+    // listen keys
+    document.addEventListener("keydown", function (event) {
+        var target = p1,
+            x = 30;
+
+        switch (event.keyCode) {
+        case 38:
+            target = p2;
+            x = size[0] - 50;
+            // no break!
+        case 87:
+            // do not mess controls!
+            if (!p1_is_human && target === p1) {
+                return;
+            }
+            if (!p2_is_human && target === p2) {
+                return;
+            }
+
+            target.translate(0, -40);
+            if (target.getPosition()[1] < 0) {
+                target.position(x, 0);
+            } else {
+                target.emit("drag", [[0, -2]]);
+            }
+            break;
+        case 40:
+            target = p2;
+            x = size[0] - 50;
+            // no break!
+        case 83:
+            // do not mess controls!
+            if (!p1_is_human && target === p1) {
+                return;
+            }
+            if (!p2_is_human && target === p2) {
+                return;
+            }
+
+
+            target.translate(0, 40);
+            if (target.getPosition()[1] > size[1] - bar_size[1]) {
+                target.position(x, size[1] - bar_size[1]);
+            } else {
+                target.emit("drag", [[0, 2]]);
+            }
+            break;
+        }
+    });
+
+    reset(1);
+
+    Radamn.start(1000 / 60);
+
+});
+
+
+</script>
+
+
+</head>
+<body>
+<canvas id="canvas" style="border: 1px solid red;"></canvas>
+
+</body>
+</html>
